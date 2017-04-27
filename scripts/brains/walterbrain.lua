@@ -11,13 +11,19 @@ local WalterBrain = Class(Brain, function(self, inst, server)
     end
 
     self.onkilledfn = function (inst, data)
-        --print(inst.name, "Killed", data.victim.name)
         self:OnEvent(inst.name, "Killed", data.victim, "actionend")
     end
 
     self.onattackfn = function (inst, data)
-        --print(inst.name, "Attacked", data.target.name)
         self:OnEvent(inst.name, "Attacked", data.target, "actionend")
+    end
+
+    self.needtodecidefn = function()
+        return self.inst.components.deliberator and (self.inst.components.deliberator:HasNextAction() == nil)
+    end
+
+    self.doactionfn = function()
+        return self.inst.components.deliberator and (self.inst.components.deliberator:GetNextAction() == "Wander")
     end
 end)
 
@@ -26,37 +32,20 @@ function WalterBrain:OnStart()
     self.inst:ListenForEvent("onattackother", self.onattackfn)
     self.inst:ListenForEvent("onmissother", self.onattackfn)
 
-	--self.inst:AddComponent("deliberator")
+	self.inst:AddComponent("deliberator")
+    
     local root = 
         PriorityNode(
         {
-            ParallelNode(
-            {
-                PriorityNode({Decide(self.inst)}, 2),
-                Wander(self.inst, nil, 10)
-            }, "Wander and Decide Actions")
-        }, 5)
-
-
-    -- local root = 
-    --     PriorityNode(
-    --     {
-    --         ParallelNode(
-    --         {
-    --             IfNode(function () if self.inst.components.deliberator and self.inst.components.deliberator:HasNextAction() then print("brain" .. self.inst.components.deliberator:HasNextAction()) return self.inst.components.deliberator:GetNextAction() == "Wander" end end, "WanderIfNextAction", Wander(self.inst, nil, 10)),
-    --             PriorityNode({Deliberate(self.inst)}, 5)
-                
-    --         }, "TRy everything!")
-    --     }, .5)
-        
-
+            WhileNode(self.needtodecidefn, "Decide?", Decide(self.inst)),
+            WhileNode(self.doactionfn, "Wander?", Wander(self.inst, nil, 1))
+        }, 0)
 
     self.bt = BT(self.inst, root)
-
 end
 
 function WalterBrain:OnStop()
-    --self.inst:RemoveComponent("deliberator")
+    self.inst:RemoveComponent("deliberator")
     self.inst:RemoveEventCallback("killed", self.onkilledfn)
     self.inst:RemoveEventCallback("onattackother", self.onattackfn)
     self.inst:RemoveEventCallback("onmissother", self.onattackfn)

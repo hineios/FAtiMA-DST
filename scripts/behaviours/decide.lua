@@ -14,17 +14,13 @@ end
 
 function Decide:HandleCallback(result, isSuccessful, http_code)
    if isSuccessful and http_code == 200 then
-      --print("Decided " .. result)
-      -- if self.inst.components.deliberator then
-      --    self.inst.components.deliberator:SetNextAction(result)
-          self.status = SUCCESS
-      --    --print(result)
-      -- else
-      --    --print("No deliberator component. Something went terribly wrong")
-      --    self.status = FAILED
-      -- end
+      if self.inst.components.deliberator then
+         self.inst.components.deliberator:SetNextAction(result)
+         self.status = SUCCESS
+      else
+         self.status = FAILED
+      end
    else
-      --print("Couldn't Decide...")
       self.status = FAILED
    end
 end
@@ -37,9 +33,8 @@ function Decide:QueryFAtiMA()
 end
 
 function Decide:Visit()
-   if self.status == READY then
+   if self.status == READY and self.inst.components.deliberator and not self.inst.components.deliberator:HasNextAction() then
       self:QueryFAtiMA()
       self.status = RUNNING
-      --print("I visited Decide")
    end
 end
