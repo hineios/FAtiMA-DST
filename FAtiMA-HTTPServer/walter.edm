@@ -8,7 +8,16 @@
 					"Action": "Wander",
 					"Conditions":
 						{
-							"Set": []
+							"Set": ["True = [x]"]
+						},
+					"Priority": 0
+				}, 
+				{
+					"Action": "Rejoice",
+					"Target": "self",
+					"Conditions":
+						{
+							"Set": ["Killed(something) = True"]
 						},
 					"Priority": 0
 				}]
