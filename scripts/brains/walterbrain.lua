@@ -1,4 +1,9 @@
 require "behaviours/decide"
+require "behaviours/finishaction"
+
+local SEE_DIST = 30
+local SAFE_DIST = 5
+
 
 local WalterBrain = Class(Brain, function(self, inst, server)
     Brain._ctor(self, inst)
@@ -19,15 +24,23 @@ local WalterBrain = Class(Brain, function(self, inst, server)
     end
 
     self.needtodecidefn = function()
-        return self.inst.components.deliberator and (self.inst.components.deliberator:HasNextAction() == nil)
+        return self.inst.components.deliberator and not self.inst.components.deliberator:HasNextAction()
     end
 
     self.doactionfn = function()
-        return self.inst.components.deliberator and (self.inst.components.deliberator:GetNextAction() == "Wander")
+        return self.inst.components.deliberator and self.inst.components.deliberator:HasNextAction() and self.inst.components.deliberator:GetNextAction() and self.inst.components.deliberator:CurrentAction().actionName
     end
 end)
 
 function WalterBrain:OnStart()
+    local times =
+    {
+        minwalktime = 3,
+        randwalktime = 0,
+        minwaittime = 0,
+        randwaittime = 0,
+    }
+
     self.inst:ListenForEvent("killed", self.onkilledfn)
     self.inst:ListenForEvent("onattackother", self.onattackfn)
     self.inst:ListenForEvent("onmissother", self.onattackfn)
@@ -37,9 +50,15 @@ function WalterBrain:OnStart()
     local root = 
         PriorityNode(
         {
-            WhileNode(self.needtodecidefn, "Decide?", Decide(self.inst)),
-            WhileNode(self.doactionfn, "Wander?", Wander(self.inst, nil, 1))
-        }, 0)
+            WhileNode(self.needtodecidefn, "Decide?", 
+                Decide(self.inst)),
+            WhileNode(self.doactionfn, "Wander?", 
+                SequenceNode(
+                    {
+                        FindClosest(self.inst, SEE_DIST, SAFE_DIST, { "butterfly" }),
+                        FinishAction(self.inst)
+                    })),
+        }, 3)
 
     self.bt = BT(self.inst, root)
 end
