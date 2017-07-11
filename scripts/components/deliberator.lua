@@ -1,4 +1,6 @@
+-- 
 -- List Helpers
+--
 List = {}
 
 function List:Create ()
@@ -54,11 +56,16 @@ function Deliberator:HasNextAction()
 	return self.actionlist and not self.actionlist:IsEmpty()
 end
 
+function Deliberator:ClearActions()
+	self.actionlist = List:Create()
+	self.currentaction = nil
+end
+
 function Deliberator:SetActions(actions)
 	local l = List:Create()
 
 	for i, v in ipairs(actions) do
-		print("deliberator", v.actionName, v.target)
+		--print("deliberator", v.actionName, v.target)
 		l.PushRight(v)
 	end
 	
@@ -70,15 +77,14 @@ function Deliberator:GetNextAction()
 	if self.actionlist and not self.actionlist:IsEmpty() then
 		self.currentaction = self.actionlist:PopLeft()
 		return self.currentaction
-	end
-	return nil
+	else return nil end
 end
 
 function Deliberator:FinishAction()
 	self.currentaction = nil
 end
 
-function Deliberator:CurrentAction()
+function Deliberator:GetCurrentAction()
 	return self.currentaction
 end
 

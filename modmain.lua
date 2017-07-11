@@ -1,27 +1,25 @@
-TheSim = GLOBAL.TheSim
-require = GLOBAL.require
-
 -- Debug Helpers
 GLOBAL.CHEATS_ENABLED = true
-require 'debugkeys' 
-require 'debughelpers'
+GLOBAL.require 'debugkeys' 
+GLOBAL.require 'debughelpers'
 
 local ArtificalWalterEnabled = false
 
 local function SetSelfAI()
 	print("Enabling Artificial Walter")
 
-	local brain = require "brains/walterbrain"
+	local brain = GLOBAL.require "brains/walterbrain"
 	GLOBAL.ThePlayer:SetBrain(brain)
 	GLOBAL.ThePlayer:RestartBrain()
 	
 	ArtificalWalterEnabled = true
+
 end
 
 local function SetSelfNormal()
 	print("Disabling Artifical Walter")
 	
-	local brain = require "brains/wilsonbrain"
+	local brain = GLOBAL.require "brains/wilsonbrain"
 	GLOBAL.ThePlayer:SetBrain(brain)
 	GLOBAL.ThePlayer:RestartBrain()
 

@@ -16,6 +16,7 @@ function Decide:HandleCallback(result, isSuccessful, http_code)
    if isSuccessful and http_code == 200 then
       if self.inst.components.deliberator then
          self.inst.components.deliberator:SetActions(json.decode(result))
+         print(json.decode(result))
          self.status = SUCCESS
       else
          self.status = FAILED
