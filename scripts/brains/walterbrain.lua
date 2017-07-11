@@ -1,90 +1,120 @@
 require "behaviours/decide"
-require "behaviours/finishaction"
 
-local SEE_DIST = 30
-local SAFE_DIST = 5
+local SEE_DIST = 5
 
+local assets =
+{
+    Asset("ANIM", "anim/firefighter_placement.zip"),
+}
+
+local function AddSeeRangeIndicator(inst)
+    if inst.helper == nil then
+        inst.helper = CreateEntity()
+
+        --[[Non-networked entity]]
+        inst.helper.entity:SetCanSleep(false)
+        inst.helper.persists = false
+
+        inst.helper.entity:AddTransform()
+        inst.helper.entity:AddAnimState()
+
+        inst.helper:AddTag("CLASSIFIED")
+        inst.helper:AddTag("NOCLICK")
+        inst.helper:AddTag("placer")
+
+        inst.helper.Transform:SetScale(SEE_DIST, SEE_DIST, SEE_DIST)
+
+        inst.helper.AnimState:SetBank("firefighter_placement")
+        inst.helper.AnimState:SetBuild("firefighter_placement")
+        inst.helper.AnimState:PlayAnimation("idle")
+        inst.helper.AnimState:SetLightOverride(1)
+        inst.helper.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
+        inst.helper.AnimState:SetLayer(LAYER_BACKGROUND)
+        inst.helper.AnimState:SetSortOrder(1)
+        inst.helper.AnimState:SetAddColour(0, .2, .5, 0)
+
+        inst.helper.entity:SetParent(inst.entity)
+
+        local x, y, z = inst.Transform:GetWorldPosition()
+        local TAGS = nil
+        local EXCLUDE_TAGS = {"INLIMBO"}
+        local ONE_OF_TAGS = nil
+        local ents = TheSim:FindEntities(x, y, z, SEE_DIST, TAGS, EXCLUDE_TAGS, ONE_OF_TAGS)
+        for i, v in ipairs(ents) do
+            
+                print(v)
+            
+        end
+    end
+end
+-- local function EatFoodAction(inst)
+--     local target = FindEntity(inst, SEE_DIST, nil, { "edible_MEAT" })
+    
+--     if target ~= nil then
+--         local act = BufferedAction(inst, target, ACTIONS.EAT)
+--         act.validfn = function() return target.components.inventoryitem == nil or target.components.inventoryitem.owner == nil or target.components.inventoryitem.owner == inst end
+--         return act
+--     end
+-- end
+
+-- local function PickItemAction(inst)
+--     local t = inst.components.deliberator:GetCurrentAction().target
+--     print(t)
+
+--     local target = FindEntity(inst, SEE_DIST, nil, { t })
+
+--     if target ~= nil then
+--         local act = BufferedAction(inst, target, ACTIONS.PICKUP)
+--         act.validfn = function() return target.components.inventoryitem == nil or target.components.inventoryitem.owner == nil or target.components.inventoryitem.owner == inst end
+--         return act
+--     end
+-- end
 
 local WalterBrain = Class(Brain, function(self, inst, server)
     Brain._ctor(self, inst)
     self.inst = inst
 
-    self.FAtiMAServer = (server and server .. "percept") or "http://localhost:8080/percept"
 
+    -- 
+    -- Perceptions
+    --
+    self.FAtiMAServer = (server and server .. "percept") or "http://localhost:8080/percept"
     self.callbackfn = function(result, isSuccessful , http_code)
         self:HandleCallback(result, isSuccessful, http_code)
     end
 
-    self.onkilledfn = function (inst, data)
-        self:OnEvent(inst.name, "Killed", data.victim, "actionend")
-    end
-
-    self.onattackfn = function (inst, data)
-        self:OnEvent(inst.name, "Attacked", data.target, "actionend")
-    end
-
-    self.needtodecidefn = function()
-        return self.inst.components.deliberator and not self.inst.components.deliberator:HasNextAction()
-    end
-
-    self.doactionfn = function()
-        return self.inst.components.deliberator and self.inst.components.deliberator:HasNextAction() and self.inst.components.deliberator:GetNextAction() and self.inst.components.deliberator:CurrentAction().actionName
-    end
+    --
+    -- Deciding
+    -- 
+    --self.needtodecidefn = 
 end)
 
 function WalterBrain:OnStart()
-    local times =
-    {
-        minwalktime = 3,
-        randwalktime = 0,
-        minwaittime = 0,
-        randwaittime = 0,
-    }
-
-    self.inst:ListenForEvent("killed", self.onkilledfn)
-    self.inst:ListenForEvent("onattackother", self.onattackfn)
-    self.inst:ListenForEvent("onmissother", self.onattackfn)
-
 	self.inst:AddComponent("deliberator")
     
+    AddSeeRangeIndicator(self.inst)
+
     local root = 
         PriorityNode(
         {
-            WhileNode(self.needtodecidefn, "Decide?", 
-                Decide(self.inst)),
-            WhileNode(self.doactionfn, "Wander?", 
-                SequenceNode(
-                    {
-                        FindClosest(self.inst, SEE_DIST, SAFE_DIST, { "butterfly" }),
-                        FinishAction(self.inst)
-                    })),
-        }, 3)
+            -- WhileNode(function() return not self.inst.components.deliberator:HasNextAction() end, "Decide?", 
+            --     Decide(self.inst)),
+            -- DoAction(self.inst, EatFoodAction, "Eat Food"),
+
+        }, 1)
 
     self.bt = BT(self.inst, root)
 end
 
 function WalterBrain:OnStop()
     self.inst:RemoveComponent("deliberator")
-    self.inst:RemoveEventCallback("killed", self.onkilledfn)
-    self.inst:RemoveEventCallback("onattackother", self.onattackfn)
-    self.inst:RemoveEventCallback("onmissother", self.onattackfn)
+
+    self.inst.helper:Remove()
+    self.inst.helper = nil
 end
 
 function WalterBrain:HandleCallback(result, isSuccessful, http_code)
-    -- if isSuccessful and http_code == 200 then
-    --  print(result)
-    -- else
-    --  print("Couldn't Appraise Perceptions")
-    -- end
-end
 
-function WalterBrain:QueryFAtiMA(data)
-    print(data)
-    TheSim:QueryServer(
-        self.FAtiMAServer,
-        self.callbackfn,
-        "POST",
-        data)
 end
 
 function WalterBrain:OnEvent(actor, event, target, type)
@@ -94,7 +124,11 @@ function WalterBrain:OnEvent(actor, event, target, type)
     data["target"] = target.name
     data["type"] = type
 
-    self:QueryFAtiMA(json.encode(data))
+    TheSim:QueryServer(
+        self.FAtiMAServer,
+        self.callbackfn,
+        "POST",
+        json.encode(data))
 end
 
 return WalterBrain
