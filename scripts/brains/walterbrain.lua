@@ -1,6 +1,6 @@
 require "behaviours/decide"
 
-local SEE_DIST = 5
+local SEE_DIST = 20
 
 local assets =
 {
@@ -22,7 +22,7 @@ local function AddSeeRangeIndicator(inst)
         inst.helper:AddTag("NOCLICK")
         inst.helper:AddTag("placer")
 
-        inst.helper.Transform:SetScale(SEE_DIST, SEE_DIST, SEE_DIST)
+        inst.helper.Transform:SetScale(SEE_DIST/10, SEE_DIST/10, SEE_DIST/10)
 
         inst.helper.AnimState:SetBank("firefighter_placement")
         inst.helper.AnimState:SetBuild("firefighter_placement")
@@ -47,6 +47,7 @@ local function AddSeeRangeIndicator(inst)
         end
     end
 end
+
 -- local function EatFoodAction(inst)
 --     local target = FindEntity(inst, SEE_DIST, nil, { "edible_MEAT" })
     
@@ -70,6 +71,18 @@ end
 --     end
 -- end
 
+local function SeeFunction(inst)
+    local x, y, z = inst.Transform:GetWorldPosition()
+    local TAGS = nil
+    local EXCLUDE_TAGS = {"INLIMBO"}
+    local ONE_OF_TAGS = nil
+    local ents = TheSim:FindEntities(x, y, z, SEE_DIST, TAGS, EXCLUDE_TAGS, ONE_OF_TAGS)
+    for i, v in ipairs(ents) do
+        print(v)
+        
+    end
+end
+
 local WalterBrain = Class(Brain, function(self, inst, server)
     Brain._ctor(self, inst)
     self.inst = inst
@@ -82,35 +95,37 @@ local WalterBrain = Class(Brain, function(self, inst, server)
     self.callbackfn = function(result, isSuccessful , http_code)
         self:HandleCallback(result, isSuccessful, http_code)
     end
-
-    --
-    -- Deciding
-    -- 
-    --self.needtodecidefn = 
 end)
 
 function WalterBrain:OnStart()
 	self.inst:AddComponent("deliberator")
     
-    AddSeeRangeIndicator(self.inst)
+    --AddSeeRangeIndicator(self.inst)
 
-    local root = 
-        PriorityNode(
-        {
-            -- WhileNode(function() return not self.inst.components.deliberator:HasNextAction() end, "Decide?", 
-            --     Decide(self.inst)),
-            -- DoAction(self.inst, EatFoodAction, "Eat Food"),
+    self.inst:DoPeriodicTask(1, SeeFunction, self.inst)
 
-        }, 1)
 
-    self.bt = BT(self.inst, root)
+
+    -----------------
+    ----- Brain -----
+    -----------------
+    -- local root = 
+    --     PriorityNode(
+    --     {
+    --         -- WhileNode(function() return not self.inst.components.deliberator:HasNextAction() end, "Decide?", 
+    --         --     Decide(self.inst)),
+    --         -- DoAction(self.inst, EatFoodAction, "Eat Food"),
+
+    --     }, 1)
+
+    -- self.bt = BT(self.inst, root)
 end
 
 function WalterBrain:OnStop()
     self.inst:RemoveComponent("deliberator")
 
-    self.inst.helper:Remove()
-    self.inst.helper = nil
+    --self.inst.helper:Remove()
+    --self.inst.helper = nil
 end
 
 function WalterBrain:HandleCallback(result, isSuccessful, http_code)
