@@ -1,114 +1,128 @@
-require "behaviours/decide"
-
 local SEE_DIST = 20
+local SEE_RANGE_HELPER = false
 
 local assets =
 {
     Asset("ANIM", "anim/firefighter_placement.zip"),
 }
 
-local function AddSeeRangeIndicator(inst)
-    if inst.helper == nil then
-        inst.helper = CreateEntity()
+local function AddSeeRangeHelper(inst)
+    if SEE_RANGE_HELPER and inst.seerangehelper == nil then
+        inst.seerangehelper = CreateEntity()
 
         --[[Non-networked entity]]
-        inst.helper.entity:SetCanSleep(false)
-        inst.helper.persists = false
+        inst.seerangehelper.entity:SetCanSleep(false)
+        inst.seerangehelper.persists = false
 
-        inst.helper.entity:AddTransform()
-        inst.helper.entity:AddAnimState()
+        inst.seerangehelper.entity:AddTransform()
+        inst.seerangehelper.entity:AddAnimState()
 
-        inst.helper:AddTag("CLASSIFIED")
-        inst.helper:AddTag("NOCLICK")
-        inst.helper:AddTag("placer")
+        inst.seerangehelper:AddTag("CLASSIFIED")
+        inst.seerangehelper:AddTag("NOCLICK")
+        inst.seerangehelper:AddTag("placer")
 
-        inst.helper.Transform:SetScale(SEE_DIST/10, SEE_DIST/10, SEE_DIST/10)
+        inst.seerangehelper.Transform:SetScale(SEE_DIST/10, SEE_DIST/10, SEE_DIST/10)
 
-        inst.helper.AnimState:SetBank("firefighter_placement")
-        inst.helper.AnimState:SetBuild("firefighter_placement")
-        inst.helper.AnimState:PlayAnimation("idle")
-        inst.helper.AnimState:SetLightOverride(1)
-        inst.helper.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
-        inst.helper.AnimState:SetLayer(LAYER_BACKGROUND)
-        inst.helper.AnimState:SetSortOrder(1)
-        inst.helper.AnimState:SetAddColour(0, .2, .5, 0)
+        inst.seerangehelper.AnimState:SetBank("firefighter_placement")
+        inst.seerangehelper.AnimState:SetBuild("firefighter_placement")
+        inst.seerangehelper.AnimState:PlayAnimation("idle")
+        inst.seerangehelper.AnimState:SetLightOverride(1)
+        inst.seerangehelper.AnimState:SetOrientation(ANIM_ORIENTATION.OnGround)
+        inst.seerangehelper.AnimState:SetLayer(LAYER_BACKGROUND)
+        inst.seerangehelper.AnimState:SetSortOrder(1)
+        inst.seerangehelper.AnimState:SetAddColour(0, .2, .5, 0)
 
-        inst.helper.entity:SetParent(inst.entity)
-
-        local x, y, z = inst.Transform:GetWorldPosition()
-        local TAGS = nil
-        local EXCLUDE_TAGS = {"INLIMBO"}
-        local ONE_OF_TAGS = nil
-        local ents = TheSim:FindEntities(x, y, z, SEE_DIST, TAGS, EXCLUDE_TAGS, ONE_OF_TAGS)
-        for i, v in ipairs(ents) do
-            
-                print(v)
-            
-        end
+        inst.seerangehelper.entity:SetParent(inst.entity)
     end
 end
 
--- local function EatFoodAction(inst)
---     local target = FindEntity(inst, SEE_DIST, nil, { "edible_MEAT" })
-    
---     if target ~= nil then
---         local act = BufferedAction(inst, target, ACTIONS.EAT)
---         act.validfn = function() return target.components.inventoryitem == nil or target.components.inventoryitem.owner == nil or target.components.inventoryitem.owner == inst end
---         return act
---     end
--- end
-
--- local function PickItemAction(inst)
---     local t = inst.components.deliberator:GetCurrentAction().target
---     print(t)
-
---     local target = FindEntity(inst, SEE_DIST, nil, { t })
-
---     if target ~= nil then
---         local act = BufferedAction(inst, target, ACTIONS.PICKUP)
---         act.validfn = function() return target.components.inventoryitem == nil or target.components.inventoryitem.owner == nil or target.components.inventoryitem.owner == inst end
---         return act
---     end
--- end
-
-local function SeeFunction(inst)
+local function See()
     local x, y, z = inst.Transform:GetWorldPosition()
     local TAGS = nil
     local EXCLUDE_TAGS = {"INLIMBO"}
     local ONE_OF_TAGS = nil
     local ents = TheSim:FindEntities(x, y, z, SEE_DIST, TAGS, EXCLUDE_TAGS, ONE_OF_TAGS)
+    
+    local data = {}
+    local j = 0;
     for i, v in ipairs(ents) do
-        print(v)
-        
+        local d = {}
+        d.GUID = v.GUID
+        d.prefab = v.prefab
+        d.name = v.name
+        data[j] = d
+        j = j+1;
     end
+
+    return data
 end
+
+local function Inventory()
+    local data = {}
+    local j = 0;
+    for i, v in ipairs(ents) do
+        local d = {}
+        d.GUID = v.GUID
+        d.prefab = v.prefab
+        d.name = v.name
+        data[j] = d
+        j = j+1;
+    end
+
+    return data
+end
+
+local function Perceptions(inst, FAtiMAServer, callbackfn)
+    local data = {}
+    data.see = See()
+    data.inventory = Inventory()
+
+    TheSim:QueryServer(
+        FAtiMAServer .. "percept",
+        callbackfn,
+        "POST",
+        json.encode(data))
+    end
 
 local WalterBrain = Class(Brain, function(self, inst, server)
     Brain._ctor(self, inst)
     self.inst = inst
 
-
-    -- 
-    -- Perceptions
-    --
-    self.FAtiMAServer = (server and server .. "percept") or "http://localhost:8080/percept"
+    ------------------------------
+    ---- FAtiMA Communication ----
+    ------------------------------
+    self.FAtiMAServer = (server and server .. "percept") or "http://localhost:8080/"
     self.callbackfn = function(result, isSuccessful , http_code)
         self:HandleCallback(result, isSuccessful, http_code)
     end
 end)
 
+function WalterBrain:HandleCallback(result, isSuccessful, http_code)
+
+end
+
+-- local x, y, z = ThePlayer().Transform:GetWorldPosition()
+-- local ents = TheSim:FindEntities(x, y, z, 20, nil, {"INLIMBO"}, nil)
+-- for k, v in pairs(ents) do print(k); for i, g in pairs(v) do print("    ", i, g)
+
 function WalterBrain:OnStart()
-	self.inst:AddComponent("deliberator")
-    
-    --AddSeeRangeIndicator(self.inst)
+    -----------------------
+    ----- Range Helper ----
+    -----------------------
+    AddSeeRangeHelper(self.inst)
 
-    self.inst:DoPeriodicTask(1, SeeFunction, self.inst)
+    -----------------------
+    ----- Perceptions -----
+    -----------------------
+    if self.task ~= nil then
+        self.task:Cancel()
+    end
+    -- DoPeriodicTask(interval, fn, initialdelay, ...)
+    self.task = self.inst:DoPeriodicTask(1, Perceptions, 0, self.FAtiMAServer, self.callbackfn)
 
-
-
-    -----------------
-    ----- Brain -----
-    -----------------
+    -----------------------
+    -------- Brain --------
+    -----------------------
     -- local root = 
     --     PriorityNode(
     --     {
@@ -122,15 +136,24 @@ function WalterBrain:OnStart()
 end
 
 function WalterBrain:OnStop()
-    self.inst:RemoveComponent("deliberator")
+    -----------------------
+    ----- Perceptions -----
+    -----------------------
+    if self.task ~= nil then
+        self.task:Cancel()
+        self.task = nil
+    end
 
-    --self.inst.helper:Remove()
-    --self.inst.helper = nil
+    -----------------------
+    ----- Range Helper ----
+    -----------------------
+    if SEE_RANGE_HELPER then
+        self.inst.seerangehelper:Remove()
+        self.inst.seerangehelper = nil
+    end
 end
 
-function WalterBrain:HandleCallback(result, isSuccessful, http_code)
 
-end
 
 function WalterBrain:OnEvent(actor, event, target, type)
     local data = {}
