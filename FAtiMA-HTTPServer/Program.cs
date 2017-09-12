@@ -100,10 +100,10 @@ namespace FAtiMA_HTTPServer
                             string e = reader.ReadToEnd();
                             Console.WriteLine("Percept " + e);
 
-                            List<Name> events = new List<Name>();
-                            events.Add(Perception.FromJSON(e));
-                            Walter.Perceive(events);
-                            return "perceptions updated";
+                            //List<Name> events = new List<Name>();
+                            //events.Add(Perception.FromJSON(e));
+                            //Walter.Perceive(events);
+                            //return "perceptions updated";
                         }
                     }
                 }

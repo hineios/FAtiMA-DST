@@ -34,20 +34,46 @@
   <ItemGroup>
     <Reference Include="ActionLibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libraries\ActionLibrary.dll</HintPath>
+      <HintPath>..\packages\ActionLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="AutobiographicMemory">
+      <HintPath>..\packages\AutobiographicMemory.dll</HintPath>
+    </Reference>
+    <Reference Include="CommeillFaut">
+      <HintPath>..\packages\CommeillFaut.dll</HintPath>
+    </Reference>
+    <Reference Include="Conditions">
+      <HintPath>..\packages\Conditions.dll</HintPath>
+    </Reference>
+    <Reference Include="EmotionalAppraisal">
+      <HintPath>..\packages\EmotionalAppraisal.dll</HintPath>
+    </Reference>
+    <Reference Include="EmotionalDecisionMaking">
+      <HintPath>..\packages\EmotionalDecisionMaking.dll</HintPath>
     </Reference>
     <Reference Include="GAIPS.Rage">
-      <HintPath>..\libraries\GAIPS.Rage.dll</HintPath>
+      <HintPath>..\packages\GAIPS.Rage.dll</HintPath>
+    </Reference>
+    <Reference Include="GAIPS.Serialization">
+      <HintPath>..\packages\GAIPS.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="IntegratedAuthoringTool">
+      <HintPath>..\packages\IntegratedAuthoringTool.dll</HintPath>
+    </Reference>
+    <Reference Include="KnowledgeBase">
+      <HintPath>..\packages\KnowledgeBase.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.10.0.2\lib\net35\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net35\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="RageAssetManager">
-      <HintPath>..\libraries\RageAssetManager.dll</HintPath>
+      <HintPath>..\packages\RageAssetManager.dll</HintPath>
     </Reference>
     <Reference Include="RolePlayCharacter">
-      <HintPath>..\libraries\RolePlayCharacter.dll</HintPath>
+      <HintPath>..\packages\RolePlayCharacter.dll</HintPath>
+    </Reference>
+    <Reference Include="SocialImportanceAsset">
+      <HintPath>..\packages\SocialImportanceAsset.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -55,9 +81,12 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Utilities">
+      <HintPath>..\packages\Utilities.dll</HintPath>
+    </Reference>
     <Reference Include="WellFormedNames, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libraries\WellFormedNames.dll</HintPath>
+      <HintPath>..\packages\WellFormedNames.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
