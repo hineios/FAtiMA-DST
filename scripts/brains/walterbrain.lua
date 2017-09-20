@@ -36,7 +36,7 @@ local function AddSeeRangeHelper(inst)
     end
 end
 
-local function See()
+local function Vision(inst)
     local x, y, z = inst.Transform:GetWorldPosition()
     local TAGS = nil
     local EXCLUDE_TAGS = {"INLIMBO"}
@@ -44,45 +44,52 @@ local function See()
     local ents = TheSim:FindEntities(x, y, z, SEE_DIST, TAGS, EXCLUDE_TAGS, ONE_OF_TAGS)
     
     local data = {}
-    local j = 0;
-    for i, v in ipairs(ents) do
+    for i, v in pairs(ents) do
         local d = {}
         d.GUID = v.GUID
-        d.prefab = v.prefab
-        d.name = v.name
-        data[j] = d
-        j = j+1;
+        d.Prefab = v.prefab
+        d.Name = v.name
+        d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+        data[i] = d
     end
-
     return data
 end
 
-local function Inventory()
-    local data = {}
-    local j = 0;
-    for i, v in ipairs(ents) do
+local function Inventory(inst)
+    local EquipSlots = {}
+    local ItemSlots = {}
+    for k, v in pairs(inst.components.inventory.itemslots) do
         local d = {}
         d.GUID = v.GUID
-        d.prefab = v.prefab
-        d.name = v.name
-        data[j] = d
-        j = j+1;
+        d.Prefab = v.prefab
+        d.Name = v.name
+        d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+        ItemSlots[k] = d
     end
-
-    return data
+    
+    for k, v in pairs(inst.components.inventory.equipslots) do
+        local d = {}
+        d.GUID = v.GUID
+        d.Prefab = v.prefab
+        d.Name = v.name
+        d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+        EquipSlots[k] = d
+    end
+    return EquipSlots, ItemSlots
 end
 
 local function Perceptions(inst, FAtiMAServer, callbackfn)
     local data = {}
-    data.see = See()
-    data.inventory = Inventory()
+    data.Vision = Vision(inst)
+    data.EquipSlots, data.ItemSlots = Inventory(inst)
+
 
     TheSim:QueryServer(
-        FAtiMAServer .. "percept",
+        FAtiMAServer .. "perceptions",
         callbackfn,
         "POST",
         json.encode(data))
-    end
+end
 
 local WalterBrain = Class(Brain, function(self, inst, server)
     Brain._ctor(self, inst)
@@ -91,7 +98,7 @@ local WalterBrain = Class(Brain, function(self, inst, server)
     ------------------------------
     ---- FAtiMA Communication ----
     ------------------------------
-    self.FAtiMAServer = (server and server .. "percept") or "http://localhost:8080/"
+    self.FAtiMAServer = server or "http://localhost:8080/"
     self.callbackfn = function(result, isSuccessful , http_code)
         self:HandleCallback(result, isSuccessful, http_code)
     end
