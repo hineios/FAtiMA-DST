@@ -5,7 +5,37 @@ VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FAtiMA-HTTPServer", "FAtiMA-HTTPServer\FAtiMA-HTTPServer.csproj", "{553EE741-6D37-47B4-A616-A4DD4F89DA81}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HTTPServerTest", "HTTPServerTest\HTTPServerTest.csproj", "{E40D9F8B-91A9-40B9-9170-851EF50E7735}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DST-Walter", "DST-Walter", "{D671490D-0E9B-48B2-AB00-36F22089B4BE}"
+	ProjectSection(SolutionItems) = preProject
+		DST-Walter\modinfo.lua = DST-Walter\modinfo.lua
+		DST-Walter\modmain.lua = DST-Walter\modmain.lua
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{7D59C88C-3669-4FB3-9645-2E62E30546F2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "brains", "brains", "{D6D33F1B-F144-439D-A985-5107B3B39078}"
+	ProjectSection(SolutionItems) = preProject
+		DST-Walter\scripts\brains\walterbrain.lua = DST-Walter\scripts\brains\walterbrain.lua
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "behaviours", "behaviours", "{10444692-58D1-48FD-93D1-FC9CE9A06B2C}"
+	ProjectSection(SolutionItems) = preProject
+		DST-Walter\scripts\behaviours\attack.lua = DST-Walter\scripts\behaviours\attack.lua
+		DST-Walter\scripts\behaviours\build.lua = DST-Walter\scripts\behaviours\build.lua
+		DST-Walter\scripts\behaviours\collect.lua = DST-Walter\scripts\behaviours\collect.lua
+		DST-Walter\scripts\behaviours\cook.lua = DST-Walter\scripts\behaviours\cook.lua
+		DST-Walter\scripts\behaviours\craft.lua = DST-Walter\scripts\behaviours\craft.lua
+		DST-Walter\scripts\behaviours\decide.lua = DST-Walter\scripts\behaviours\decide.lua
+		DST-Walter\scripts\behaviours\eat.lua = DST-Walter\scripts\behaviours\eat.lua
+		DST-Walter\scripts\behaviours\exchange.lua = DST-Walter\scripts\behaviours\exchange.lua
+		DST-Walter\scripts\behaviours\move.lua = DST-Walter\scripts\behaviours\move.lua
+		DST-Walter\scripts\behaviours\talk.lua = DST-Walter\scripts\behaviours\talk.lua
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{62ECCB5C-9A06-4EC0-A5B9-9F4CF822DA58}"
+	ProjectSection(SolutionItems) = preProject
+		DST-Walter\scripts\components\deliberator.lua = DST-Walter\scripts\components\deliberator.lua
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,13 +47,15 @@ Global
 		{553EE741-6D37-47B4-A616-A4DD4F89DA81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{553EE741-6D37-47B4-A616-A4DD4F89DA81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{553EE741-6D37-47B4-A616-A4DD4F89DA81}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E40D9F8B-91A9-40B9-9170-851EF50E7735}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E40D9F8B-91A9-40B9-9170-851EF50E7735}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E40D9F8B-91A9-40B9-9170-851EF50E7735}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E40D9F8B-91A9-40B9-9170-851EF50E7735}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7D59C88C-3669-4FB3-9645-2E62E30546F2} = {D671490D-0E9B-48B2-AB00-36F22089B4BE}
+		{D6D33F1B-F144-439D-A985-5107B3B39078} = {7D59C88C-3669-4FB3-9645-2E62E30546F2}
+		{10444692-58D1-48FD-93D1-FC9CE9A06B2C} = {7D59C88C-3669-4FB3-9645-2E62E30546F2}
+		{62ECCB5C-9A06-4EC0-A5B9-9F4CF822DA58} = {7D59C88C-3669-4FB3-9645-2E62E30546F2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {529ADEED-451B-4B8F-82F2-4032DE2EC03B}
