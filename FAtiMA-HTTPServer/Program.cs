@@ -12,57 +12,6 @@ namespace FAtiMA_HTTPServer
 {
     class Program
     {
-        private class Perception
-        {
-            private string subject { get; set; }
-            private string actionName { get; set; }
-            private string target { get; set; }
-            private string type { get; set; }
-
-            public Perception(string s, string a, string t, string type)
-            {
-                this.subject = s;
-                this.actionName = a;
-                this.target = t;
-                this.type = type;
-            }
-
-            private Name ToName()
-            {
-                switch (type)
-                {
-                    case "actionend":
-                        return ToActionEnd();
-                    case "actionstart":
-                        return ToActionStart();
-                    case "propertychange":
-                        return ToPropertyChange();
-                    default:
-                        throw new Exception("Type of action not recognised");
-                }
-            }
-
-            private Name ToActionEnd()
-            {
-                return EventHelper.ActionEnd(subject, actionName, target);
-            }
-
-            private Name ToActionStart()
-            {
-                return EventHelper.ActionStart(subject, actionName, target);
-            }
-
-            private Name ToPropertyChange()
-            {
-                return EventHelper.PropertyChange(subject, actionName, target);
-            }
-
-            public static Name FromJSON(string s)
-            {
-                return JsonConvert.DeserializeObject<Perception>(s).ToName();
-            }
-        }
-
         private static RolePlayCharacterAsset Walter;
         static void Main(string[] args)
         {
@@ -88,7 +37,7 @@ namespace FAtiMA_HTTPServer
                 Console.WriteLine(a);
                 return a;
             }
-            else if (request.RawUrl == "/percept")
+            else if (request.RawUrl == "/perceptions")
             {
                 if (request.HasEntityBody)
                 {
@@ -96,14 +45,24 @@ namespace FAtiMA_HTTPServer
                     {
                         using (System.IO.StreamReader reader = new System.IO.StreamReader(body, request.ContentEncoding))
                         {
-                            Console.Write("Updating Perceptions...");
+                            //Console.Write("JSON");
                             string e = reader.ReadToEnd();
-                            Console.WriteLine("Percept " + e);
+                            //Console.WriteLine(e);
+                            var p = JsonConvert.DeserializeObject<Perceptions>(e);
+                            
+                            
+                            //Console.Write("C#");
+                            Console.Write("Type: " + p.GetType().ToString() );
+                            Console.WriteLine(p.ToString());
 
-                            //List<Name> events = new List<Name>();
+                            
+                            //Console.Write("Updating Perceptions...");
+                            //Console.WriteLine("Percept " + e);
                             //events.Add(Perception.FromJSON(e));
                             //Walter.Perceive(events);
                             //return "perceptions updated";
+
+                        
                         }
                     }
                 }
