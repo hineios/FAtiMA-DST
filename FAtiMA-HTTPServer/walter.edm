@@ -1,0 +1,30 @@
+{
+	"root":
+		{
+			"classId": 0,
+			"DefaultActionPriority": 2,
+			"ActionTendencies": [
+				{
+					"Action": "Wander",
+					"Conditions":
+						{
+							"Set": ["True = [x]"]
+						},
+					"Priority": 0
+				}, 
+				{
+					"Action": "Rejoice",
+					"Target": "self",
+					"Conditions":
+						{
+							"Set": ["Killed(something) = True"]
+						},
+					"Priority": 0
+				}]
+		},
+	"types": [
+		{
+			"TypeId": 0,
+			"ClassName": "EmotionalDecisionMaking.EmotionalDecisionMakingAsset, EmotionalDecisionMaking, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+		}]
+}
