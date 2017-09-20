@@ -45,14 +45,9 @@ namespace FAtiMA_HTTPServer
                     {
                         using (System.IO.StreamReader reader = new System.IO.StreamReader(body, request.ContentEncoding))
                         {
-                            //Console.Write("JSON");
                             string e = reader.ReadToEnd();
-                            //Console.WriteLine(e);
+                            
                             var p = JsonConvert.DeserializeObject<Perceptions>(e);
-                            
-                            
-                            //Console.Write("C#");
-                            Console.Write("Type: " + p.GetType().ToString() );
                             Console.WriteLine(p.ToString());
 
                             
@@ -60,7 +55,7 @@ namespace FAtiMA_HTTPServer
                             //Console.WriteLine("Percept " + e);
                             //events.Add(Perception.FromJSON(e));
                             //Walter.Perceive(events);
-                            //return "perceptions updated";
+                            return "perceptions updated";
 
                         
                         }

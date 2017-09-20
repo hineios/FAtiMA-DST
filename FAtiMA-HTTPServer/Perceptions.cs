@@ -10,10 +10,10 @@ namespace FAtiMA_HTTPServer
 {
     public class Item
     {
-        int GUID { get; set; }
-        string Prefab { get; set; }
-        string Name { get; set; }
-        int Count { get; set; }
+        public int GUID { get; set; }
+        public string Prefab { get; set; }
+        public string Name { get; set; }
+        public int Count { get; set; }
 
         public Item(int GUID, string prefab, string name, int count)
         {
@@ -30,20 +30,21 @@ namespace FAtiMA_HTTPServer
 
         public override string ToString()
         {
-            return "ITEM: GUID: " + GUID.ToString() + ", Prefab: " + Prefab + ", Name: " + Name + ", Count: " + Count;
+            return Count + " x " + Prefab;
         }
     }
-    public class EquippedItems
+    public class EquippedItems : Item
     {
-        Item Hands { get; set; }
-        Item Head { get; set; }
-        Item Body { get; set; }
+        public string Slot { get; set; }
 
-        public EquippedItems(Item hands, Item head, Item body)
+        public EquippedItems(int GUID, string prefab, string name, int count, string slot) : base(GUID, prefab, name, count)
         {
-            Hands = hands;
-            Head = head;
-            Body = body;
+            this.Slot = slot;
+        }
+
+        public override string ToString()
+        {
+            return Slot + ": " + Prefab;
         }
     }
 
@@ -51,42 +52,34 @@ namespace FAtiMA_HTTPServer
     {
         List<Item> Vision { get; set; }
         List<Item> ItemSlots { get; set; }
-        EquippedItems EquipSlots { get; set; }
+        List<EquippedItems> EquipSlots { get; set; }
 
         [JsonConstructor]
-        public Perceptions(EquippedItems EquipSlots, List<Item> Vision, List<Item> ItemSlots)
+        public Perceptions(List<EquippedItems> EquipSlots, List<Item> Vision, List<Item> ItemSlots)
         {
             this.Vision = Vision;
             this.ItemSlots = ItemSlots;
             this.EquipSlots = EquipSlots;
         }
-        //Perceptions(List<Item> Vision, List<Item> EquipSlots, List<Item> ItemSlots)
-        //{
-
-        //}
-        //Perceptions(List<Item> ItemSlots, List<Item> EquipSlots, List<Item> Vision)
-        //Perceptions(List<Item> ItemSlots, List<Item> Vision, List<Item> EquipSlots)
-        //Perceptions(List<Item> EquipSlots, List<Item> ItemSlots, List<Item> Vision)
-        //Perceptions(List<Item> EquipSlots, List<Item> Vision, List<Item> ItemSlots)
-        public static Perceptions FromJSON(string s)
-        {
-            return JsonConvert.DeserializeObject<Perceptions>(s);
-        }
 
         public override string ToString()
         {
-            string s = "Perceptions:\n\tVision:\n";
+            string s = "Perceptions:\n";
+            s += "\tVision:\n";
             foreach (Item v in Vision)
             {
-                s += "\t\t" + v.ToString();
+                s += "\t\t" + v.ToString() + "\n";
             }
-            s += "\n\tItemSlots:\n";
+            s += "\tItemSlots:\n";
             foreach (Item i in ItemSlots)
             {
-                s += "\t\t" + i.ToString();
+                s += "\t\t" + i.ToString() + "\n";
             }
-            s += "\n\tEquipSlots:\n";
-            s += "\t\t" + EquipSlots.ToString();
+            s += "\tEquipSlots:\n";
+            foreach (Item e in EquipSlots)
+            {
+                s += "\t\t" + e.ToString() + "\n";
+            }
             return s;
         }
     }

@@ -39,10 +39,11 @@ end
 local function Vision(inst)
     local x, y, z = inst.Transform:GetWorldPosition()
     local TAGS = nil
-    local EXCLUDE_TAGS = {"INLIMBO"}
+    local EXCLUDE_TAGS = {"INLIMBO", "NOCLICK"}
     local ONE_OF_TAGS = nil
     local ents = TheSim:FindEntities(x, y, z, SEE_DIST, TAGS, EXCLUDE_TAGS, ONE_OF_TAGS)
     
+    --Go over all the objects that the agent can see and take what information we need
     local data = {}
     for i, v in pairs(ents) do
         local d = {}
@@ -58,6 +59,8 @@ end
 local function Inventory(inst)
     local EquipSlots = {}
     local ItemSlots = {}
+ 
+    -- Go over all items in the inventory and take what information we need
     for k, v in pairs(inst.components.inventory.itemslots) do
         local d = {}
         d.GUID = v.GUID
@@ -66,23 +69,28 @@ local function Inventory(inst)
         d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
         ItemSlots[k] = d
     end
-    
+
+    -- Go over equipped items and put them in an array
+    -- I needed to use an array in order to pass the information over JSON
+    local i = 1
     for k, v in pairs(inst.components.inventory.equipslots) do
         local d = {}
         d.GUID = v.GUID
         d.Prefab = v.prefab
         d.Name = v.name
         d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
-        EquipSlots[k] = d
+        d.Slot = k
+        EquipSlots[i] = d
+        i = i + 1
     end
+
     return EquipSlots, ItemSlots
 end
 
 local function Perceptions(inst, FAtiMAServer, callbackfn)
     local data = {}
     data.Vision = Vision(inst)
-    data.EquipSlots, data.ItemSlots = Inventory(inst)
-
+    data.EquipSlots, data.ItemSlots = Inventory(inst) 
 
     TheSim:QueryServer(
         FAtiMAServer .. "perceptions",
