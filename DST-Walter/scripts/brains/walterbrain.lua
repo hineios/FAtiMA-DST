@@ -49,7 +49,6 @@ local function Vision(inst)
         local d = {}
         d.GUID = v.GUID
         d.Prefab = v.prefab
-        d.Name = v.name
         d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
         data[i] = d
     end
@@ -65,7 +64,6 @@ local function Inventory(inst)
         local d = {}
         d.GUID = v.GUID
         d.Prefab = v.prefab
-        d.Name = v.name
         d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
         ItemSlots[k] = d
     end
@@ -77,7 +75,6 @@ local function Inventory(inst)
         local d = {}
         d.GUID = v.GUID
         d.Prefab = v.prefab
-        d.Name = v.name
         d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
         d.Slot = k
         EquipSlots[i] = d

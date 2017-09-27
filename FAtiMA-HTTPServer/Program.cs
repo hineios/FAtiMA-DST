@@ -46,25 +46,27 @@ namespace FAtiMA_HTTPServer
                         {
                             using (System.IO.StreamReader reader = new System.IO.StreamReader(body, request.ContentEncoding))
                             {
+                                Console.Write("Updating Beliefs... ");
                                 string e = reader.ReadToEnd();
-
+                                
                                 var p = JsonConvert.DeserializeObject<Perceptions>(e);
-                                Console.WriteLine(p.ToString());
+                                
+                                p.UpdateBeliefs(Walter);
+                                
+                                Console.WriteLine(" Done!");
 
-
-                                //Console.Write("Updating Perceptions...");
+                                //Console.WriteLine(p.ToString());
                                 //Console.WriteLine("Percept " + e);
                                 //events.Add(Perception.FromJSON(e));
                                 //Walter.Perceive(events);
-                                return "perceptions updated";
-
-
+                                return "BeliefsUpdated: true";
                             }
                         }
                     }
-                    return "error updating perceptions";
+                    Console.WriteLine("Couldn't update beliefs");
+                    return "BeliefsUpdated: false";
                 default:
-                    return null;
+                    return "";
             }
         }
     }

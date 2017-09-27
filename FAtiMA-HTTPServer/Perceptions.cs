@@ -8,24 +8,35 @@ using WellFormedNames;
 
 namespace FAtiMA_HTTPServer
 {
-    public class Item
+    public class Entity
     {
         public int GUID { get; set; }
-        public string Prefab { get; set; }
-        public string Name { get; set; }
-        public int Count { get; set; }
 
-        public Item(int GUID, string prefab, string name, int count)
+        public Entity(int GUID)
         {
             this.GUID = GUID;
+        }
+
+        public override string ToString()
+        {
+            return "Entity: " + this.GUID;
+        }
+    }
+
+    public class Item : Entity
+    {
+        public string Prefab { get; set; }
+        public int Count { get; set; }
+
+        public Item(int GUID, string prefab, int count) : base(GUID)
+        {
             this.Prefab = prefab;
-            this.Name = name;
             this.Count = count;
         }
 
-        public static Item FromJSON(string s)
+        public void UpdateBelief(RolePlayCharacterAsset rpc)
         {
-            return JsonConvert.DeserializeObject<Item>(s);
+            rpc.UpdateBelief("Item(" + this.GUID + "," + this.Prefab + ")", this.Count.ToString());
         }
 
         public override string ToString()
@@ -33,11 +44,12 @@ namespace FAtiMA_HTTPServer
             return Count + " x " + Prefab;
         }
     }
+
     public class EquippedItems : Item
     {
         public string Slot { get; set; }
 
-        public EquippedItems(int GUID, string prefab, string name, int count, string slot) : base(GUID, prefab, name, count)
+        public EquippedItems(int GUID, string prefab, int count, string slot) : base(GUID, prefab, count)
         {
             this.Slot = slot;
         }
@@ -61,24 +73,98 @@ namespace FAtiMA_HTTPServer
         public bool IsFreezing { get; set; }
         public bool IsOverheating { get; set; }
 
-        //TODO: Add something to track wich part of the day the agent is in.
+        //TODO: Add something to track which part of the day the agent is in.
 
         [JsonConstructor]
-        public Perceptions(List<EquippedItems> EquipSlots, List<Item> Vision, List<Item> ItemSlots, 
-            float hunger, float sanity, float health, float moisture, float temperature, bool isFreezing, bool isOverheating)
+        public Perceptions(List<EquippedItems> EquipSlots, List<Item> Vision, List<Item> ItemSlots,
+            float Hunger, float Sanity, float Health, float Moisture, float Temperature, bool IsFreezing, bool IsOverheating)
         {
             this.Vision = Vision;
             this.ItemSlots = ItemSlots;
             this.EquipSlots = EquipSlots;
-            this.Hunger = hunger;
-            this.Health = health;
-            this.Sanity = sanity;
-            this.Moisture = moisture;
-            this.Temperature = temperature;
-            this.IsFreezing = isFreezing;
-            this.IsOverheating = isOverheating;
+            this.Hunger = Hunger;
+            this.Health = Health;
+            this.Sanity = Sanity;
+            this.Moisture = Moisture;
+            this.Temperature = Temperature;
+            this.IsFreezing = IsFreezing;
+            this.IsOverheating = IsOverheating;
         }
+        
+        public void UpdateBeliefs(RolePlayCharacterAsset rpc)
+        {
+            /*
+             * Find every InSight, Inventory, and IsEquipped belief and set them to false
+             * */
 
+            var subset = new List<SubstitutionSet>();
+            subset.Add(new SubstitutionSet());
+
+            var beliefs = rpc.m_kb.AskPossibleProperties((Name)"InSight([x])", (Name)"SELF", subset);
+            Console.WriteLine("Query returned " + beliefs.Count() + " InSight beliefs.");
+            foreach(var b in beliefs)
+            {
+                foreach (var s in b.Item2)
+                {
+                    rpc.UpdateBelief("InSigth(" + s[(Name)"[x]"] + ")", "FALSE");
+                }
+            }
+
+            beliefs = rpc.m_kb.AskPossibleProperties((Name)"InInventory([x])", (Name)"SELF", subset);
+            Console.WriteLine("Query returned " + beliefs.Count() + " InInventory beliefs.");
+            foreach (var b in beliefs)
+            {
+                foreach (var s in b.Item2)
+                {
+                    rpc.UpdateBelief("InInventory(" + s[(Name)"[x]"] + ")", "FALSE");
+                }
+            }
+
+            beliefs = rpc.m_kb.AskPossibleProperties((Name)"IsEquipped([x])", (Name)"SELF", subset);
+            Console.WriteLine("Query returned " + beliefs.Count() + " IsEquipped beliefs.");
+            foreach (var b in beliefs)
+            {
+                foreach (var s in b.Item2)
+                {
+                    rpc.UpdateBelief("IsEquipped(" + s[(Name)"[x]"] + ")", "FALSE");
+                }
+            }
+
+            /*
+             * Update the KB with the new beliefs
+             * */
+            rpc.UpdateBelief("Hunger(SELF)", this.Hunger.ToString());
+            rpc.UpdateBelief("Health(SELF)", this.Health.ToString());
+            rpc.UpdateBelief("Sanity(SELF)", this.Sanity.ToString());
+            rpc.UpdateBelief("IsFreezing(SELF)", this.IsFreezing.ToString());
+            rpc.UpdateBelief("IsOverheating(SELF)", this.IsOverheating.ToString());
+            
+            // Was getting some errors with the float values, commented out for the time being
+            //rpc.UpdateBelief("Moisture(SELF)", this.Moisture.ToString());
+            //rpc.UpdateBelief("Temperature(SELF)", this.Temperature.ToString());
+            
+            foreach (Item i in Vision)
+            {
+                rpc.UpdateBelief("InSight("+ i.GUID + ")", "TRUE");
+                i.UpdateBelief(rpc);
+            }
+
+            foreach(Item i in ItemSlots)
+            {
+                rpc.UpdateBelief("InInventory(" + i.GUID + ")", "TRUE");
+                i.UpdateBelief(rpc);
+            }
+
+            foreach(EquippedItems i in EquipSlots)
+            {
+                rpc.UpdateBelief("IsEquipped(" + i.GUID + "," + i.Slot + ")", "TRUE");
+                i.UpdateBelief(rpc);
+            }
+        }
+        
+        /**
+         * Just a Quick way to show the Perceptions that we just got from the 'body'
+         **/
         public override string ToString()
         {
             string s = "Perceptions:\n";
