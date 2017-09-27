@@ -101,7 +101,7 @@ namespace FAtiMA_HTTPServer
             subset.Add(new SubstitutionSet());
 
             var beliefs = rpc.m_kb.AskPossibleProperties((Name)"InSight([x])", (Name)"SELF", subset);
-            Console.WriteLine("Query returned " + beliefs.Count() + " InSight beliefs.");
+            //Console.WriteLine("Query returned " + beliefs.Count() + " InSight beliefs.");
             foreach(var b in beliefs)
             {
                 foreach (var s in b.Item2)
@@ -111,7 +111,7 @@ namespace FAtiMA_HTTPServer
             }
 
             beliefs = rpc.m_kb.AskPossibleProperties((Name)"InInventory([x])", (Name)"SELF", subset);
-            Console.WriteLine("Query returned " + beliefs.Count() + " InInventory beliefs.");
+            //Console.WriteLine("Query returned " + beliefs.Count() + " InInventory beliefs.");
             foreach (var b in beliefs)
             {
                 foreach (var s in b.Item2)
@@ -120,8 +120,8 @@ namespace FAtiMA_HTTPServer
                 }
             }
 
-            beliefs = rpc.m_kb.AskPossibleProperties((Name)"IsEquipped([x])", (Name)"SELF", subset);
-            Console.WriteLine("Query returned " + beliefs.Count() + " IsEquipped beliefs.");
+            beliefs = rpc.m_kb.AskPossibleProperties((Name)"IsEquipped([x], [y])", (Name)"SELF", subset);
+            //Console.WriteLine("Query returned " + beliefs.Count() + " IsEquipped beliefs.");
             foreach (var b in beliefs)
             {
                 foreach (var s in b.Item2)
