@@ -39,7 +39,7 @@ namespace FAtiMA_HTTPServer
                     var a = Walter.Decide().FirstOrDefault().Name.ToString();
                     Console.WriteLine(a);
                     return a;
-                case "/perceptions":
+                case "/beliefs":
                     if (request.HasEntityBody)
                     {
                         using (System.IO.Stream body = request.InputStream) // here we have data

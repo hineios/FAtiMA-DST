@@ -101,7 +101,7 @@ local function Perceptions(inst, FAtiMAServer, callbackfn)
     data.Moisture = inst:GetMoisture()
 
     TheSim:QueryServer(
-        FAtiMAServer .. "perceptions",
+        FAtiMAServer .. "beliefs",
         callbackfn,
         "POST",
         json.encode(data))
