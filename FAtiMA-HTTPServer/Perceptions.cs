@@ -53,19 +53,43 @@ namespace FAtiMA_HTTPServer
         List<Item> Vision { get; set; }
         List<Item> ItemSlots { get; set; }
         List<EquippedItems> EquipSlots { get; set; }
+        public float Hunger { get; set; }
+        public float Sanity { get; set; }
+        public float Health { get; set; }
+        public float Moisture { get; set; }
+        public float Temperature { get; set; }
+        public bool IsFreezing { get; set; }
+        public bool IsOverheating { get; set; }
+
+        //TODO: Add something to track wich part of the day the agent is in.
 
         [JsonConstructor]
-        public Perceptions(List<EquippedItems> EquipSlots, List<Item> Vision, List<Item> ItemSlots)
+        public Perceptions(List<EquippedItems> EquipSlots, List<Item> Vision, List<Item> ItemSlots, 
+            float hunger, float sanity, float health, float moisture, float temperature, bool isFreezing, bool isOverheating)
         {
             this.Vision = Vision;
             this.ItemSlots = ItemSlots;
             this.EquipSlots = EquipSlots;
+            this.Hunger = hunger;
+            this.Health = health;
+            this.Sanity = sanity;
+            this.Moisture = moisture;
+            this.Temperature = temperature;
+            this.IsFreezing = isFreezing;
+            this.IsOverheating = isOverheating;
         }
 
         public override string ToString()
         {
             string s = "Perceptions:\n";
-            s += "\tVision:\n";
+            s += "\tHunger: " + this.Hunger;
+            s += "\tSanity: " + this.Sanity;
+            s += "\tHealth: " + this.Health;
+            s += "\n\tMoisture: " + this.Moisture;
+            s += "\tTemperature: " + this.Temperature;
+            s += "\tIsFreezing: " + this.IsFreezing;
+            s += "\tIsOverheating: " + this.IsOverheating;
+            s += "\n\tVision:\n";
             foreach (Item v in Vision)
             {
                 s += "\t\t" + v.ToString() + "\n";

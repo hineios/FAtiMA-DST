@@ -92,6 +92,14 @@ local function Perceptions(inst, FAtiMAServer, callbackfn)
     data.Vision = Vision(inst)
     data.EquipSlots, data.ItemSlots = Inventory(inst) 
 
+    data.Health = inst.components.health.currenthealth
+    data.Hunger = inst.components.hunger.current
+    data.Sanity = inst.components.sanity.current
+    data.Temperature = inst:GetTemperature()
+    data.IsFreezing = inst:IsFreezing()
+    data.IsOverHeating = inst:IsOverheating()
+    data.Moisture = inst:GetMoisture()
+
     TheSim:QueryServer(
         FAtiMAServer .. "perceptions",
         callbackfn,
