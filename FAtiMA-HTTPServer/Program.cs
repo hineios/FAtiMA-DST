@@ -26,43 +26,46 @@ namespace FAtiMA_HTTPServer
             Console.WriteLine("Press a key to quit.");
             Console.ReadKey();
             ws.Stop();
+
+            Walter.SaveToFile("./water-final.rpc");
         }
 
         public static string SendResponse(HttpListenerRequest request)
         {
-            if (request.RawUrl == "/decide")
+            switch (request.RawUrl)
             {
-                Console.Write("Deciding... ");
-                var a = Walter.Decide().FirstOrDefault().Name.ToString();
-                Console.WriteLine(a);
-                return a;
-            }
-            else if (request.RawUrl == "/perceptions")
-            {
-                if (request.HasEntityBody)
-                {
-                    using (System.IO.Stream body = request.InputStream) // here we have data
+                case "/decide":
+                    Console.Write("Deciding... ");
+                    var a = Walter.Decide().FirstOrDefault().Name.ToString();
+                    Console.WriteLine(a);
+                    return a;
+                case "/perceptions":
+                    if (request.HasEntityBody)
                     {
-                        using (System.IO.StreamReader reader = new System.IO.StreamReader(body, request.ContentEncoding))
+                        using (System.IO.Stream body = request.InputStream) // here we have data
                         {
-                            string e = reader.ReadToEnd();
-                            
-                            var p = JsonConvert.DeserializeObject<Perceptions>(e);
-                            Console.WriteLine(p.ToString());
+                            using (System.IO.StreamReader reader = new System.IO.StreamReader(body, request.ContentEncoding))
+                            {
+                                string e = reader.ReadToEnd();
 
-                            
-                            //Console.Write("Updating Perceptions...");
-                            //Console.WriteLine("Percept " + e);
-                            //events.Add(Perception.FromJSON(e));
-                            //Walter.Perceive(events);
-                            return "perceptions updated";
+                                var p = JsonConvert.DeserializeObject<Perceptions>(e);
+                                Console.WriteLine(p.ToString());
 
-                        
+
+                                //Console.Write("Updating Perceptions...");
+                                //Console.WriteLine("Percept " + e);
+                                //events.Add(Perception.FromJSON(e));
+                                //Walter.Perceive(events);
+                                return "perceptions updated";
+
+
+                            }
                         }
                     }
-                }
+                    return "error updating perceptions";
+                default:
+                    return null;
             }
-            return null;
         }
     }
 }
