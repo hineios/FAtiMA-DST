@@ -50,6 +50,7 @@ local function Vision(inst)
         d.GUID = v.GUID
         d.Prefab = v.prefab
         d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+        d.x, d.y, d.z = v.Transform:GetWorldPosition()
         data[i] = d
     end
     return data
@@ -118,7 +119,15 @@ local WalterBrain = Class(Brain, function(self, inst, server)
 end)
 
 function WalterBrain:HandleCallback(result, isSuccessful, http_code)
-
+    print("Decision incoming...")
+    local actions = json.decode(result)
+    for k, v in pairs(actions) do
+        print(k, v)
+        for i, j in pairs(v) do
+            print("  ", i, j)
+        end
+    end
+    print("Done!")
 end
 
 -- local x, y, z = ThePlayer().Transform:GetWorldPosition()
@@ -143,16 +152,11 @@ function WalterBrain:OnStart()
     -----------------------
     -------- Brain --------
     -----------------------
-    -- local root = 
-    --     PriorityNode(
-    --     {
-    --         -- WhileNode(function() return not self.inst.components.deliberator:HasNextAction() end, "Decide?", 
-    --         --     Decide(self.inst)),
-    --         -- DoAction(self.inst, EatFoodAction, "Eat Food"),
-
-    --     }, 1)
-
-    -- self.bt = BT(self.inst, root)
+--    local root = 
+--        PriorityNode({
+--            DoAction(self.inst, function() return GrabItem(self.inst) end, "Pick something up", true)
+--        }, 1)
+--    self.bt = BT(self.inst, root)
 end
 
 function WalterBrain:OnStop()

@@ -12,6 +12,7 @@ namespace FAtiMA_HTTPServer
 {
     class Program
     {
+        private static Object l = new Object();
         private static RolePlayCharacterAsset Walter;
         static void Main(string[] args)
         {
@@ -32,41 +33,53 @@ namespace FAtiMA_HTTPServer
 
         public static string SendResponse(HttpListenerRequest request)
         {
-            switch (request.RawUrl)
+            lock (l)
             {
-                case "/decide":
-                    Console.Write("Deciding... ");
-                    var a = Walter.Decide().FirstOrDefault().Name.ToString();
-                    Console.WriteLine(a);
-                    return a;
-                case "/beliefs":
-                    if (request.HasEntityBody)
-                    {
-                        using (System.IO.Stream body = request.InputStream) // here we have data
-                        {
-                            using (System.IO.StreamReader reader = new System.IO.StreamReader(body, request.ContentEncoding))
-                            {
-                                Console.Write("Updating Beliefs... ");
-                                string e = reader.ReadToEnd();
-                                
-                                var p = JsonConvert.DeserializeObject<Perceptions>(e);
-                                
-                                p.UpdateBeliefs(Walter);
-                                
-                                Console.WriteLine(" Done!");
+                switch (request.RawUrl)
+                {
+                    case "/events":
+                        Console.Write("An event occured... ");
 
-                                //Console.WriteLine(p.ToString());
-                                //Console.WriteLine("Percept " + e);
-                                //events.Add(Perception.FromJSON(e));
-                                //Walter.Perceive(events);
-                                return "BeliefsUpdated: true";
-                            }
+                        Console.WriteLine("Event processed!");
+                        goto case "/decide";
+                    case "/decide":
+                        Console.WriteLine("Deciding... ");
+
+                        var decision = Walter.Decide();
+                        List<Action> actions = new List<Action>();
+                        foreach (var d in decision)
+                        {
+                            actions.Add(Action.ToAction(d));
                         }
-                    }
-                    Console.WriteLine("Couldn't update beliefs");
-                    return "BeliefsUpdated: false";
-                default:
-                    return "";
+
+                        Console.WriteLine("Done!");
+
+                        return JsonConvert.SerializeObject(actions);
+
+                    case "/beliefs":
+                            if (request.HasEntityBody)
+                            {
+                                using (System.IO.Stream body = request.InputStream) // here we have data
+                                {
+                                    using (System.IO.StreamReader reader = new System.IO.StreamReader(body, request.ContentEncoding))
+                                    {
+                                        Console.Write("Updating Beliefs... ");
+
+                                        string e = reader.ReadToEnd();
+                                        var p = JsonConvert.DeserializeObject<Perceptions>(e);
+                                        p.UpdateBeliefs(Walter);
+
+                                        Console.WriteLine(" Done!");
+                                        return JsonConvert.True;
+                                    }
+                                }
+                            }
+                            Console.WriteLine("Couldn't update beliefs");
+                            return JsonConvert.False;
+
+                    default:
+                        return "";
+                }
             }
         }
     }
