@@ -5,21 +5,13 @@
 			"DefaultActionPriority": 2,
 			"ActionTendencies": [
 				{
-					"Action": "Wander",
+					"Action": "Pick([x])",
+					"Target": "x",
 					"Conditions":
 						{
-							"Set": ["True = [x]"]
+							"Set": ["InSight([x]) = True", "Item([x], flower) = 1"]
 						},
-					"Priority": 0
-				}, 
-				{
-					"Action": "Rejoice",
-					"Target": "self",
-					"Conditions":
-						{
-							"Set": ["Killed(something) = True"]
-						},
-					"Priority": 0
+					"Priority": 1
 				}]
 		},
 	"types": [
