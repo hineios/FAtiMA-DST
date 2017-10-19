@@ -95,6 +95,7 @@ namespace FAtiMA_HTTPServer
         {
             /*
              * Find every InSight, Inventory, and IsEquipped belief and set them to false
+             * Eventually try and delete the beliefs.
              * */
 
             var subset = new List<SubstitutionSet>();
@@ -106,7 +107,8 @@ namespace FAtiMA_HTTPServer
             {
                 foreach (var s in b.Item2)
                 {
-                    rpc.UpdateBelief("InSigth(" + s[(Name)"[x]"] + ")", "FALSE");
+                    rpc.UpdateBelief("InSight(" + s[(Name)"[x]"] + ")", "FALSE");
+                    //rpc.RemoveBelief("InSight(" + s[(Name)"[x]"] + ")", "SELF");
                 }
             }
 
@@ -117,6 +119,7 @@ namespace FAtiMA_HTTPServer
                 foreach (var s in b.Item2)
                 {
                     rpc.UpdateBelief("InInventory(" + s[(Name)"[x]"] + ")", "FALSE");
+                    //rpc.RemoveBelief("InInventory(" + s[(Name)"[x]"] + ")", "SELF");
                 }
             }
 
