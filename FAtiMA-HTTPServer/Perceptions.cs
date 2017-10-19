@@ -65,11 +65,11 @@ namespace FAtiMA_HTTPServer
         List<Item> Vision { get; set; }
         List<Item> ItemSlots { get; set; }
         List<EquippedItems> EquipSlots { get; set; }
-        public float Hunger { get; set; }
-        public float Sanity { get; set; }
-        public float Health { get; set; }
-        public float Moisture { get; set; }
-        public float Temperature { get; set; }
+        public int Hunger { get; set; }
+        public int Sanity { get; set; }
+        public int Health { get; set; }
+        public int Moisture { get; set; }
+        public int Temperature { get; set; }
         public bool IsFreezing { get; set; }
         public bool IsOverheating { get; set; }
 
@@ -82,11 +82,11 @@ namespace FAtiMA_HTTPServer
             this.Vision = Vision;
             this.ItemSlots = ItemSlots;
             this.EquipSlots = EquipSlots;
-            this.Hunger = Hunger;
-            this.Health = Health;
-            this.Sanity = Sanity;
-            this.Moisture = Moisture;
-            this.Temperature = Temperature;
+            this.Hunger = (int) Hunger;
+            this.Health = (int) Health;
+            this.Sanity = (int) Sanity;
+            this.Moisture = (int) Moisture;
+            this.Temperature = (int) Temperature;
             this.IsFreezing = IsFreezing;
             this.IsOverheating = IsOverheating;
         }
@@ -138,10 +138,8 @@ namespace FAtiMA_HTTPServer
             rpc.UpdateBelief("Sanity(SELF)", this.Sanity.ToString());
             rpc.UpdateBelief("IsFreezing(SELF)", this.IsFreezing.ToString());
             rpc.UpdateBelief("IsOverheating(SELF)", this.IsOverheating.ToString());
-            
-            // Was getting some errors with the float values, commented out for the time being
-            //rpc.UpdateBelief("Moisture(SELF)", this.Moisture.ToString());
-            //rpc.UpdateBelief("Temperature(SELF)", this.Temperature.ToString());
+            rpc.UpdateBelief("Moisture(SELF)", this.Moisture.ToString());
+            rpc.UpdateBelief("Temperature(SELF)", this.Temperature.ToString());
             
             foreach (Item i in Vision)
             {
