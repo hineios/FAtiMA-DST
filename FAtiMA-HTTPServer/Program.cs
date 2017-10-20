@@ -80,7 +80,7 @@ namespace FAtiMA_HTTPServer
                             return JsonConvert.False;
 
                     default:
-                        return "";
+                        return JsonConvert.Null;
                 }
             }
         }
