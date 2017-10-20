@@ -5,7 +5,7 @@
 			"DefaultActionPriority": 2,
 			"ActionTendencies": [
 				{
-					"Action": "Pick([x])",
+					"Action": "PICK([x])",
 					"Target": "x",
 					"Conditions":
 						{
