@@ -40,6 +40,8 @@ namespace FAtiMA_HTTPServer
                     case "/events":
                         Console.Write("An event occured... ");
 
+                        //TODO: process event
+
                         Console.WriteLine("Event processed!");
                         goto case "/decide";
                     case "/decide":

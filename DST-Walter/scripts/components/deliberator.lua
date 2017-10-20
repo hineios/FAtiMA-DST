@@ -49,15 +49,15 @@ end
 
 local Deliberator = Class(function(self, inst)
 	self.currentaction = nil
-	self.actionlist = nil
+	self.actionslist = nil
 end)
 
 function Deliberator:HasNextAction()
-	return self.actionlist and not self.actionlist:IsEmpty()
+	return self.actionslist and not self.actionslist:IsEmpty()
 end
 
 function Deliberator:ClearActions()
-	self.actionlist = List:Create()
+	self.actionslist = List:Create()
 	self.currentaction = nil
 end
 
@@ -69,13 +69,13 @@ function Deliberator:SetActions(actions)
 		l.PushRight(v)
 	end
 	
-	self.actionlist = l
+	self.actionslist = l
 	self.currentaction = nil
 end
 
 function Deliberator:GetNextAction()
-	if self.actionlist and not self.actionlist:IsEmpty() then
-		self.currentaction = self.actionlist:PopLeft()
+	if self.actionslist and not self.actionslist:IsEmpty() then
+		self.currentaction = self.actionslist:PopLeft()
 		return self.currentaction
 	else return nil end
 end
