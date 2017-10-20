@@ -110,6 +110,13 @@ local function Perceptions(inst, FAtiMAServer, beliefscallbackfn)
         json.encode(data))
 end
 
+local function ReconsiderActions(inst, FAtiMAServer, reconsidercallbackfn)
+    TheSim:QueryServer(
+        FAtiMAServer .. "/decide",
+        reconsidercallbackfn,
+        "GET")
+end
+
 local WalterBrain = Class(Brain, function(self, inst, server)
     Brain._ctor(self, inst)
     self.inst = inst
@@ -125,19 +132,20 @@ local WalterBrain = Class(Brain, function(self, inst, server)
     self.beliefscallbackfn = function(result, isSuccessful , http_code)
         -- Intentionally left blank
     end
-end)
 
-function WalterBrain:HandleCallback(result, isSuccessful, http_code)
-    print("Decision incoming...")
-    local actions = json.decode(result)
-    for k, v in pairs(actions) do
-        print(k, v)
-        for i, j in pairs(v) do
-            print("  ", i, j)
+    self.decidecallbackfn = function(result, isSuccessful , http_code)
+        print("Decision incoming...")
+        print("agent is ", self.inst)
+        local actions = json.decode(result)
+        for k, v in pairs(actions) do
+            print(k, v)
+            for i, j in pairs(v) do
+                print("  ", i, j)
+            end
         end
+        print("Done!")
     end
-    print("Done!")
-end
+end)
 
 -- local x, y, z = ThePlayer().Transform:GetWorldPosition()
 -- local ents = TheSim:FindEntities(x, y, z, 20, nil, {"INLIMBO"}, nil)
@@ -157,6 +165,16 @@ function WalterBrain:OnStart()
     end
     -- DoPeriodicTask(interval, fn, initialdelay, ...) the extra parameters are passed to fn
     self.beliefupdater = self.inst:DoPeriodicTask(PERCEPTION_UPDATE_INTERVAL, Perceptions, 0, self.FAtiMAServer, self.beliefscallbackfn)
+
+    -----------------------
+    -- ReconsiderActions --
+    -----------------------
+    self.reconsideractions = self.inst:DoPeriodicTask(RECONSIDER_ACTIONS_INTERVAL, ReconsiderActions, 0, self.FAtiMAServer, self.decidecallbackfn)
+
+    -----------------------
+    --- Event Listeners ---
+    -----------------------
+    -- TODO
 
     -----------------------
     -------- Brain --------
@@ -183,6 +201,18 @@ function WalterBrain:OnStop()
         self.beliefupdater:Cancel()
         self.beliefupdater = nil
     end
+    -----------------------
+    -- ReconsiderActions --
+    -----------------------
+    if self.reconsideractions ~= nil then
+        self.reconsideractions:Cancel()
+        self.reconsideractions = nil
+    end
+    -----------------------
+    --- Event Listeners ---
+    -----------------------
+    -- TODO
+
 end
 
 
