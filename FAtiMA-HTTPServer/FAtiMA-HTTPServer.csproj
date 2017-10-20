@@ -88,6 +88,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Action.cs" />
     <Compile Include="BasicIOBridge.cs" />
     <Compile Include="Perceptions.cs" />
     <Compile Include="Program.cs" />

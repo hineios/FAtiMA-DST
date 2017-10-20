@@ -18,8 +18,8 @@ namespace FAtiMA_HTTPServer
         public static Action ToAction(ActionLibrary.IAction a)
         {
             Char[] delimiters = { '(', ')' };
-            String[] splited = a.Name.ToString().Split(delimiters);
-            return new Action(splited[0], splited[1]);
+            String[] splitted = a.Name.ToString().Split(delimiters);
+            return new Action(splitted[0], splitted[1]);
         }
         public override string ToString()
         {

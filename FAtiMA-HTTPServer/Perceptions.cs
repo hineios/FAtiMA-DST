@@ -95,7 +95,7 @@ namespace FAtiMA_HTTPServer
         {
             /*
              * Find every InSight, Inventory, and IsEquipped belief and set them to false
-             * Eventually try and delete the beliefs.
+             * Eventually try and delete the beliefs (depending on performance).
              * */
 
             var subset = new List<SubstitutionSet>();

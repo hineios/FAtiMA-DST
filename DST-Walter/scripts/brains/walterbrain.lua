@@ -1,5 +1,7 @@
 local SEE_DIST = 20
-local SEE_RANGE_HELPER = false
+local SEE_RANGE_HELPER = true
+local PERCEPTION_UPDATE_INTERVAL = 1
+local RECONSIDER_ACTIONS_INTERVAL = 10
 
 local assets =
 {
@@ -70,7 +72,8 @@ local function Inventory(inst)
     end
 
     -- Go over equipped items and put them in an array
-    -- I needed to use an array in order to pass the information over JSON
+    -- I chose to use an array not to limit which equip slots the agent has.
+    -- This way I do not need to change any code, should any new slot appear.
     local i = 1
     for k, v in pairs(inst.components.inventory.equipslots) do
         local d = {}
@@ -85,7 +88,7 @@ local function Inventory(inst)
     return EquipSlots, ItemSlots
 end
 
-local function Perceptions(inst, FAtiMAServer, callbackfn)
+local function Perceptions(inst, FAtiMAServer, beliefscallbackfn)
     local data = {}
     data.Vision = Vision(inst)
     data.EquipSlots, data.ItemSlots = Inventory(inst) 
@@ -98,9 +101,11 @@ local function Perceptions(inst, FAtiMAServer, callbackfn)
     data.IsOverHeating = inst:IsOverheating()
     data.Moisture = inst:GetMoisture()
 
+    -- Add a perception that says which time of the day it is (day, dusk, night)
+
     TheSim:QueryServer(
-        FAtiMAServer .. "beliefs",
-        callbackfn,
+        FAtiMAServer .. "/beliefs",
+        beliefscallbackfn,
         "POST",
         json.encode(data))
 end
@@ -112,9 +117,13 @@ local WalterBrain = Class(Brain, function(self, inst, server)
     ------------------------------
     ---- FAtiMA Communication ----
     ------------------------------
-    self.FAtiMAServer = server or "http://localhost:8080/"
-    self.callbackfn = function(result, isSuccessful , http_code)
-        self:HandleCallback(result, isSuccessful, http_code)
+    self.FAtiMAServer = server or "http://localhost:8080"
+
+    ------------------------------
+    -- HTTP Callbacks Functions --
+    ------------------------------
+    self.beliefscallbackfn = function(result, isSuccessful , http_code)
+        -- Intentionally left blank
     end
 end)
 
@@ -143,11 +152,11 @@ function WalterBrain:OnStart()
     -----------------------
     ----- Perceptions -----
     -----------------------
-    if self.task ~= nil then
-        self.task:Cancel()
+    if self.beliefupdater ~= nil then
+        self.beliefupdater:Cancel()
     end
-    -- DoPeriodicTask(interval, fn, initialdelay, ...)
-    self.task = self.inst:DoPeriodicTask(1, Perceptions, 0, self.FAtiMAServer, self.callbackfn)
+    -- DoPeriodicTask(interval, fn, initialdelay, ...) the extra parameters are passed to fn
+    self.beliefupdater = self.inst:DoPeriodicTask(PERCEPTION_UPDATE_INTERVAL, Perceptions, 0, self.FAtiMAServer, self.beliefscallbackfn)
 
     -----------------------
     -------- Brain --------
@@ -161,19 +170,18 @@ end
 
 function WalterBrain:OnStop()
     -----------------------
-    ----- Perceptions -----
-    -----------------------
-    if self.task ~= nil then
-        self.task:Cancel()
-        self.task = nil
-    end
-
-    -----------------------
     ----- Range Helper ----
     -----------------------
     if SEE_RANGE_HELPER then
         self.inst.seerangehelper:Remove()
         self.inst.seerangehelper = nil
+    end
+    -----------------------
+    ----- Perceptions -----
+    -----------------------
+    if self.beliefupdater ~= nil then
+        self.beliefupdater:Cancel()
+        self.beliefupdater = nil
     end
 end
 
@@ -187,8 +195,8 @@ function WalterBrain:OnEvent(actor, event, target, type)
     data["type"] = type
 
     TheSim:QueryServer(
-        self.FAtiMAServer,
-        self.callbackfn,
+        self.FAtiMAServer .. "/events",
+        self.eventscallbackfn,
         "POST",
         json.encode(data))
 end

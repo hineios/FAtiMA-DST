@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FAtiMA-HTTPServer", "FAtiMA-HTTPServer\FAtiMA-HTTPServer.csproj", "{553EE741-6D37-47B4-A616-A4DD4F89DA81}"
 EndProject
@@ -20,16 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "brains", "brains", "{D6D33F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "behaviours", "behaviours", "{10444692-58D1-48FD-93D1-FC9CE9A06B2C}"
 	ProjectSection(SolutionItems) = preProject
-		DST-Walter\scripts\behaviours\attack.lua = DST-Walter\scripts\behaviours\attack.lua
-		DST-Walter\scripts\behaviours\build.lua = DST-Walter\scripts\behaviours\build.lua
-		DST-Walter\scripts\behaviours\collect.lua = DST-Walter\scripts\behaviours\collect.lua
-		DST-Walter\scripts\behaviours\cook.lua = DST-Walter\scripts\behaviours\cook.lua
-		DST-Walter\scripts\behaviours\craft.lua = DST-Walter\scripts\behaviours\craft.lua
 		DST-Walter\scripts\behaviours\decide.lua = DST-Walter\scripts\behaviours\decide.lua
-		DST-Walter\scripts\behaviours\eat.lua = DST-Walter\scripts\behaviours\eat.lua
-		DST-Walter\scripts\behaviours\exchange.lua = DST-Walter\scripts\behaviours\exchange.lua
-		DST-Walter\scripts\behaviours\move.lua = DST-Walter\scripts\behaviours\move.lua
-		DST-Walter\scripts\behaviours\talk.lua = DST-Walter\scripts\behaviours\talk.lua
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{62ECCB5C-9A06-4EC0-A5B9-9F4CF822DA58}"
