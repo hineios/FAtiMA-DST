@@ -6,44 +6,57 @@ using System.Linq;
 using System.Text;
 using WellFormedNames;
 
-namespace FAtiMA_HTTPServer
+namespace FAtiMA_Server
 {
-    public class Item
+    public class Entity
     {
-        int GUID { get; set; }
-        string Prefab { get; set; }
-        string Name { get; set; }
-        int Count { get; set; }
+        public int GUID { get; set; }
 
-        public Item(int GUID, string prefab, string name, int count)
+        public Entity(int GUID)
         {
             this.GUID = GUID;
-            this.Prefab = prefab;
-            this.Name = name;
-            this.Count = count;
-        }
-
-        public static Item FromJSON(string s)
-        {
-            return JsonConvert.DeserializeObject<Item>(s);
         }
 
         public override string ToString()
         {
-            return "ITEM: GUID: " + GUID.ToString() + ", Prefab: " + Prefab + ", Name: " + Name + ", Count: " + Count;
+            return "Entity: " + this.GUID;
         }
     }
-    public class EquippedItems
-    {
-        Item Hands { get; set; }
-        Item Head { get; set; }
-        Item Body { get; set; }
 
-        public EquippedItems(Item hands, Item head, Item body)
+    public class Item : Entity
+    {
+        public string Prefab { get; set; }
+        public int Count { get; set; }
+
+        public Item(int GUID, string prefab, int count) : base(GUID)
         {
-            Hands = hands;
-            Head = head;
-            Body = body;
+            this.Prefab = prefab;
+            this.Count = count;
+        }
+
+        public void UpdateBelief(RolePlayCharacterAsset rpc)
+        {
+            rpc.UpdateBelief("Item(" + this.GUID + "," + this.Prefab + ")", this.Count.ToString());
+        }
+
+        public override string ToString()
+        {
+            return Count + " x " + Prefab;
+        }
+    }
+
+    public class EquippedItems : Item
+    {
+        public string Slot { get; set; }
+
+        public EquippedItems(int GUID, string prefab, int count, string slot) : base(GUID, prefab, count)
+        {
+            this.Slot = slot;
+        }
+
+        public override string ToString()
+        {
+            return Slot + ": " + Prefab;
         }
     }
 
@@ -51,46 +64,141 @@ namespace FAtiMA_HTTPServer
     {
         List<Item> Vision { get; set; }
         List<Item> ItemSlots { get; set; }
-        EquippedItems EquipSlots { get; set; }
+        List<EquippedItems> EquipSlots { get; set; }
+        public int Hunger { get; set; }
+        public int Sanity { get; set; }
+        public int Health { get; set; }
+        public int Moisture { get; set; }
+        public int Temperature { get; set; }
+        public bool IsFreezing { get; set; }
+        public bool IsOverheating { get; set; }
+
+        //TODO: Add something to track which part of the day the agent is in.
 
         [JsonConstructor]
-        public Perceptions(EquippedItems EquipSlots, List<Item> Vision, List<Item> ItemSlots)
+        public Perceptions(List<EquippedItems> EquipSlots, List<Item> Vision, List<Item> ItemSlots,
+            float Hunger, float Sanity, float Health, float Moisture, float Temperature, bool IsFreezing, bool IsOverheating)
         {
             this.Vision = Vision;
             this.ItemSlots = ItemSlots;
             this.EquipSlots = EquipSlots;
+            this.Hunger = (int) Hunger;
+            this.Health = (int) Health;
+            this.Sanity = (int) Sanity;
+            this.Moisture = (int) Moisture;
+            this.Temperature = (int) Temperature;
+            this.IsFreezing = IsFreezing;
+            this.IsOverheating = IsOverheating;
         }
-        //Perceptions(List<Item> Vision, List<Item> EquipSlots, List<Item> ItemSlots)
-        //{
-
-        //}
-        //Perceptions(List<Item> ItemSlots, List<Item> EquipSlots, List<Item> Vision)
-        //Perceptions(List<Item> ItemSlots, List<Item> Vision, List<Item> EquipSlots)
-        //Perceptions(List<Item> EquipSlots, List<Item> ItemSlots, List<Item> Vision)
-        //Perceptions(List<Item> EquipSlots, List<Item> Vision, List<Item> ItemSlots)
-        public static Perceptions FromJSON(string s)
+        
+        public void UpdateBeliefs(RolePlayCharacterAsset rpc)
         {
-            return JsonConvert.DeserializeObject<Perceptions>(s);
-        }
+            /*
+             * Find every InSight, Inventory, and IsEquipped belief and set them to false
+             * Eventually try and delete the beliefs (depending on performance).
+             * */
 
+            var subset = new List<SubstitutionSet>();
+            subset.Add(new SubstitutionSet());
+
+            var beliefs = rpc.m_kb.AskPossibleProperties((Name)"InSight([x])", (Name)"SELF", subset);
+            //Console.WriteLine("Query returned " + beliefs.Count() + " InSight beliefs.");
+            foreach(var b in beliefs)
+            {
+                foreach (var s in b.Item2)
+                {
+                    rpc.UpdateBelief("InSight(" + s[(Name)"[x]"] + ")", "FALSE");
+                    //rpc.RemoveBelief("InSight(" + s[(Name)"[x]"] + ")", "SELF");
+                }
+            }
+
+            beliefs = rpc.m_kb.AskPossibleProperties((Name)"InInventory([x])", (Name)"SELF", subset);
+            //Console.WriteLine("Query returned " + beliefs.Count() + " InInventory beliefs.");
+            foreach (var b in beliefs)
+            {
+                foreach (var s in b.Item2)
+                {
+                    rpc.UpdateBelief("InInventory(" + s[(Name)"[x]"] + ")", "FALSE");
+                    //rpc.RemoveBelief("InInventory(" + s[(Name)"[x]"] + ")", "SELF");
+                }
+            }
+
+            beliefs = rpc.m_kb.AskPossibleProperties((Name)"IsEquipped([x], [y])", (Name)"SELF", subset);
+            //Console.WriteLine("Query returned " + beliefs.Count() + " IsEquipped beliefs.");
+            foreach (var b in beliefs)
+            {
+                foreach (var s in b.Item2)
+                {
+                    rpc.UpdateBelief("IsEquipped(" + s[(Name)"[x]"] + ")", "FALSE");
+                }
+            }
+
+            /*
+             * Update the KB with the new beliefs
+             * */
+            rpc.UpdateBelief("Hunger(SELF)", this.Hunger.ToString());
+            rpc.UpdateBelief("Health(SELF)", this.Health.ToString());
+            rpc.UpdateBelief("Sanity(SELF)", this.Sanity.ToString());
+            rpc.UpdateBelief("IsFreezing(SELF)", this.IsFreezing.ToString());
+            rpc.UpdateBelief("IsOverheating(SELF)", this.IsOverheating.ToString());
+            rpc.UpdateBelief("Moisture(SELF)", this.Moisture.ToString());
+            rpc.UpdateBelief("Temperature(SELF)", this.Temperature.ToString());
+            
+            foreach (Item i in Vision)
+            {
+                rpc.UpdateBelief("InSight("+ i.GUID + ")", "TRUE");
+                i.UpdateBelief(rpc);
+            }
+
+            foreach(Item i in ItemSlots)
+            {
+                rpc.UpdateBelief("InInventory(" + i.GUID + ")", "TRUE");
+                i.UpdateBelief(rpc);
+            }
+
+            foreach(EquippedItems i in EquipSlots)
+            {
+                rpc.UpdateBelief("IsEquipped(" + i.GUID + "," + i.Slot + ")", "TRUE");
+                i.UpdateBelief(rpc);
+            }
+        }
+        
+        /**
+         * Just a quick way to show the Perceptions that we just got from the 'body'
+         **/
         public override string ToString()
         {
-            string s = "Perceptions:\n\tVision:\n";
+            string s = "Perceptions:\n";
+            s += "\tHunger: " + this.Hunger;
+            s += "\tSanity: " + this.Sanity;
+            s += "\tHealth: " + this.Health;
+            s += "\n\tMoisture: " + this.Moisture;
+            s += "\tTemperature: " + this.Temperature;
+            s += "\tIsFreezing: " + this.IsFreezing;
+            s += "\tIsOverheating: " + this.IsOverheating;
+            s += "\n\tVision:\n";
             foreach (Item v in Vision)
             {
-                s += "\t\t" + v.ToString();
+                s += "\t\t" + v.ToString() + "\n";
             }
-            s += "\n\tItemSlots:\n";
+            s += "\tItemSlots:\n";
             foreach (Item i in ItemSlots)
             {
-                s += "\t\t" + i.ToString();
+                s += "\t\t" + i.ToString() + "\n";
             }
-            s += "\n\tEquipSlots:\n";
-            s += "\t\t" + EquipSlots.ToString();
+            s += "\tEquipSlots:\n";
+            foreach (Item e in EquipSlots)
+            {
+                s += "\t\t" + e.ToString() + "\n";
+            }
             return s;
         }
     }
 }
+
+/*
+ * Old code that proccessed events
+ * */
 //class Perception
 //{
 //    private List<> subject { get; set; }

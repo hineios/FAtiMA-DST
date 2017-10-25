@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using RolePlayCharacter;
 
-namespace FAtiMA_HTTPServer
+namespace FAtiMA_Server
 {
     public class WebServer
     {
