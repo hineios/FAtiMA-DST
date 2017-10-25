@@ -12,6 +12,15 @@
 							"Set": ["InSight([x]) = True", "Item([x], flower) = 1"]
 						},
 					"Priority": 1
+				}, 
+				{
+					"Action": "HARVEST([x])",
+					"Target": "x",
+					"Conditions":
+						{
+							"Set": ["InSight([x]) = True", "True = [x]"]
+						},
+					"Priority": 1
 				}]
 		},
 	"types": [

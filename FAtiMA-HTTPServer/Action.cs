@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace FAtiMA_HTTPServer
+namespace FAtiMA_Server
 {
     public class Action
     {

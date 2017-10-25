@@ -8,7 +8,7 @@ using System.Net;
 using System.Text;
 using WellFormedNames;
 
-namespace FAtiMA_HTTPServer
+namespace FAtiMA_Server
 {
     class Program
     {

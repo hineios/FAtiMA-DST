@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using WellFormedNames;
 
-namespace FAtiMA_HTTPServer
+namespace FAtiMA_Server
 {
     public class Entity
     {
@@ -164,7 +164,7 @@ namespace FAtiMA_HTTPServer
         }
         
         /**
-         * Just a Quick way to show the Perceptions that we just got from the 'body'
+         * Just a quick way to show the Perceptions that we just got from the 'body'
          **/
         public override string ToString()
         {
@@ -195,6 +195,10 @@ namespace FAtiMA_HTTPServer
         }
     }
 }
+
+/*
+ * Old code that proccessed events
+ * */
 //class Perception
 //{
 //    private List<> subject { get; set; }

@@ -1,3 +1,5 @@
+require "behaviours/decide"
+
 local SEE_DIST = 20
 local SEE_RANGE_HELPER = true
 local PERCEPTION_UPDATE_INTERVAL = 1
@@ -134,24 +136,48 @@ local WalterBrain = Class(Brain, function(self, inst, server)
     end
 
     self.decidecallbackfn = function(result, isSuccessful , http_code)
-        print("Decision incoming...")
-        print("agent is ", self.inst)
-        local actions = json.decode(result)
-        for k, v in pairs(actions) do
-            print(k, v)
-            for i, j in pairs(v) do
-                print("  ", i, j)
-            end
-        end
-        print("Done!")
+        print("Decision:")
+        --print("agent is ", self.inst)
+        if isSuccessful then
+			local actions = json.decode(result)
+			if self.inst.components.deliberator and actions then
+				self.inst.components.deliberator:SetActions(actions)
+			end
+			for k, v in pairs(actions) do
+				print("    ", v.Name, v.Target)
+			end
+		else
+			print("No response from server!")
+		end
     end
 end)
 
 -- local x, y, z = ThePlayer().Transform:GetWorldPosition()
 -- local ents = TheSim:FindEntities(x, y, z, 20, nil, {"INLIMBO"}, nil)
 -- for k, v in pairs(ents) do print(k); for i, g in pairs(v) do print("    ", i, g)
+local function Test(inst)
+--	print("Action:", ACTIONS[inst.components.deliberator:GetNextAction().Name])
+--	for k, v in pairs(ACTIONS[inst.components.deliberator:GetNextAction().Name]) do
+--		print(k, v)
+--	end
+--	print("T:" , Ents[inst.components.deliberator:GetNextAction().Target], "type:", type(inst.components.deliberator:GetNextAction().Target))
+    print("Doing ",ACTIONS[inst.components.deliberator:GetNextAction().Name], inst.components.deliberator:GetNextAction().Target)
+    return BufferedAction(inst, 
+        Ents[tonumber(inst.components.deliberator:GetNextAction().Target)], 
+        ACTIONS[inst.components.deliberator:GetNextAction().Name])
+end
 
+local function TestCond(inst)
+	--print("test cond", inst.components.deliberator:GetNextAction() ~= nil)
+	return inst.components.deliberator:GetNextAction() ~= nil
+end
 function WalterBrain:OnStart()
+    -----------------------
+    ----- Deliberator -----
+    -----------------------
+    self.inst:AddComponent("deliberator")
+    self.inst.components.deliberator:ClearActions()
+
     -----------------------
     ----- Range Helper ----
     -----------------------
@@ -175,18 +201,30 @@ function WalterBrain:OnStart()
     --- Event Listeners ---
     -----------------------
     -- TODO
+    --self.inst:ListenForEvent("killed", self.onkilledfn)
 
     -----------------------
     -------- Brain --------
     -----------------------
---    local root = 
---        PriorityNode({
---            DoAction(self.inst, function() return GrabItem(self.inst) end, "Pick something up", true)
---        }, 1)
---    self.bt = BT(self.inst, root)
+    local root = 
+        PriorityNode(
+        {
+            IfNode(function() return TestCond(self.inst) end, "IfDoAction", 
+                DoAction(self.inst, 
+                    function() return Test(self.inst) end, 
+                    "doaction", 
+                    true)),
+				ActionNode(function() return self.inst.components.deliberator:FinishAction() end, "End Action")
+            --Decide(self.inst)
+        }, 1)
+    self.bt = BT(self.inst, root)
 end
 
 function WalterBrain:OnStop()
+    -----------------------
+    ----- Deliberator -----
+    -----------------------
+    self.inst:RemoveComponent("deliberator")
     -----------------------
     ----- Range Helper ----
     -----------------------
@@ -212,6 +250,7 @@ function WalterBrain:OnStop()
     --- Event Listeners ---
     -----------------------
     -- TODO
+    --self.inst:RemoveEventCallback("killed", self.onkilledfn)
 
 end
 
