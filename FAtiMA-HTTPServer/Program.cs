@@ -39,8 +39,8 @@ namespace FAtiMA_Server
                 {
                     case "/events":
                         Console.Write("An event occured... ");
-
-                        //TODO: process event
+                        //TODO action start & action end
+                        //TODO process event
 
                         Console.WriteLine("Event processed!");
                         goto case "/decide";
@@ -55,7 +55,7 @@ namespace FAtiMA_Server
                         }
 
                         Console.WriteLine("Done!");
-
+                        //TODO send only one action
                         return JsonConvert.SerializeObject(actions);
 
                     case "/beliefs":
