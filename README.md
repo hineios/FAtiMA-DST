@@ -1,115 +1,90 @@
 # FAtiMA-DST
 Use [FAtiMA-Toolkit](https://github.com/GAIPS-INESC-ID/FAtiMA-Toolkit) to create agents for [Don't Starve Together](http://store.steampowered.com/app/322330/Dont_Starve_Together/).
 
-This repository aims to provide an integration of FAtiMA-Toolkit with Don't Starve Together (DST), allowing anybody to create agents that *live* in the (DST) world.
+This repository aims to provide an integration of FAtiMA-Toolkit with Don't Starve Together (DST), allowing anybody to create agents for DST.
 
+**Notes**:
+- Throughout this read me I'll reference game files which are available to whomever owns a copy of the game. I'll always assume as a base directory the **scripts** folder. This folder can be found in *[DST install dir]/data/scripts*.
+- Although not a prerequisite, some knowledge of the game will be helpful.
+- DST modding is encouraged and completely accepted by the game developers, however, there is no documentation whatsoever. Luckily, every line of code is available in the game directory. I recommend the use of an editor that supports the *Search in files* functionality. You won't need to make any mod for the game, but you'll eventually need to search the game files to understand the actions and how everything works. Check the Understanding the Actions section.
 
-|		|Actions			|
-|:-----:|:-----------------:|
-|1		|ABANDON			|
-|2		|ACTIVATE			|
-|3		|ADDFUEL			|
-|4		|ADDWETFUEL			|
-|5		|ATTACK				|
-|6		|ATTUNE				|
-|7		|BAIT				|
-|8		|BLINK				|
-|9		|BRUSH				|
-|10		|BUILD				|
-|11		|BUNDLE				|
-|12		|BUNDLESTORE		|
-|13		|CASTSPELL			|
-|14		|CATCH				|
-|15		|CATPLAYAIR			|
-|16		|CATPLAYGROUND		|
-|17		|CHANGEIN			|
-|18		|CHECKTRAP			|
-|19		|CHOP				|
-|20		|COMBINESTACK		|
-|21		|COOK				|
-|22		|CREATE				|
-|23		|DECORATEVASE		|
-|24		|DEPLOY				|
-|25		|DIG				|
-|26		|DISMOUNT			|
-|27		|DRAW				|
-|28		|DROP				|
-|29		|DRY				|
-|30		|EAT				|
-|31		|EQUIP				|
-|32		|EXTINGUISH			|
-|33		|FAN				|
-|34		|FEED				|
-|35		|FEEDPLAYER			|
-|36		|FERTILIZE			|
-|37		|FILL				|
-|38		|FISH				|
-|39		|GIVE				|
-|40		|GIVEALLTOPLAYER	|
-|41		|GIVETOPLAYER		|
-|42		|GOHOME				|
-|43		|HAIRBALL			|
-|44		|HAMMER				|
-|45		|HARVEST			|
-|46		|HAUNT				|
-|47		|HEAL				|
-|48		|INVESTIGATE		|
-|49		|JOIN				|
-|50		|JUMPIN				|
-|51		|LAYEGG				|
-|52		|LIGHT				|
-|53		|LOOKAT				|
-|54		|MAKEBALLOON		|
-|55		|MAKEMOLEHILL		|
-|56		|MANUALEXTINGUISH	|
-|57		|MIGRATE			|
-|58		|MINE				|
-|59		|MOLEPEEK			|
-|60		|MOUNT				|
-|61		|MURDER				|
-|62		|NET				|
-|63		|NUZZLE				|
-|64		|PET				|
-|65		|PICK				|
-|66		|PICKUP				|
-|67		|PLANT				|
-|68		|PLAY				|
-|69		|POLLINATE			|
-|70		|READ				|
-|71		|REEL				|
-|72		|REMOTERESURRECT	|
-|73		|REPAIR				|
-|74		|RESETMINE			|
-|75		|RUMMAGE			|
-|76		|SADDLE				|
-|77		|SEW				|
-|78		|SHAVE				|
-|79		|SLEEPIN			|
-|80		|SMOTHER			|
-|81		|STARTCHANNELING	|
-|82		|STEAL				|
-|83		|STEALMOLEBAIT		|
-|84		|STOPCHANNELING		|
-|85		|STORE				|
-|86		|SUMMONGUARDIAN		|
-|87		|TAKEITEM			|
-|88		|TALKTO				|
-|89		|TEACH				|
-|90		|TELEPORT			|
-|91		|TERRAFORM			|
-|92		|TOGGLE_DEPLOY_MODE	|
-|93		|TOSS				|
-|94		|TRAVEL				|
-|95		|TURNOFF			|
-|96		|TURNON				|
-|97		|UNEQUIP			|
-|98		|UNLOCK				|
-|99		|UNPIN				|
-|100	|UNSADDLE			|
-|101	|UNWRAP				|
-|102	|UPGRADE			|
-|103	|USEITEM			|
-|104	|USEKLAUSSACKKEY	|
-|105	|WALKTO				|
-|106	|WRAPBUNDLE			|
-|107	|WRITE				|
+### Creating an agent
+
+This integration has two components: **FAtiMA-Server** and **FAtiMA-DST**. The first is a C# console application that will run FAtiMA, and the latter is a mod for DST that will control the character. You can think of **FAtiMA-Server** has the brains of the agents and **FAtiMA-DST** has the body.
+
+1. Write a Role Play Character file using the FAtiMA Authoring Tools.
+2. Get the **FAtiMA-DST** mod from the workshop.
+3. Launch **FAtiMA-Server** console application.
+4. Launch a game with the **FAtiMA-DST** mod enabled.
+
+### Actions
+
+The following table presents a list of actions that agents can perform. This list has been curated from the complete list of available actions in DST (these actions were taken from the **actions.lua** script).
+
+For a complete list of actions available in the game check [this](https://gist.github.com/hineios/2160d86d2c3ebd6aa594f4a00d041ca6).
+
+|Actions			|Description			|
+|:-----------------:|:----------------------|
+|ACTIVATE			|						|
+|ADDFUEL			|						|
+|ATTACK				|						|
+|BAIT				|						|
+|BUILD				|						|
+|CASTSPELL			|use staves				|
+|CATCH				|						|
+|CHECKTRAP			|						|
+|CHOP				|						|
+|COMBINESTACK		|						|
+|COOK				|						|
+|CREATE				|						|
+|DEPLOY				|						|
+|DIG				|						|
+|DROP				|						|
+|DRY				|						|
+|EAT				|						|
+|EQUIP				|						|
+|EXTINGUISH			|extinguish using object|
+|FEED				|						|
+|FEEDPLAYER			|						|
+|FERTILIZE			|						|
+|FILL				|fill mosquito sack		|
+|FISH				|						|
+|GIVE				|						|
+|GIVEALLTOPLAYER	|						|
+|GIVETOPLAYER		|						|
+|HAMMER				|						|
+|HARVEST			|harvest crops			|
+|HEAL				|						|
+|JUMPIN				|						|
+|LIGHT				|						|
+|LOOKAT				|						|
+|MANUALEXTINGUISH	|						|
+|MINE				|						|
+|MOUNT				|						|
+|MURDER				|						|
+|NET				|						|
+|PICK				|pick grass				|
+|PICKUP				|pick up backpack		|
+|PLANT				|						|
+|PLAY				|						|
+|REEL				|						|
+|RESETMINE			|						|
+|RUMMAGE			|open container			|
+|SADDLE				|saddle rideable		|
+|SEW				|						|
+|SHAVE				|						|
+|SLEEPIN			|						|
+|SMOTHER			|						|
+|STORE				|						|
+|TAKEITEM			|take brid from cage	|
+|TERRAFORM			|						|
+|TURNOFF			|						|
+|TURNON				|						|
+|UNEQUIP			|						|
+|UNPIN				|						|
+|UNSADDLE			|						|
+|UPGRADE			|						|
+|USEITEM			|hats					|
+|WALKTO				|						|
+
+###Understanding the Actions
