@@ -54,7 +54,7 @@ local function Vision(inst)
         d.GUID = v.GUID
         d.Prefab = v.prefab
         d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
-        d.x, d.y, d.z = v.Transform:GetWorldPosition()
+        --d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
         data[i] = d
     end
     return data
@@ -70,6 +70,7 @@ local function Inventory(inst)
         d.GUID = v.GUID
         d.Prefab = v.prefab
         d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+		--d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
         ItemSlots[k] = d
     end
 
@@ -83,6 +84,7 @@ local function Inventory(inst)
         d.Prefab = v.prefab
         d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
         d.Slot = k
+		--d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
         EquipSlots[i] = d
         i = i + 1
     end

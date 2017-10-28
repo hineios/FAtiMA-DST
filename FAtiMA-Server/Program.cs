@@ -45,7 +45,7 @@ namespace FAtiMA_Server
                         Console.WriteLine("Event processed!");
                         goto case "/decide";
                     case "/decide":
-                        Console.WriteLine("Deciding... ");
+                        Console.Write("Deciding... ");
 
                         var decision = Walter.Decide();
                         List<Action> actions = new List<Action>();
@@ -68,9 +68,10 @@ namespace FAtiMA_Server
                                         Console.Write("Updating Beliefs... ");
 
                                         string e = reader.ReadToEnd();
+                                        //Console.WriteLine(e);
                                         var p = JsonConvert.DeserializeObject<Perceptions>(e);
                                         p.UpdateBeliefs(Walter);
-
+                                        //Console.WriteLine(p.ToString());
                                         Console.WriteLine(" Done!");
                                         return JsonConvert.True;
                                     }
