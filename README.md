@@ -23,68 +23,68 @@ The following table presents a list of actions that agents can perform. This lis
 
 For a complete list of actions available in the game check [this](https://gist.github.com/hineios/2160d86d2c3ebd6aa594f4a00d041ca6).
 
-|Actions			|Description			|
-|:-----------------:|:----------------------|
-|ACTIVATE			|						|
-|ADDFUEL			|						|
-|ATTACK				|						|
-|BAIT				|						|
-|BUILD				|						|
-|CASTSPELL			|use staves				|
-|CATCH				|						|
-|CHECKTRAP			|						|
-|CHOP				|						|
-|COMBINESTACK		|						|
-|COOK				|						|
-|CREATE				|						|
-|DEPLOY				|						|
-|DIG				|						|
-|DROP				|						|
-|DRY				|						|
-|EAT				|						|
-|EQUIP				|						|
-|EXTINGUISH			|extinguish using object|
-|FEED				|						|
-|FEEDPLAYER			|						|
-|FERTILIZE			|						|
-|FILL				|fill mosquito sack		|
-|FISH				|						|
-|GIVE				|						|
-|GIVEALLTOPLAYER	|						|
-|GIVETOPLAYER		|						|
-|HAMMER				|						|
-|HARVEST			|harvest crops			|
-|HEAL				|						|
-|JUMPIN				|						|
-|LIGHT				|						|
-|LOOKAT				|						|
-|MANUALEXTINGUISH	|						|
-|MINE				|						|
-|MOUNT				|						|
-|MURDER				|						|
-|NET				|						|
-|PICK				|pick grass				|
-|PICKUP				|pick up backpack		|
-|PLANT				|						|
-|PLAY				|						|
-|REEL				|						|
-|RESETMINE			|						|
-|RUMMAGE			|open container			|
-|SADDLE				|saddle rideable		|
-|SEW				|						|
-|SHAVE				|						|
-|SLEEPIN			|						|
-|SMOTHER			|						|
-|STORE				|						|
-|TAKEITEM			|take brid from cage	|
-|TERRAFORM			|						|
-|TURNOFF			|						|
-|TURNON				|						|
-|UNEQUIP			|						|
-|UNPIN				|						|
-|UNSADDLE			|						|
-|UPGRADE			|						|
-|USEITEM			|hats					|
-|WALKTO				|						|
+|Actions|Params|Restrictions|Description|
+|:---:|:---:|:---:|:---|
+|ACTIVATE|`{target:GUID}`|target: *activatable*|Interact with some game elements. Useful to investigate *dirtpiles*|
+|ADDFUEL|`{target:GUID, invobject:GUID}`|target: *fuel*, invobject: *fueled*|Add fuel to fueled entities (campfire, firesupressor)|
+|ATTACK|`{target:GUID}`||Attack other entities.|
+|BAIT|`{target:GUID, invobject:GUID}`|target: *trap*|Put bait on traps|
+|BUILD|`{recipe:, pos: ,rotation: ,skin: }`|				|						|
+|CASTSPELL			|		|				|use staves				|
+|CATCH				|		|				|						|
+|CHECKTRAP			|		|				|						|
+|CHOP				|		|				|						|
+|COMBINESTACK		|		|				|						|
+|COOK				|		|				|						|
+|CREATE				|		|				|						|
+|DEPLOY				|		|				|						|
+|DIG				|		|				|						|
+|DROP				|		|				|						|
+|DRY				|		|				|						|
+|EAT				|		|				|						|
+|EQUIP				|		|				|						|
+|EXTINGUISH			|		|				|extinguish using object|
+|FEED				|		|				|						|
+|FEEDPLAYER			|		|				|						|
+|FERTILIZE			|		|				|						|
+|FILL				|		|				|fill mosquito sack		|
+|FISH				|		|				|						|
+|GIVE				|		|				|						|
+|GIVEALLTOPLAYER	|		|				|						|
+|GIVETOPLAYER		|		|				|						|
+|HAMMER				|		|				|						|
+|HARVEST			|		|				|harvest crops			|
+|HEAL				|		|				|						|
+|JUMPIN				|		|				|						|
+|LIGHT				|		|				|						|
+|LOOKAT				|		|				|						|
+|MANUALEXTINGUISH	|		|				|						|
+|MINE				|		|				|						|
+|MOUNT				|		|				|						|
+|MURDER				|		|				|						|
+|NET				|		|				|						|
+|PICK				|		|				|pick grass				|
+|PICKUP				|		|				|pick up backpack		|
+|PLANT				|		|				|						|
+|REEL				|		|				|						|
+|RESETMINE			|		|				|						|
+|RUMMAGE			|		|				|open container			|
+|SADDLE				|		|				|saddle rideable		|
+|SEW				|		|				|						|
+|SHAVE				|		|				|						|
+|SLEEPIN			|		|				|						|
+|SMOTHER			|		|				|						|
+|STORE				|		|				|						|
+|TAKEITEM			|		|				|take brid from cage	|
+|TERRAFORM			|		|				|						|
+|TURNOFF			|		|				|						|
+|TURNON				|		|				|						|
+|UNEQUIP			|		|				|						|
+|UNPIN				|		|				|						|
+|UNSADDLE			|		|				|						|
+|UPGRADE			|		|				|						|
+|USEITEM			|		|				|hats					|
+|WALKTO				|		|				|						|
 
-###Understanding the Actions
+### Understanding the Actions
+
