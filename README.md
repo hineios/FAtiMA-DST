@@ -25,66 +25,67 @@ For a complete list of actions available in the game check [this](https://gist.g
 
 |Actions|Params|Restrictions|Description|
 |:---:|:---:|:---:|:---|
-|ACTIVATE|`{target:GUID}`|target: *activatable*|Interact with some game elements. Useful to investigate *dirtpiles*|
-|ADDFUEL|`{target:GUID, invobject:GUID}`|target: *fuel*, invobject: *fueled*|Add fuel to fueled entities (campfire, firesupressor)|
-|ATTACK|`{target:GUID}`||Attack other entities.|
-|BAIT|`{target:GUID, invobject:GUID}`|target: *trap*|Put bait on traps|
-|BUILD|`{recipe:, pos: ,rotation: ,skin: }`|				|						|
-|CASTSPELL			|		|				|use staves				|
-|CATCH				|		|				|						|
-|CHECKTRAP			|		|				|						|
-|CHOP				|		|				|						|
-|COMBINESTACK		|		|				|						|
-|COOK				|		|				|						|
-|CREATE				|		|				|						|
-|DEPLOY				|		|				|						|
-|DIG				|		|				|						|
-|DROP				|		|				|						|
-|DRY				|		|				|						|
-|EAT				|		|				|						|
-|EQUIP				|		|				|						|
-|EXTINGUISH			|		|				|extinguish using object|
-|FEED				|		|				|						|
-|FEEDPLAYER			|		|				|						|
-|FERTILIZE			|		|				|						|
-|FILL				|		|				|fill mosquito sack		|
-|FISH				|		|				|						|
-|GIVE				|		|				|						|
-|GIVEALLTOPLAYER	|		|				|						|
-|GIVETOPLAYER		|		|				|						|
-|HAMMER				|		|				|						|
-|HARVEST			|		|				|harvest crops			|
-|HEAL				|		|				|						|
-|JUMPIN				|		|				|						|
-|LIGHT				|		|				|						|
-|LOOKAT				|		|				|						|
-|MANUALEXTINGUISH	|		|				|						|
-|MINE				|		|				|						|
-|MOUNT				|		|				|						|
-|MURDER				|		|				|						|
-|NET				|		|				|						|
-|PICK				|		|				|pick grass				|
-|PICKUP				|		|				|pick up backpack		|
-|PLANT				|		|				|						|
-|REEL				|		|				|						|
-|RESETMINE			|		|				|						|
-|RUMMAGE			|		|				|open container			|
-|SADDLE				|		|				|saddle rideable		|
-|SEW				|		|				|						|
-|SHAVE				|		|				|						|
-|SLEEPIN			|		|				|						|
-|SMOTHER			|		|				|						|
-|STORE				|		|				|						|
-|TAKEITEM			|		|				|take brid from cage	|
-|TERRAFORM			|		|				|						|
-|TURNOFF			|		|				|						|
-|TURNON				|		|				|						|
-|UNEQUIP			|		|				|						|
-|UNPIN				|		|				|						|
-|UNSADDLE			|		|				|						|
-|UPGRADE			|		|				|						|
-|USEITEM			|		|				|hats					|
-|WALKTO				|		|				|						|
+|ACTIVATE|`{target: GUID}`|target: *activatable*|Interact with some game elements. Useful to investigate *dirtpiles*|
+|ADDFUEL|`{target: GUID, invobject: GUID}`|target: *fuel*, invobject: *fueled*|Add fuel to fueled entities (campfire, firesupressor)|
+|ATTACK|`{target: GUID}`||Attack other entities.|
+|BAIT|`{target: GUID, invobject: GUID}`|target: *trap*|Put bait on traps|
+|BUILD|`{recipe:, pos: ,rotation: ,skin: }`|||
+|CASTSPELL|`{target: GUID}`||Use staves. Equiped Hand slot must have the *spellcaster* component|
+|CATCH|`{}`||Needs to be reviewed|
+|CHECKTRAP|`{target: GUID}`|target: *trap*|Harvest trap|
+|CHOP|`{target: GUID, invobject: GUID}`|target: *workable*, invobject: can work target |Chop trees|
+|COMBINESTACK|`{target: GUID, invobject: GUID}`|target: *stackable*, invobject: same *prefab* as target|Combines invobject into target if it is the same prefab and target is not full|
+|COOK|`{target: GUID, invobject: GUID}`|target: *cooker*, invobject: must be ||
+|CREATE|`{}`||Needs to be reviewed|
+|DEPLOY|`{invobject: GUID, pos: (x, y, z)}`|invobject: *deployable*, pos: valid position|Place ground tile, walls, fences, and gates|
+|DIG|`{target: GUID, invobject: GUID}`|target: *workable*, invobject: can work target|Dig grass, twigs, rabbit holes, graves, and others from the ground|
+|DROP|`{invobject: GUID, pos: (x, y, z)}`|invobject: must be in inventory, pos: valid position|Drop held item to a spot in the ground|
+|DRY|`{target: GUID}`|target: *dryer*, invobject: |Dry meat at racks|
+|EAT|`{target: GUID}`|target: *edible*|Eat food|
+|EQUIP|`{}`|||
+|EXTINGUISH|`{}`||extinguish using object|
+|FEED|`{}`|||
+|FEEDPLAYER|`{}`|||
+|FERTILIZE|`{}`|||
+|FILL|`{}`||fill mosquito sack|
+|FISH|`{}`|||
+|GIVE|`{}`|||
+|GIVEALLTOPLAYER|`{}`|||
+|GIVETOPLAYER|`{}`|||
+|HAMMER|`{target: GUID, invobject: GUID}`|target: *workable*, invobject: can work target|Hammer down built structures|
+|HARVEST|`{}`||harvest crops|
+|HEAL|`{}`|||
+|JUMPIN|`{}`|||
+|LIGHT|`{}`|||
+|LOOKAT|`{}`|||
+|MANUALEXTINGUISH|`{}`|||
+|MINE|`{target: GUID, invobject: GUID}`|target: *workable*, invobject: can work target|Mine rocks, sinkholes, glassiers, and **rock with gold**|
+|MOUNT|`{}`|||
+|MURDER|`{}`|||
+|NET|`{}`|||
+|PICK|`{}`||pick grass|
+|PICKUP|`{}`||pick up backpack|
+|PLANT|`{}`|||
+|REEL|`{}`|||
+|RESETMINE|`{}`|||
+|RUMMAGE|`{}`||open container|
+|SADDLE|`{}`||saddle rideable|
+|SEW|`{}`|||
+|SHAVE|`{}`|||
+|SLEEPIN|`{}`|||
+|SMOTHER|`{}`|||
+|STORE|`{}`|||
+|TAKEITEM|`{}`||take brid from cage|
+|TERRAFORM|`{}`|||
+|TURNOFF|`{}`|||
+|TURNON|`{}`|||
+|UNEQUIP|`{}`|||
+|UNPIN|`{}`|||
+|UNSADDLE|`{}`|||
+|UPGRADE|`{}`|||
+|USEITEM|`{}`||hats|
+|WALKTO|`{}`|||
+
 
 ### Understanding the Actions
 
