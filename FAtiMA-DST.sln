@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27004.2005
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FAtiMA-Server", "FAtiMA-Server\FAtiMA-Server.csproj", "{DDDC370C-EC76-46A0-9C5B-F5BF26A17356}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FAtiMA-DST", "FAtiMA-DST", "{2FA2AEDD-F3B8-4958-B9E5-565792E82592}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{8B4F7F33-B16F-4BD3-BB02-4D772EA6EC15}"
+	ProjectSection(SolutionItems) = preProject
+		FAtiMA-DST\modinfo.lua = FAtiMA-DST\modinfo.lua
+		FAtiMA-DST\modmain.lua = FAtiMA-DST\modmain.lua
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "brains", "brains", "{53F125D2-3CEF-4A94-BB09-D8697334E23D}"
+	ProjectSection(SolutionItems) = preProject
+		FAtiMA-DST\scripts\brains\walterbrain.lua = FAtiMA-DST\scripts\brains\walterbrain.lua
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DDDC370C-EC76-46A0-9C5B-F5BF26A17356}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDDC370C-EC76-46A0-9C5B-F5BF26A17356}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDDC370C-EC76-46A0-9C5B-F5BF26A17356}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDDC370C-EC76-46A0-9C5B-F5BF26A17356}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8B4F7F33-B16F-4BD3-BB02-4D772EA6EC15} = {2FA2AEDD-F3B8-4958-B9E5-565792E82592}
+		{53F125D2-3CEF-4A94-BB09-D8697334E23D} = {8B4F7F33-B16F-4BD3-BB02-4D772EA6EC15}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B891AB74-594D-4C67-8CCF-5D58356F3D8A}
+	EndGlobalSection
+EndGlobal

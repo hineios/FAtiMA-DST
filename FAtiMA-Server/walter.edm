@@ -9,16 +9,16 @@
 					"Target": "x",
 					"Conditions":
 						{
-							"Set": ["InSight([x]) = True", "Item([x], flower) = 1"]
+							"Set": ["InSight([x]) = True", "Entity([x], flower) = [y]"]
 						},
 					"Priority": 1
 				}, 
 				{
-					"Action": "HARVEST([x])",
+					"Action": "PICK([x])",
 					"Target": "x",
 					"Conditions":
 						{
-							"Set": ["InSight([x]) = True", "True = [x]"]
+							"Set": ["InSight([x]) = True", "Entity([x], grass) = [y]"]
 						},
 					"Priority": 1
 				}]

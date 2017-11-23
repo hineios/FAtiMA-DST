@@ -1,0 +1,31 @@
+{
+	"root":
+		{
+			"classId": 0,
+			"DefaultActionPriority": 2,
+			"ActionTendencies": [
+				{
+					"Action": "PICK([x])",
+					"Target": "x",
+					"Conditions":
+						{
+							"Set": ["InSight([x]) = True", "Item([x], flower) = 1"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "PICK([x])",
+					"Target": "x",
+					"Conditions":
+						{
+							"Set": ["InSight([x]) = True", "Item([x], grass) = 1"]
+						},
+					"Priority": 1
+				}]
+		},
+	"types": [
+		{
+			"TypeId": 0,
+			"ClassName": "EmotionalDecisionMaking.EmotionalDecisionMakingAsset, EmotionalDecisionMaking, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+		}]
+}
