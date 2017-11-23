@@ -1,9 +1,7 @@
-require "behaviours/decide"
-
 local SEE_DIST = 20
-local SEE_RANGE_HELPER = true
+local SEE_RANGE_HELPER = false
 local PERCEPTION_UPDATE_INTERVAL = 1
-local RECONSIDER_ACTIONS_INTERVAL = 10
+local DECIDE_INTERVAL = 1
 
 local assets =
 {
@@ -54,6 +52,7 @@ local function Vision(inst)
         d.GUID = v.GUID
         d.Prefab = v.prefab
         d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+		-- Add information about the state of the entity (is it workable?)
         --d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
         data[i] = d
     end
@@ -92,7 +91,7 @@ local function Inventory(inst)
     return EquipSlots, ItemSlots
 end
 
-local function Perceptions(inst, FAtiMAServer, beliefscallbackfn)
+local function Perceptions(inst, FAtiMAServer, perceptionscallbackfn)
     local data = {}
     data.Vision = Vision(inst)
     data.EquipSlots, data.ItemSlots = Inventory(inst) 
@@ -108,19 +107,22 @@ local function Perceptions(inst, FAtiMAServer, beliefscallbackfn)
     -- Add a perception that says which time of the day it is (day, dusk, night)
 
     TheSim:QueryServer(
-        FAtiMAServer .. "/beliefs",
-        beliefscallbackfn,
+        FAtiMAServer .. "/perceptions",
+        perceptionscallbackfn,
         "POST",
         json.encode(data))
 end
 
-local function ReconsiderActions(inst, FAtiMAServer, reconsidercallbackfn)
+local function Decide(inst, FAtiMAServer, decidecallbackfn)
     TheSim:QueryServer(
         FAtiMAServer .. "/decide",
-        reconsidercallbackfn,
+        decidecallbackfn,
         "GET")
 end
 
+local function OnEvent(inst, FAtiMAServer, decidecallbackfn)
+	
+end
 local WalterBrain = Class(Brain, function(self, inst, server)
     Brain._ctor(self, inst)
     self.inst = inst
@@ -133,52 +135,25 @@ local WalterBrain = Class(Brain, function(self, inst, server)
     ------------------------------
     -- HTTP Callbacks Functions --
     ------------------------------
-    self.beliefscallbackfn = function(result, isSuccessful , http_code)
+    self.perceptionscallbackfn = function(result, isSuccessful , http_code)
         -- Intentionally left blank
     end
 
     self.decidecallbackfn = function(result, isSuccessful , http_code)
-        print("Decision:")
-        --print("agent is ", self.inst)
         if isSuccessful then
-			local actions = json.decode(result)
-			if self.inst.components.deliberator and actions then
-				self.inst.components.deliberator:SetActions(actions)
+			local action = result and (result ~= "") and json.decode(result)
+			if action and action.Name then
+				self.currentaction = action
 			end
-			for k, v in pairs(actions) do
-				print("    ", v.Name, v.Target)
-			end
-		else
-			print("No response from server!")
 		end
     end
 end)
 
--- local x, y, z = ThePlayer().Transform:GetWorldPosition()
--- local ents = TheSim:FindEntities(x, y, z, 20, nil, {"INLIMBO"}, nil)
--- for k, v in pairs(ents) do print(k); for i, g in pairs(v) do print("    ", i, g)
-local function Test(inst)
---	print("Action:", ACTIONS[inst.components.deliberator:GetNextAction().Name])
---	for k, v in pairs(ACTIONS[inst.components.deliberator:GetNextAction().Name]) do
---		print(k, v)
---	end
---	print("T:" , Ents[inst.components.deliberator:GetNextAction().Target], "type:", type(inst.components.deliberator:GetNextAction().Target))
-    print("Doing ",ACTIONS[inst.components.deliberator:GetNextAction().Name], inst.components.deliberator:GetNextAction().Target)
-    return BufferedAction(inst, 
-        Ents[tonumber(inst.components.deliberator:GetNextAction().Target)], 
-        ACTIONS[inst.components.deliberator:GetNextAction().Name])
-end
-
-local function TestCond(inst)
-	--print("test cond", inst.components.deliberator:GetNextAction() ~= nil)
-	return inst.components.deliberator:GetNextAction() ~= nil
-end
 function WalterBrain:OnStart()
     -----------------------
     ----- Deliberator -----
     -----------------------
-    self.inst:AddComponent("deliberator")
-    self.inst.components.deliberator:ClearActions()
+    self.currentaction = nil
 
     -----------------------
     ----- Range Helper ----
@@ -188,22 +163,25 @@ function WalterBrain:OnStart()
     -----------------------
     ----- Perceptions -----
     -----------------------
-    if self.beliefupdater ~= nil then
-        self.beliefupdater:Cancel()
+    if self.perceptions ~= nil then
+        self.perceptions:Cancel()
     end
     -- DoPeriodicTask(interval, fn, initialdelay, ...) the extra parameters are passed to fn
-    self.beliefupdater = self.inst:DoPeriodicTask(PERCEPTION_UPDATE_INTERVAL, Perceptions, 0, self.FAtiMAServer, self.beliefscallbackfn)
+    self.perceptions = self.inst:DoPeriodicTask(PERCEPTION_UPDATE_INTERVAL, Perceptions, 0, self.FAtiMAServer, self.perceptionscallbackfn)
 
     -----------------------
     -- ReconsiderActions --
     -----------------------
-    self.reconsideractions = self.inst:DoPeriodicTask(RECONSIDER_ACTIONS_INTERVAL, ReconsiderActions, 0, self.FAtiMAServer, self.decidecallbackfn)
+	if self.decide ~= nil then
+        self.decide:Cancel()
+    end
+    self.decide = self.inst:DoPeriodicTask(DECIDE_INTERVAL, Decide, 0, self.FAtiMAServer, self.decidecallbackfn)
 
     -----------------------
     --- Event Listeners ---
     -----------------------
-    -- TODO
-    --self.inst:ListenForEvent("killed", self.onkilledfn)
+    -- EntityScript:ListenForEvent(event, fn, source)
+    -- self.inst:ListenForEvent("killed", self.onkilledfn)
 
     -----------------------
     -------- Brain --------
@@ -211,22 +189,18 @@ function WalterBrain:OnStart()
     local root = 
         PriorityNode(
         {
-            IfNode(function() return TestCond(self.inst) end, "IfDoAction", 
+            IfNode(function() return (self.currentaction ~= nil) end, "IfDoAction",
                 DoAction(self.inst, 
-                    function() return Test(self.inst) end, 
+                    function() return BufferedAction(self.inst, 
+						Ents[tonumber(self.currentaction.Target)], 
+						ACTIONS[self.currentaction.Name]) end, 
                     "doaction", 
-                    true)),
-				ActionNode(function() return self.inst.components.deliberator:FinishAction() end, "End Action")
-            --Decide(self.inst)
+                    true))
         }, 1)
     self.bt = BT(self.inst, root)
 end
 
 function WalterBrain:OnStop()
-    -----------------------
-    ----- Deliberator -----
-    -----------------------
-    self.inst:RemoveComponent("deliberator")
     -----------------------
     ----- Range Helper ----
     -----------------------
@@ -237,39 +211,22 @@ function WalterBrain:OnStop()
     -----------------------
     ----- Perceptions -----
     -----------------------
-    if self.beliefupdater ~= nil then
-        self.beliefupdater:Cancel()
-        self.beliefupdater = nil
+    if self.perceptions ~= nil then
+        self.perceptions:Cancel()
+        self.perceptions = nil
     end
     -----------------------
     -- ReconsiderActions --
     -----------------------
-    if self.reconsideractions ~= nil then
-        self.reconsideractions:Cancel()
-        self.reconsideractions = nil
+    if self.decide ~= nil then
+        self.decide:Cancel()
+        self.decide = nil
     end
     -----------------------
     --- Event Listeners ---
     -----------------------
-    -- TODO
-    --self.inst:RemoveEventCallback("killed", self.onkilledfn)
+--    self.inst:RemoveEventCallback("killed", self.onkilledfn)
 
-end
-
-
-
-function WalterBrain:OnEvent(actor, event, target, type)
-    local data = {}
-    data["subject"] = actor
-    data["actionName"] = event
-    data["target"] = target.name
-    data["type"] = type
-
-    TheSim:QueryServer(
-        self.FAtiMAServer .. "/events",
-        self.eventscallbackfn,
-        "POST",
-        json.encode(data))
 end
 
 return WalterBrain

@@ -5,18 +5,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
-using WellFormedNames;
 
 namespace FAtiMA_Server
 {
     class Program
     {
+        //A lock to proccess requests non concurrently
         private static Object l = new Object();
+
+        //TODO Support multiple RPCs
         private static RolePlayCharacterAsset Walter;
+
         static void Main(string[] args)
         {
             AssetManager.Instance.Bridge = new BasicIOBridge();
+
             Console.Write("Loading Character from file... ");
             Walter = RolePlayCharacterAsset.LoadFromFile("./walter.rpc");
             Walter.LoadAssociatedAssets();
@@ -28,7 +31,7 @@ namespace FAtiMA_Server
             Console.ReadKey();
             ws.Stop();
 
-            Walter.SaveToFile("./water-final.rpc");
+            Walter.SaveToFile("./walter-final.rpc");
         }
 
         public static string SendResponse(HttpListenerRequest request)
@@ -37,49 +40,54 @@ namespace FAtiMA_Server
             {
                 switch (request.RawUrl)
                 {
-                    case "/events":
-                        Console.Write("An event occured... ");
-                        //TODO action start & action end
-                        //TODO process event
-
-                        Console.WriteLine("Event processed!");
-                        goto case "/decide";
-                    case "/decide":
-                        Console.Write("Deciding... ");
-
-                        var decision = Walter.Decide();
-                        List<Action> actions = new List<Action>();
-                        foreach (var d in decision)
+                    case "/perceptions":
+                        if (request.HasEntityBody)
                         {
-                            actions.Add(Action.ToAction(d));
-                        }
-
-                        Console.WriteLine("Done!");
-                        //TODO send only one action
-                        return JsonConvert.SerializeObject(actions);
-
-                    case "/beliefs":
-                            if (request.HasEntityBody)
+                            using (System.IO.Stream body = request.InputStream) // here we have data
                             {
-                                using (System.IO.Stream body = request.InputStream) // here we have data
+                                using (System.IO.StreamReader reader = new System.IO.StreamReader(body, request.ContentEncoding))
                                 {
-                                    using (System.IO.StreamReader reader = new System.IO.StreamReader(body, request.ContentEncoding))
+                                    string e = reader.ReadToEnd();
+                                    var p = JsonConvert.DeserializeObject<Perceptions>(e);
+                                    try
                                     {
-                                        Console.Write("Updating Beliefs... ");
-
-                                        string e = reader.ReadToEnd();
-                                        //Console.WriteLine(e);
-                                        var p = JsonConvert.DeserializeObject<Perceptions>(e);
-                                        p.UpdateBeliefs(Walter);
-                                        //Console.WriteLine(p.ToString());
-                                        Console.WriteLine(" Done!");
-                                        return JsonConvert.True;
+                                        p.UpdatePerceptions(Walter);
                                     }
+                                    catch (Exception excpt)
+                                    {
+                                        Console.WriteLine(p.ToString());
+                                        throw excpt;
+                                    }
+                                    return JsonConvert.True;
                                 }
                             }
-                            Console.WriteLine("Couldn't update beliefs");
-                            return JsonConvert.False;
-
+                        }
+                        return JsonConvert.False;
+                    case "/decide":
+                        var decision = Walter.Decide();
+                        if (decision.Count() < 1)
+                            return JsonConvert.Null;
+                        var action = Action.ToAction(decision.First());
+                        return JsonConvert.SerializeObject(action);
+                    case "/events":
+                        //Console.Write("An event occured... ");
+                        //if (request.HasEntityBody)
+                        //{
+                        //    using (System.IO.Stream body = request.InputStream) // here we have data
+                        //    {
+                        //        using (System.IO.StreamReader reader = new System.IO.StreamReader(body, request.ContentEncoding))
+                        //        {
+                        //            string e = reader.ReadToEnd();
+                        //            var p = JsonConvert.DeserializeObject<Event>(e);
+                        //            Walter.Perceive(p.ToName());
+                        //            Console.Write(p.ToString());
+                        //            Console.WriteLine(" Done!");
+                        //            return JsonConvert.True;
+                        //        }
+                        //    }
+                        //}
+                        //Console.WriteLine("Event processed!");
+                        return JsonConvert.True;
                     default:
                         return JsonConvert.Null;
                 }

@@ -121,6 +121,8 @@
   <ItemGroup>
     <Compile Include="Action.cs" />
     <Compile Include="BasicIOBridge.cs" />
+    <Compile Include="Entities.cs" />
+    <Compile Include="Event.cs" />
     <Compile Include="Perceptions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -131,13 +133,13 @@
     <None Include="FAtiMA-Server_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="walter.ea">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="walter.edm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="walter.rpc">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>

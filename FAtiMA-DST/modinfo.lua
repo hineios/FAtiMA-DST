@@ -1,8 +1,8 @@
 -- This information tells other players more about the mod
-name = "Walter"
-description = ""
+name = "FAtiMA-DST"
+description = "Build your agents using FAtiMA and play with them in the Don't Starve Together World."
 author = "Fábio Almeida (hineios)"
-version = "0.1"
+version = "0.2"
 --version_compatible = "1.7"
 
 -- This is the URL name of the mod's thread on the forum; the part after the index.php? and before the first & in the URL
@@ -33,11 +33,11 @@ server_filter_tags = {"ai"}
 
 
 
--- configuration_options =
--- {
+ configuration_options =
+ {
 --     {
---         name = "health_regen",
---         label = "Health Regeneration",
+--         name = "EventKilled",
+--         label = "Listen to the 'killed' event",
 --         options = 
 --         {
 --             {description = "1", data = 1},
@@ -46,14 +46,14 @@ server_filter_tags = {"ai"}
 --         },
 --         default = 5,
 --     },
---     {
---         name = "res_spawning",
---         label = "Amulet Spawning",
---         options = 
---         {
---             {description = "True", data = true},
---             {description = "False", data = false}
---         },
---         default = true,
---     },
--- }
+     {
+         name = "EventKilled",
+         label = "Listen to the 'killed' event",
+         options = 
+         {
+             {description = "True", data = true},
+             {description = "False", data = false}
+         },
+         default = true,
+     }
+ }

@@ -18,11 +18,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "brains", "brains", "{53F125
 		FAtiMA-DST\scripts\brains\walterbrain.lua = FAtiMA-DST\scripts\brains\walterbrain.lua
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "components", "components", "{E1C0EB00-C0D3-4AC1-8B4B-90FEAA892E6C}"
-	ProjectSection(SolutionItems) = preProject
-		FAtiMA-DST\scripts\components\deliberator.lua = FAtiMA-DST\scripts\components\deliberator.lua
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,7 +35,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{8B4F7F33-B16F-4BD3-BB02-4D772EA6EC15} = {2FA2AEDD-F3B8-4958-B9E5-565792E82592}
 		{53F125D2-3CEF-4A94-BB09-D8697334E23D} = {8B4F7F33-B16F-4BD3-BB02-4D772EA6EC15}
-		{E1C0EB00-C0D3-4AC1-8B4B-90FEAA892E6C} = {8B4F7F33-B16F-4BD3-BB02-4D772EA6EC15}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B891AB74-594D-4C67-8CCF-5D58356F3D8A}

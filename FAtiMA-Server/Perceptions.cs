@@ -5,64 +5,6 @@ using WellFormedNames;
 
 namespace FAtiMA_Server
 {
-    public class Entity
-    {
-        public int GUID { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Z { get; set; }
-
-        public Entity(int GUID/*, int x, int y, int z*/)
-        {
-            this.GUID = GUID;
-            //X = x;
-            //Y = y;
-            //Z = z;
-        }
-
-        public override string ToString()
-        {
-            return "Entity: " + this.GUID;
-        }
-    }
-
-    public class Item : Entity
-    {
-        public string Prefab { get; set; }
-        public int Count { get; set; }
-
-        public Item(int GUID, string prefab, int count/*, int x, int y, int z*/) : base(GUID/*, x, y, z*/)
-        {
-            this.Prefab = prefab;
-            this.Count = count;
-        }
-
-        public void UpdateBelief(RolePlayCharacterAsset rpc)
-        {
-            rpc.UpdateBelief("Item(" + GUID + "," + Prefab /*+ "," + X + "," + Y + "," + Z */+ ")", Count.ToString());
-        }
-
-        public override string ToString()
-        {
-            return Count + " x " + Prefab;
-        }
-    }
-
-    public class EquippedItems : Item
-    {
-        public string Slot { get; set; }
-
-        public EquippedItems(int GUID, string prefab, int count, string slot/*, int x, int y, int z*/) : base(GUID, prefab, count/*, x, y, z*/)
-        {
-            this.Slot = slot;
-        }
-
-        public override string ToString()
-        {
-            return Slot + ": " + Prefab;
-        }
-    }
-
     public class Perceptions
     {
         List<Item> Vision { get; set; }
@@ -94,7 +36,7 @@ namespace FAtiMA_Server
             this.IsOverheating = IsOverheating;
         }
         
-        public void UpdateBeliefs(RolePlayCharacterAsset rpc)
+        public void UpdatePerceptions(RolePlayCharacterAsset rpc)
         {
             /*
              * Find every InSight, Inventory, and IsEquipped belief and set them to false
@@ -106,7 +48,7 @@ namespace FAtiMA_Server
 
             var beliefs = rpc.m_kb.AskPossibleProperties((Name)"InSight([x])", (Name)"SELF", subset);
             //Console.WriteLine("Query returned " + beliefs.Count() + " InSight beliefs.");
-            foreach(var b in beliefs)
+            foreach (var b in beliefs)
             {
                 foreach (var s in b.Item2)
                 {
@@ -139,31 +81,35 @@ namespace FAtiMA_Server
             /*
              * Update the KB with the new beliefs
              * */
-            rpc.UpdateBelief("Hunger(SELF)", this.Hunger.ToString());
-            rpc.UpdateBelief("Health(SELF)", this.Health.ToString());
-            rpc.UpdateBelief("Sanity(SELF)", this.Sanity.ToString());
-            rpc.UpdateBelief("IsFreezing(SELF)", this.IsFreezing.ToString());
-            rpc.UpdateBelief("IsOverheating(SELF)", this.IsOverheating.ToString());
-            rpc.UpdateBelief("Moisture(SELF)", this.Moisture.ToString());
-            rpc.UpdateBelief("Temperature(SELF)", this.Temperature.ToString());
+            
+
+            rpc.Perceive(EventHelper.PropertyChange("Hunger(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
+            rpc.Perceive(EventHelper.PropertyChange("Health(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
+            rpc.Perceive(EventHelper.PropertyChange("Sanity(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
+            rpc.Perceive(EventHelper.PropertyChange("IsFreezing(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
+            rpc.Perceive(EventHelper.PropertyChange("IsOverheating(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
+            rpc.Perceive(EventHelper.PropertyChange("Moisture(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
+            rpc.Perceive(EventHelper.PropertyChange("Temperature(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
             
             foreach (Item i in Vision)
             {
-                rpc.UpdateBelief("InSight("+ i.GUID + ")", "TRUE");
-                i.UpdateBelief(rpc);
+                rpc.Perceive(EventHelper.PropertyChange("InSight(" + i.GUID + ")", "TRUE", rpc.CharacterName.ToString()));
+                i.UpdatePerception(rpc);
             }
 
             foreach(Item i in ItemSlots)
             {
-                rpc.UpdateBelief("InInventory(" + i.GUID + ")", "TRUE");
-                i.UpdateBelief(rpc);
+                rpc.Perceive(EventHelper.PropertyChange("InInventory(" + i.GUID + ")", "TRUE", rpc.CharacterName.ToString()));
+                i.UpdatePerception(rpc);
             }
 
             foreach(EquippedItems i in EquipSlots)
             {
-                rpc.UpdateBelief("IsEquipped(" + i.GUID + "," + i.Slot + ")", "TRUE");
-                i.UpdateBelief(rpc);
+                rpc.Perceive(EventHelper.PropertyChange("IsEquipped(" + i.GUID + "," + i.Slot + ")", "TRUE", rpc.CharacterName.ToString()));
+                i.UpdatePerception(rpc);
             }
+
+            rpc.Update();
         }
         
         /**
@@ -198,58 +144,4 @@ namespace FAtiMA_Server
         }
     }
 }
-
-/*
- * Old code that proccessed events
- * */
-//class Perception
-//{
-//    private List<> subject { get; set; }
-//    private string actionName { get; set; }
-//    private string target { get; set; }
-//    private string type { get; set; }
-
-//    public Perception(string s, string a, string t, string type)
-//    {
-//        this.subject = s;
-//        this.actionName = a;
-//        this.target = t;
-//        this.type = type;
-//    }
-
-//    private Name ToName()
-//    {
-//        switch (type)
-//        {
-//            case "actionend":
-//                return ToActionEnd();
-//            case "actionstart":
-//                return ToActionStart();
-//            case "propertychange":
-//                return ToPropertyChange();
-//            default:
-//                throw new Exception("Type of action not recognised");
-//        }
-//    }
-
-//    private Name ToActionEnd()
-//    {
-//        return EventHelper.ActionEnd(subject, actionName, target);
-//    }
-
-//    private Name ToActionStart()
-//    {
-//        return EventHelper.ActionStart(subject, actionName, target);
-//    }
-
-//    private Name ToPropertyChange()
-//    {
-//        return EventHelper.PropertyChange(subject, actionName, target);
-//    }
-
-//    public static Name FromJSON(string s)
-//    {
-//        return JsonConvert.DeserializeObject<Perception>(s).ToName();
-//    }
-//}
 
