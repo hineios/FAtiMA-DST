@@ -132,9 +132,6 @@
     <None Include="App.config" />
     <None Include="FAtiMA-Server_TemporaryKey.pfx" />
     <None Include="packages.config" />
-    <None Include="walter.ea">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="walter.edm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
