@@ -17,12 +17,13 @@ namespace FAtiMA_Server
         public int Temperature { get; set; }
         public bool IsFreezing { get; set; }
         public bool IsOverheating { get; set; }
+        public bool IsBusy { get; set; }
 
         //TODO: Add something to track which part of the day the agent is in.
 
         [JsonConstructor]
         public Perceptions(List<EquippedItems> EquipSlots, List<Item> Vision, List<Item> ItemSlots,
-            float Hunger, float Sanity, float Health, float Moisture, float Temperature, bool IsFreezing, bool IsOverheating)
+            float Hunger, float Sanity, float Health, float Moisture, float Temperature, bool IsFreezing, bool IsOverheating, bool IsBusy)
         {
             this.Vision = Vision;
             this.ItemSlots = ItemSlots;
@@ -34,6 +35,7 @@ namespace FAtiMA_Server
             this.Temperature = (int) Temperature;
             this.IsFreezing = IsFreezing;
             this.IsOverheating = IsOverheating;
+            this.IsBusy = IsBusy;
         }
         
         public void UpdatePerceptions(RolePlayCharacterAsset rpc)
@@ -84,13 +86,14 @@ namespace FAtiMA_Server
             
 
             rpc.Perceive(EventHelper.PropertyChange("Hunger(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
-            rpc.Perceive(EventHelper.PropertyChange("Health(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
-            rpc.Perceive(EventHelper.PropertyChange("Sanity(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
-            rpc.Perceive(EventHelper.PropertyChange("IsFreezing(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
-            rpc.Perceive(EventHelper.PropertyChange("IsOverheating(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
-            rpc.Perceive(EventHelper.PropertyChange("Moisture(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
-            rpc.Perceive(EventHelper.PropertyChange("Temperature(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
-            
+            rpc.Perceive(EventHelper.PropertyChange("Health(" + rpc.CharacterName.ToString() + ")", this.Health.ToString(), rpc.CharacterName.ToString()));
+            rpc.Perceive(EventHelper.PropertyChange("Sanity(" + rpc.CharacterName.ToString() + ")", this.Sanity.ToString(), rpc.CharacterName.ToString()));
+            rpc.Perceive(EventHelper.PropertyChange("IsFreezing(" + rpc.CharacterName.ToString() + ")", this.IsFreezing.ToString(), rpc.CharacterName.ToString()));
+            rpc.Perceive(EventHelper.PropertyChange("IsOverheating(" + rpc.CharacterName.ToString() + ")", this.IsOverheating.ToString(), rpc.CharacterName.ToString()));
+            rpc.Perceive(EventHelper.PropertyChange("Moisture(" + rpc.CharacterName.ToString() + ")", this.Moisture.ToString(), rpc.CharacterName.ToString()));
+            rpc.Perceive(EventHelper.PropertyChange("Temperature(" + rpc.CharacterName.ToString() + ")", this.Temperature.ToString(), rpc.CharacterName.ToString()));
+            rpc.Perceive(EventHelper.PropertyChange("IsBusy(" + rpc.CharacterName.ToString() + ")", this.IsBusy.ToString(), rpc.CharacterName.ToString()));
+
             foreach (Item i in Vision)
             {
                 rpc.Perceive(EventHelper.PropertyChange("InSight(" + i.GUID + ")", "TRUE", rpc.CharacterName.ToString()));
@@ -125,6 +128,7 @@ namespace FAtiMA_Server
             s += "\tTemperature: " + this.Temperature;
             s += "\tIsFreezing: " + this.IsFreezing;
             s += "\tIsOverheating: " + this.IsOverheating;
+            s += "\tIsBusy: " + this.IsBusy;
             s += "\n\tVision:\n";
             foreach (Item v in Vision)
             {

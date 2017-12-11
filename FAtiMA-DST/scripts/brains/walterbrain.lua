@@ -1,7 +1,7 @@
 local SEE_DIST = 20
-local SEE_RANGE_HELPER = false
-local PERCEPTION_UPDATE_INTERVAL = 1
-local DECIDE_INTERVAL = 1
+local SEE_RANGE_HELPER = true
+local PERCEPTION_UPDATE_INTERVAL = .4
+local DECIDE_INTERVAL = .7
 
 local assets =
 {
@@ -41,7 +41,7 @@ end
 local function Vision(inst)
     local x, y, z = inst.Transform:GetWorldPosition()
     local TAGS = nil
-    local EXCLUDE_TAGS = {"INLIMBO", "NOCLICK"}
+    local EXCLUDE_TAGS = {"INLIMBO", "NOCLICK", "CLASSIFIED", "FX"}
     local ONE_OF_TAGS = nil
     local ents = TheSim:FindEntities(x, y, z, SEE_DIST, TAGS, EXCLUDE_TAGS, ONE_OF_TAGS)
     
@@ -91,7 +91,7 @@ local function Inventory(inst)
     return EquipSlots, ItemSlots
 end
 
-local function Perceptions(inst, FAtiMAServer, perceptionscallbackfn)
+local function Perceptions(inst, brain)
     local data = {}
     data.Vision = Vision(inst)
     data.EquipSlots, data.ItemSlots = Inventory(inst) 
@@ -103,29 +103,32 @@ local function Perceptions(inst, FAtiMAServer, perceptionscallbackfn)
     data.IsFreezing = inst:IsFreezing()
     data.IsOverHeating = inst:IsOverheating()
     data.Moisture = inst:GetMoisture()
+	data.IsBusy = (brain.CurrentAction or false) and true
 
     -- Add a perception that says which time of the day it is (day, dusk, night)
 
     TheSim:QueryServer(
-        FAtiMAServer .. "/perceptions",
-        perceptionscallbackfn,
+        brain.FAtiMAServer .. "/perceptions",
+        brain.PerceptionsCallback,
         "POST",
         json.encode(data))
 end
 
-local function Decide(inst, FAtiMAServer, decidecallbackfn)
+local function Decide(inst, brain)
     TheSim:QueryServer(
-        FAtiMAServer .. "/decide",
-        decidecallbackfn,
+        brain.FAtiMAServer .. "/decide",
+        brain.DecideCallback,
         "GET")
 end
 
-local function OnEvent(inst, FAtiMAServer, decidecallbackfn)
+local function OnEvent(inst, FAtiMAServer, DecideCallback)
 	
 end
+
 local WalterBrain = Class(Brain, function(self, inst, server)
     Brain._ctor(self, inst)
     self.inst = inst
+	--self.inst.entity:SetCanSleep(false)
 
     ------------------------------
     ---- FAtiMA Communication ----
@@ -135,25 +138,38 @@ local WalterBrain = Class(Brain, function(self, inst, server)
     ------------------------------
     -- HTTP Callbacks Functions --
     ------------------------------
-    self.perceptionscallbackfn = function(result, isSuccessful , http_code)
+    self.PerceptionsCallback = function(result, isSuccessful , http_code)
         -- Intentionally left blank
     end
 
-    self.decidecallbackfn = function(result, isSuccessful , http_code)
+    self.DecideCallback = function(result, isSuccessful , http_code)
         if isSuccessful then
 			local action = result and (result ~= "") and json.decode(result)
 			if action and action.Name then
-				self.currentaction = action
+				self.inst:InterruptBufferedAction()
+				self.inst.components.locomotor:Clear()
+				self.CurrentAction = action
 			end
 		end
     end
+
+	self.OnEvent = function(inst, data)
+		print(inst.prefab)
+		print("data")
+		for k,v in pairs(data) do 
+			print(k, v)
+			for i, j in pairs(v) do
+				print(i, j)
+			end
+		end
+	end
 end)
 
 function WalterBrain:OnStart()
     -----------------------
     ----- Deliberator -----
     -----------------------
-    self.currentaction = nil
+    self.CurrentAction = nil
 
     -----------------------
     ----- Range Helper ----
@@ -163,39 +179,47 @@ function WalterBrain:OnStart()
     -----------------------
     ----- Perceptions -----
     -----------------------
-    if self.perceptions ~= nil then
-        self.perceptions:Cancel()
+    if self.Perceptions ~= nil then
+        self.Perceptions:Cancel()
     end
     -- DoPeriodicTask(interval, fn, initialdelay, ...) the extra parameters are passed to fn
-    self.perceptions = self.inst:DoPeriodicTask(PERCEPTION_UPDATE_INTERVAL, Perceptions, 0, self.FAtiMAServer, self.perceptionscallbackfn)
+    self.Perceptions = self.inst:DoPeriodicTask(PERCEPTION_UPDATE_INTERVAL, Perceptions, 0, self)
 
     -----------------------
-    -- ReconsiderActions --
+    -------- Decide -------
     -----------------------
-	if self.decide ~= nil then
-        self.decide:Cancel()
+	if self.Decide ~= nil then
+        self.Decide:Cancel()
     end
-    self.decide = self.inst:DoPeriodicTask(DECIDE_INTERVAL, Decide, 0, self.FAtiMAServer, self.decidecallbackfn)
+    self.Decide = self.inst:DoPeriodicTask(DECIDE_INTERVAL, Decide, 0, self)
 
     -----------------------
     --- Event Listeners ---
     -----------------------
     -- EntityScript:ListenForEvent(event, fn, source)
-    -- self.inst:ListenForEvent("killed", self.onkilledfn)
+    -- self.inst:ListenForEvent("killed", self.OnEvent)
 
     -----------------------
     -------- Brain --------
     -----------------------
+	-- BufferedAction(doer, target, action, invobject, pos, recipe, distance, forced, rotation)
     local root = 
         PriorityNode(
         {
-            IfNode(function() return (self.currentaction ~= nil) end, "IfDoAction",
-                DoAction(self.inst, 
-                    function() return BufferedAction(self.inst, 
-						Ents[tonumber(self.currentaction.Target)], 
-						ACTIONS[self.currentaction.Name]) end, 
-                    "doaction", 
-                    true))
+            IfNode(function() return (self.CurrentAction ~= nil) end, "IfDoAction",
+                SequenceNode{
+					DoAction(self.inst, 
+						function() return BufferedAction(self.inst, 
+							Ents[tonumber(self.CurrentAction.Target)], 
+							ACTIONS[self.CurrentAction.Name]) end, 
+						"DoAction", 
+						true),
+					DoAction(self.inst,
+						function() self.CurrentAction = nil end,
+						"CleanAction",
+						true)
+				}
+			)
         }, 1)
     self.bt = BT(self.inst, root)
 end
@@ -211,21 +235,21 @@ function WalterBrain:OnStop()
     -----------------------
     ----- Perceptions -----
     -----------------------
-    if self.perceptions ~= nil then
-        self.perceptions:Cancel()
-        self.perceptions = nil
+    if self.Perceptions ~= nil then
+        self.Perceptions:Cancel()
+        self.Perceptions = nil
     end
     -----------------------
-    -- ReconsiderActions --
+    -------- Decide -------
     -----------------------
-    if self.decide ~= nil then
-        self.decide:Cancel()
-        self.decide = nil
+    if self.Decide ~= nil then
+        self.Decide:Cancel()
+        self.Decide = nil
     end
     -----------------------
     --- Event Listeners ---
     -----------------------
---    self.inst:RemoveEventCallback("killed", self.onkilledfn)
+    self.inst:RemoveEventCallback("killed", self.OnEvent)
 
 end
 

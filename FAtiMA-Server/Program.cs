@@ -68,6 +68,12 @@ namespace FAtiMA_Server
                         if (decision.Count() < 1)
                             return JsonConvert.Null;
                         var action = Action.ToAction(decision.First());
+                        string t = decision.Count().ToString() + ": ";
+                        foreach (var a in decision)
+                        {
+                            t += a.Name + " " + a.Target + "; ";
+                        }
+                        Console.WriteLine(t);
                         return JsonConvert.SerializeObject(action);
                     case "/events":
                         //Console.Write("An event occured... ");
