@@ -15,7 +15,7 @@ This integration has two components: **FAtiMA-Server** and **FAtiMA-DST**. The f
 To create an agent you'll need to follow these general steps.
 
 1. Write a Role Play Character (RPC) using the FAtiMA Authoring Tools (check the FAtiMA-Toolkit page for more information) and place all it's files in the same folder as the **FAtiMA-Server** console application.
-2. Get the **FAtiMA-DST** mod from the workshop.
+2. Get the **FAtiMA-DST** mod from the workshop. (currently the mod is not yet published, copy the FAtiMA-DST folder into the the game's mods folder)
 3. Launch **FAtiMA-Server** console application.
 4. Launch a game with the **FAtiMA-DST** mod enabled.
 
