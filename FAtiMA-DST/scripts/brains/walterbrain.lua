@@ -1,6 +1,6 @@
 local SEE_DIST = 20
-local SEE_RANGE_HELPER = false
-local PERCEPTION_UPDATE_INTERVAL = 1
+local SEE_RANGE_HELPER = true
+local PERCEPTION_UPDATE_INTERVAL = .3
 local DECIDE_INTERVAL = 1
 
 local assets =
@@ -23,7 +23,7 @@ local function AddSeeRangeHelper(inst)
         inst.seerangehelper:AddTag("NOCLICK")
         inst.seerangehelper:AddTag("placer")
 
-        inst.seerangehelper.Transform:SetScale(SEE_DIST/10, SEE_DIST/10, SEE_DIST/10)
+        inst.seerangehelper.Transform:SetScale(SEE_DIST/11, SEE_DIST/11, SEE_DIST/11)
 
         inst.seerangehelper.AnimState:SetBank("firefighter_placement")
         inst.seerangehelper.AnimState:SetBuild("firefighter_placement")
@@ -41,20 +41,26 @@ end
 local function Vision(inst)
     local x, y, z = inst.Transform:GetWorldPosition()
     local TAGS = nil
-    local EXCLUDE_TAGS = {"INLIMBO", "NOCLICK"}
+    local EXCLUDE_TAGS = {"INLIMBO", "NOCLICK", "CLASSIFIED", "FX"}
     local ONE_OF_TAGS = nil
     local ents = TheSim:FindEntities(x, y, z, SEE_DIST, TAGS, EXCLUDE_TAGS, ONE_OF_TAGS)
     
-    --Go over all the objects that the agent can see and take what information we need
+    -- Go over all the objects that the agent can see and take what information we need
     local data = {}
+	local j = 1
     for i, v in pairs(ents) do
-        local d = {}
-        d.GUID = v.GUID
-        d.Prefab = v.prefab
-        d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
-		-- Add information about the state of the entity (is it workable?)
-        --d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
-        data[i] = d
+		if v.GUID ~= inst.GUID then
+			local d = {}
+			d.GUID = v.GUID
+			d.Prefab = v.prefab
+			d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+			d.Pickable = v:HasTag("pickable")
+			d.Workable = v:HasTag("CHOP_workable") or v:HasTag("DIG_workable") or v:HasTag("HAMMER_workable") or v:HasTag("MINE_workable") 
+			d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
+
+			data[j] = d
+			j = j+1
+		end
     end
     return data
 end
@@ -68,9 +74,10 @@ local function Inventory(inst)
         local d = {}
         d.GUID = v.GUID
         d.Prefab = v.prefab
-        d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
-		--d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
-        ItemSlots[k] = d
+        d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
+
+		ItemSlots[k] = d
     end
 
     -- Go over equipped items and put them in an array
@@ -81,9 +88,9 @@ local function Inventory(inst)
         local d = {}
         d.GUID = v.GUID
         d.Prefab = v.prefab
-        d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+        d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
         d.Slot = k
-		--d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
+		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
         EquipSlots[i] = d
         i = i + 1
     end
@@ -91,7 +98,7 @@ local function Inventory(inst)
     return EquipSlots, ItemSlots
 end
 
-local function Perceptions(inst, FAtiMAServer, perceptionscallbackfn)
+local function Perceptions(inst, brain)
     local data = {}
     data.Vision = Vision(inst)
     data.EquipSlots, data.ItemSlots = Inventory(inst) 
@@ -103,29 +110,32 @@ local function Perceptions(inst, FAtiMAServer, perceptionscallbackfn)
     data.IsFreezing = inst:IsFreezing()
     data.IsOverHeating = inst:IsOverheating()
     data.Moisture = inst:GetMoisture()
+	data.IsBusy = (brain.CurrentAction or false) and true
 
     -- Add a perception that says which time of the day it is (day, dusk, night)
 
     TheSim:QueryServer(
-        FAtiMAServer .. "/perceptions",
-        perceptionscallbackfn,
+        brain.FAtiMAServer .. "/perceptions",
+        brain.PerceptionsCallback,
         "POST",
         json.encode(data))
 end
 
-local function Decide(inst, FAtiMAServer, decidecallbackfn)
+local function Decide(inst, brain)
     TheSim:QueryServer(
-        FAtiMAServer .. "/decide",
-        decidecallbackfn,
+        brain.FAtiMAServer .. "/decide",
+        brain.DecideCallback,
         "GET")
 end
 
-local function OnEvent(inst, FAtiMAServer, decidecallbackfn)
+local function OnEvent(inst, FAtiMAServer, DecideCallback)
 	
 end
+
 local WalterBrain = Class(Brain, function(self, inst, server)
     Brain._ctor(self, inst)
     self.inst = inst
+	--self.inst.entity:SetCanSleep(false)
 
     ------------------------------
     ---- FAtiMA Communication ----
@@ -135,25 +145,39 @@ local WalterBrain = Class(Brain, function(self, inst, server)
     ------------------------------
     -- HTTP Callbacks Functions --
     ------------------------------
-    self.perceptionscallbackfn = function(result, isSuccessful , http_code)
+    self.PerceptionsCallback = function(result, isSuccessful , http_code)
         -- Intentionally left blank
     end
 
-    self.decidecallbackfn = function(result, isSuccessful , http_code)
+    self.DecideCallback = function(result, isSuccessful , http_code)
         if isSuccessful then
 			local action = result and (result ~= "") and json.decode(result)
 			if action and action.Name then
-				self.currentaction = action
+				self.inst:InterruptBufferedAction()
+				self.inst.components.locomotor:Clear()
+				self.CurrentAction = action
+				print(action.Name, Ents[tonumber(action.Target)])
 			end
 		end
     end
+
+	self.OnEvent = function(inst, data)
+		print(inst.prefab)
+		print("data")
+		for k,v in pairs(data) do 
+			print(k, v)
+			for i, j in pairs(v) do
+				print(i, j)
+			end
+		end
+	end
 end)
 
 function WalterBrain:OnStart()
     -----------------------
     ----- Deliberator -----
     -----------------------
-    self.currentaction = nil
+    self.CurrentAction = nil
 
     -----------------------
     ----- Range Helper ----
@@ -163,39 +187,53 @@ function WalterBrain:OnStart()
     -----------------------
     ----- Perceptions -----
     -----------------------
-    if self.perceptions ~= nil then
-        self.perceptions:Cancel()
+    if self.Perceptions ~= nil then
+        self.Perceptions:Cancel()
     end
     -- DoPeriodicTask(interval, fn, initialdelay, ...) the extra parameters are passed to fn
-    self.perceptions = self.inst:DoPeriodicTask(PERCEPTION_UPDATE_INTERVAL, Perceptions, 0, self.FAtiMAServer, self.perceptionscallbackfn)
+    self.Perceptions = self.inst:DoPeriodicTask(PERCEPTION_UPDATE_INTERVAL, Perceptions, 0, self)
 
     -----------------------
-    -- ReconsiderActions --
+    -------- Decide -------
     -----------------------
-	if self.decide ~= nil then
-        self.decide:Cancel()
+	if self.Decide ~= nil then
+        self.Decide:Cancel()
     end
-    self.decide = self.inst:DoPeriodicTask(DECIDE_INTERVAL, Decide, 0, self.FAtiMAServer, self.decidecallbackfn)
+    self.Decide = self.inst:DoPeriodicTask(DECIDE_INTERVAL, Decide, 0, self)
 
     -----------------------
     --- Event Listeners ---
     -----------------------
     -- EntityScript:ListenForEvent(event, fn, source)
-    -- self.inst:ListenForEvent("killed", self.onkilledfn)
+    -- self.inst:ListenForEvent("killed", self.OnEvent)
 
     -----------------------
     -------- Brain --------
     -----------------------
+	-- BufferedAction(doer, target, action, invobject, pos, recipe, distance, forced, rotation)
     local root = 
         PriorityNode(
         {
-            IfNode(function() return (self.currentaction ~= nil) end, "IfDoAction",
-                DoAction(self.inst, 
-                    function() return BufferedAction(self.inst, 
-						Ents[tonumber(self.currentaction.Target)], 
-						ACTIONS[self.currentaction.Name]) end, 
-                    "doaction", 
-                    true))
+            IfNode(function() return (self.CurrentAction ~= nil) end, "IfDoAction",
+                SequenceNode{
+					DoAction(self.inst, 
+						function() return BufferedAction(
+							self.inst, -- Doer
+							Ents[tonumber(self.CurrentAction.Target)], -- Target
+							ACTIONS[self.CurrentAction.Name], -- Action
+							Ents[tonumber(self.CurrentAction.InvObject)], -- InvObject
+							nil,  --Vector3({tonumber(self.CurrentAction.PosX), tonumber(self.CurrentAction.PosY), tonumber(self.CurrentAction.PosZ)}), -- Pos
+							(self.CurrentAction.Recipe ~= "null") and self.CurrentAction.Recipe or nil, --Recipe
+							tonumber(self.CurrentAction.Distance) -- Distance
+							) end, 
+						"DoAction", 
+						true),
+					DoAction(self.inst,
+						function() self.CurrentAction = nil end,
+						"CleanAction",
+						true)
+				}
+			)
         }, 1)
     self.bt = BT(self.inst, root)
 end
@@ -211,21 +249,21 @@ function WalterBrain:OnStop()
     -----------------------
     ----- Perceptions -----
     -----------------------
-    if self.perceptions ~= nil then
-        self.perceptions:Cancel()
-        self.perceptions = nil
+    if self.Perceptions ~= nil then
+        self.Perceptions:Cancel()
+        self.Perceptions = nil
     end
     -----------------------
-    -- ReconsiderActions --
+    -------- Decide -------
     -----------------------
-    if self.decide ~= nil then
-        self.decide:Cancel()
-        self.decide = nil
+    if self.Decide ~= nil then
+        self.Decide:Cancel()
+        self.Decide = nil
     end
     -----------------------
     --- Event Listeners ---
     -----------------------
---    self.inst:RemoveEventCallback("killed", self.onkilledfn)
+    self.inst:RemoveEventCallback("killed", self.OnEvent)
 
 end
 

@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using RolePlayCharacter;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 
@@ -55,7 +56,7 @@ namespace FAtiMA_Server
                                     }
                                     catch (Exception excpt)
                                     {
-                                        Console.WriteLine(p.ToString());
+                                        Debug.WriteLine(p.ToString());
                                         throw excpt;
                                     }
                                     return JsonConvert.True;
@@ -68,6 +69,12 @@ namespace FAtiMA_Server
                         if (decision.Count() < 1)
                             return JsonConvert.Null;
                         var action = Action.ToAction(decision.First());
+                        string t = decision.Count().ToString() + ": ";
+                        foreach (var a in decision)
+                        {
+                            t += a.Name + " " + a.Target + "; ";
+                        }
+                        Debug.WriteLine(t);
                         return JsonConvert.SerializeObject(action);
                     case "/events":
                         //Console.Write("An event occured... ");

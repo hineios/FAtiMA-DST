@@ -10,28 +10,78 @@ This repository aims to provide an integration of FAtiMA-Toolkit with Don't Star
 
 ### Creating an agent
 
-This integration has two components: **FAtiMA-Server** and **FAtiMA-DST**. The first is a C# console application that will run FAtiMA, and the latter is a mod for DST that will control the character. You can think of **FAtiMA-Server** has the brains of the agents and **FAtiMA-DST** has the body.
+This integration has two components: **FAtiMA-Server** and **FAtiMA-DST**. The former is a C# console application that will run FAtiMA, and the latter is a mod for DST that will control the character. You can think of **FAtiMA-Server** has the brains of the agents and **FAtiMA-DST** has the body.
 
-1. Write a Role Play Character file using the FAtiMA Authoring Tools.
+To create an agent you'll need to follow these general steps.
+
+1. Write a Role Play Character (RPC) using the FAtiMA Authoring Tools (check the FAtiMA-Toolkit page for more information) and place all it's files in the same folder as the **FAtiMA-Server** console application.
 2. Get the **FAtiMA-DST** mod from the workshop.
 3. Launch **FAtiMA-Server** console application.
 4. Launch a game with the **FAtiMA-DST** mod enabled.
 
-### Actions
+### Creating a RPC
 
-The following table presents a list of actions that agents can perform. This list has been curated from the complete list of available actions in DST (these actions were taken from the **actions.lua** script).
+FAtiMA-Toolkit provides tools to create agents for any scenarios. For this particular scenario, there are some restrictions you'll need to understand before you can write your agent.
+
+#### Beliefs
+
+These represent the information the agent has available when making decisions. They will represent both the state of the agent and the state of the world. These beliefs will be used in the conditions for the actions you'll define.
+
+The values enclosed in square brackets represent variables.
+
+##### Agent's State
+
+These beliefs represent the agent's state, what he is seeing, carrying and using.
+
+`Health([Name]) = [value]`
+`Hunger([Name]) = [value]`
+`Sanity([Name]) = [value]`
+`Moisture([Name]) = [value]`
+`Temperature([Name]) = [value]`
+`IsFreezing([Name]) = [bool]`
+`IsOverheating([Name]) = [bool]`
+`IsBusy([Name]) = [bool]`
+`PosX([Name]) = [value]`
+`PosZ([Name]) = [value]`
+`InSight([GUID]) = [bool]`
+`InInventory([GUID]) = [bool]`
+`IsEquipped([GUID], [slot]) = [bool]`
+
+##### World's State
+
+These beliefs represent information about the world and should be used in addiction to what the agent is seeing.
+
+`Entity([GUID], [prefab]) = [Quantity]`
+`Workable([GUID]) = [bool]`
+`Pickable([GUID]) = [bool]`
+`PosX([GUID]) = [value]`
+`PosZ([GUID]) = [value]`
+
+#### Actions
+
+**It's imperative that all actions have the following structure**
+
+`Action([target], [action], [invobject], [pos], [recipe], [distance]) = [target]`
+
+Even if an action those not requires a specific parameter you must specify it as *null*.
+
+##### Understanding the Actions
+
+Whenever you want to better understand a specific action, you should look for it in the **actions.lua** script and see what it checks and does. Eventually you'll need to dig into the **components** folder and search in those scripts.
+
+The following table presents a list of actions that agents can perform. This list has been slightly curated from the complete list of available actions in DST (these actions were taken from the **actions.lua** script) to exclude actions not available to characters.
 
 For a complete list of actions available in the game check [this](https://gist.github.com/hineios/2160d86d2c3ebd6aa594f4a00d041ca6).
 
-|Actions|Params|Restrictions|Description|
+|Actions|Required Params|Restrictions|Description|
 |:---:|:---:|:---:|:---|
 |ACTIVATE|`{target: GUID}`|target: *activatable*|Interact with some game elements. Useful to investigate *dirtpiles*|
 |ADDFUEL|`{target: GUID, invobject: GUID}`|target: *fuel*, invobject: *fueled*|Add fuel to fueled entities (campfire, firesupressor)|
 |ATTACK|`{target: GUID}`||Attack other entities.|
 |BAIT|`{target: GUID, invobject: GUID}`|target: *trap*|Put bait on traps|
-|BUILD|`{recipe:, pos: ,rotation: ,skin: }`|||
+|BUILD|`{recipe:, pos: ,rotation: ,skin: }`||Depending on weather you are crafting an item or placing a structure you'll need to pass a value to the *pos* parameter|
 |CASTSPELL|`{target: GUID}`||Use staves. Equiped Hand slot must have the *spellcaster* component|
-|CATCH|`{}`||Needs to be reviewed|
+|CATCH|`{}`||boomerang!|
 |CHECKTRAP|`{target: GUID}`|target: *trap*|Harvest trap|
 |CHOP|`{target: GUID, invobject: GUID}`|target: *workable*, invobject: can work target |Chop trees|
 |COMBINESTACK|`{target: GUID, invobject: GUID}`|target: *stackable*, invobject: same *prefab* as target|Combines invobject into target if it is the same prefab and target is not full|
@@ -58,11 +108,11 @@ For a complete list of actions available in the game check [this](https://gist.g
 |JUMPIN|`{}`|||
 |LIGHT|`{}`|||
 |LOOKAT|`{}`|||
-|MANUALEXTINGUISH|`{}`|||
+|MANUALEXTINGUISH|`{}`||use your hands to try and extinguish fires|
 |MINE|`{target: GUID, invobject: GUID}`|target: *workable*, invobject: can work target|Mine rocks, sinkholes, glassiers, and **rock with gold**|
 |MOUNT|`{}`|||
 |MURDER|`{}`|||
-|NET|`{}`|||
+|NET|`{}`||Use nets to catch bugs!|
 |PICK|`{}`||pick grass|
 |PICKUP|`{}`||pick up backpack|
 |PLANT|`{}`|||
@@ -73,8 +123,8 @@ For a complete list of actions available in the game check [this](https://gist.g
 |SEW|`{}`|||
 |SHAVE|`{}`|||
 |SLEEPIN|`{}`|||
-|SMOTHER|`{}`|||
-|STORE|`{}`|||
+|SMOTHER|`{}`||put out stuff about to burst into flames |
+|STORE|`{}`||store item container|
 |TAKEITEM|`{}`||take brid from cage|
 |TERRAFORM|`{}`|||
 |TURNOFF|`{}`|||
@@ -85,7 +135,3 @@ For a complete list of actions available in the game check [this](https://gist.g
 |UPGRADE|`{}`|||
 |USEITEM|`{}`||hats|
 |WALKTO|`{}`|||
-
-
-### Understanding the Actions
-
