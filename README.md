@@ -34,17 +34,29 @@ The values enclosed in square brackets represent variables.
 These beliefs represent the agent's state, what he is seeing, carrying and using.
 
 `Health([Name]) = [value]`
+
 `Hunger([Name]) = [value]`
+
 `Sanity([Name]) = [value]`
+
 `Moisture([Name]) = [value]`
+
 `Temperature([Name]) = [value]`
+
 `IsFreezing([Name]) = [bool]`
+
 `IsOverheating([Name]) = [bool]`
+
 `IsBusy([Name]) = [bool]`
+
 `PosX([Name]) = [value]`
+
 `PosZ([Name]) = [value]`
+
 `InSight([GUID]) = [bool]`
+
 `InInventory([GUID]) = [bool]`
+
 `IsEquipped([GUID], [slot]) = [bool]`
 
 ##### World's State
@@ -52,10 +64,15 @@ These beliefs represent the agent's state, what he is seeing, carrying and using
 These beliefs represent information about the world and should be used in addiction to what the agent is seeing.
 
 `Entity([GUID], [prefab]) = [Quantity]`
+
 `Workable([GUID]) = [bool]`
+
 `Pickable([GUID]) = [bool]`
+
 `PosX([GUID]) = [value]`
+
 `PosZ([GUID]) = [value]`
+
 
 #### Actions
 
