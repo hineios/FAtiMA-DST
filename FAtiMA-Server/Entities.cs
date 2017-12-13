@@ -5,40 +5,72 @@ namespace FAtiMA_Server
     public class Entity
     {
         public int GUID { get; set; }
-        //public int X { get; set; }
-        //public int Y { get; set; }
-        //public int Z { get; set; }
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int Z { get; set; }
 
-        public Entity(int GUID)
+        public Entity(int GUID, float x, float y, float z)
         {
             this.GUID = GUID;
+            X = (int) x;
+            Y = (int) y;
+            Z = (int) z;
         }
 
         public override string ToString()
         {
-            return "Entity: " + this.GUID;
+            return "Entity: " + this.GUID + "(" + X + "," + Y + "," + Z + ")";
         }
     }
 
     public class Item : Entity
     {
         public string Prefab { get; set; }
-        public int Count { get; set; }
+        public int Quantity { get; set; }
+        public bool Workable { get; set; }
+        public bool Pickable { get; set; }
 
-        public Item(int GUID, string prefab, int count) : base(GUID)
+        public Item(int GUID, float x, float y, float z, string prefab, int quantity, bool workable, bool pickable) : base(GUID, x, y, z)
         {
-            this.Prefab = prefab;
-            this.Count = count;
+            Prefab = prefab;
+            Quantity = quantity;
+            Workable = workable;
+            Pickable = pickable;
         }
 
         public void UpdatePerception(RolePlayCharacterAsset rpc)
         {
-            rpc.Perceive(EventHelper.PropertyChange("Entity(" + GUID + "," + Prefab + ")", this.Count.ToString(), rpc.CharacterName.ToString()));
+            string b = rpc.GetBeliefValue("Entity(" + GUID + "," + Prefab + ")");
+            if ( b == null || !(b.Equals(Quantity.ToString())))
+                rpc.Perceive(EventHelper.PropertyChange("Entity(" + GUID + "," + Prefab + ")", Quantity.ToString(), rpc.CharacterName.ToString()));
+
+            b = rpc.GetBeliefValue("Workable(" + GUID + ")");
+            if ( b == null || !(b.Equals(Workable.ToString())))
+                rpc.Perceive(EventHelper.PropertyChange("Workable(" + GUID + ")", Workable.ToString(), rpc.CharacterName.ToString()));
+
+            b = rpc.GetBeliefValue("Pickable(" + GUID + ")");
+            if ( b == null || !(b.Equals(Pickable.ToString())))
+                rpc.Perceive(EventHelper.PropertyChange("Pickable(" + GUID + ")", Pickable.ToString(), rpc.CharacterName.ToString()));
+
+            b = rpc.GetBeliefValue("PosX(" + GUID + ")");
+            if ( b == null || !(b.Equals(X.ToString())))
+                rpc.Perceive(EventHelper.PropertyChange("PosX(" + GUID + ")", X.ToString(), rpc.CharacterName.ToString()));
+
+            /*
+             * The Y-axis is always equal to zero, no need to save it in the knowledge base
+             * */
+            //b = rpc.GetBeliefValue("PosY(" + GUID + ")");
+            //if ( b == null || !(b.Equals(Y.ToString())))
+            //    rpc.Perceive(EventHelper.PropertyChange("PosY(" + GUID + ")", Y.ToString(), rpc.CharacterName.ToString()));
+
+            b = rpc.GetBeliefValue("PosZ(" + GUID + ")");
+            if ( b == null || !(b.Equals(Z.ToString())))
+                rpc.Perceive(EventHelper.PropertyChange("PosZ(" + GUID + ")", Z.ToString(), rpc.CharacterName.ToString()));
         }
 
         public override string ToString()
         {
-            return Count + " x " + Prefab;
+            return Quantity + " x " + Prefab + "(" + X.ToString() + "," + Y.ToString() + "," + Z.ToString() + ")";
         }
     }
 
@@ -46,9 +78,9 @@ namespace FAtiMA_Server
     {
         public string Slot { get; set; }
 
-        public EquippedItems(int GUID, string prefab, int count, string slot) : base(GUID, prefab, count)
+        public EquippedItems(int GUID, float x, float y, float z, string prefab, int count, bool workable, bool pickable, string slot) : base(GUID, x, y, z, prefab, count, workable, pickable)
         {
-            this.Slot = slot;
+            Slot = slot;
         }
 
         public override string ToString()

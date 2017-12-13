@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using RolePlayCharacter;
+using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using WellFormedNames;
 
@@ -7,6 +9,7 @@ namespace FAtiMA_Server
 {
     public class Perceptions
     {
+        //string GUID { get; set; }
         List<Item> Vision { get; set; }
         List<Item> ItemSlots { get; set; }
         List<EquippedItems> EquipSlots { get; set; }
@@ -18,117 +21,192 @@ namespace FAtiMA_Server
         public bool IsFreezing { get; set; }
         public bool IsOverheating { get; set; }
         public bool IsBusy { get; set; }
+        public int PosX { get; set; }
+        public int PosY { get; set; }
+        public int PosZ { get; set; }
 
         //TODO: Add something to track which part of the day the agent is in.
 
         [JsonConstructor]
-        public Perceptions(List<EquippedItems> EquipSlots, List<Item> Vision, List<Item> ItemSlots,
-            float Hunger, float Sanity, float Health, float Moisture, float Temperature, bool IsFreezing, bool IsOverheating, bool IsBusy)
+        public Perceptions(List<EquippedItems> equipslots, List<Item> vision, List<Item> itemslots,
+            float hunger, float sanity, float health, float moisture, float temperature, bool isfreezing, bool isoverheating, bool isbusy, float posx, float posy, float posz)
         {
-            this.Vision = Vision;
-            this.ItemSlots = ItemSlots;
-            this.EquipSlots = EquipSlots;
-            this.Hunger = (int) Hunger;
-            this.Health = (int) Health;
-            this.Sanity = (int) Sanity;
-            this.Moisture = (int) Moisture;
-            this.Temperature = (int) Temperature;
-            this.IsFreezing = IsFreezing;
-            this.IsOverheating = IsOverheating;
-            this.IsBusy = IsBusy;
+            Vision = vision;
+            ItemSlots = itemslots;
+            EquipSlots = equipslots;
+            Hunger = (int) hunger;
+            Health = (int) health;
+            Sanity = (int) sanity;
+            Moisture = (int) moisture;
+            Temperature = (int) temperature;
+            IsFreezing = isfreezing;
+            IsOverheating = isoverheating;
+            IsBusy = isbusy;
+            PosX = (int) posx;
+            PosY = (int) posy;
+            PosZ = (int) posz;
+
         }
         
         public void UpdatePerceptions(RolePlayCharacterAsset rpc)
         {
             /*
-             * Find every InSight, Inventory, and IsEquipped belief and set them to false
-             * Eventually try and delete the beliefs (depending on performance).
-             * */
-
-            var subset = new List<SubstitutionSet>();
-            subset.Add(new SubstitutionSet());
-
-            var beliefs = rpc.m_kb.AskPossibleProperties((Name)"InSight([x])", (Name)"SELF", subset);
-            //Console.WriteLine("Query returned " + beliefs.Count() + " InSight beliefs.");
-            foreach (var b in beliefs)
-            {
-                foreach (var s in b.Item2)
-                {
-                    rpc.UpdateBelief("InSight(" + s[(Name)"[x]"] + ")", "FALSE");
-                    //rpc.RemoveBelief("InSight(" + s[(Name)"[x]"] + ")", "SELF");
-                }
-            }
-
-            beliefs = rpc.m_kb.AskPossibleProperties((Name)"InInventory([x])", (Name)"SELF", subset);
-            //Console.WriteLine("Query returned " + beliefs.Count() + " InInventory beliefs.");
-            foreach (var b in beliefs)
-            {
-                foreach (var s in b.Item2)
-                {
-                    rpc.UpdateBelief("InInventory(" + s[(Name)"[x]"] + ")", "FALSE");
-                    //rpc.RemoveBelief("InInventory(" + s[(Name)"[x]"] + ")", "SELF");
-                }
-            }
-
-            beliefs = rpc.m_kb.AskPossibleProperties((Name)"IsEquipped([x], [y])", (Name)"SELF", subset);
-            //Console.WriteLine("Query returned " + beliefs.Count() + " IsEquipped beliefs.");
-            foreach (var b in beliefs)
-            {
-                foreach (var s in b.Item2)
-                {
-                    rpc.UpdateBelief("IsEquipped(" + s[(Name)"[x]"] + ")", "FALSE");
-                }
-            }
+            * Find every InSight, InInventory, and IsEquipped belief and set them to false
+            * */
+            CleanBeliefs(rpc);
 
             /*
              * Update the KB with the new beliefs
              * */
-            
+            string bv = rpc.GetBeliefValue("Hunger(" + rpc.CharacterName.ToString() + ")");
+            if (bv == null || !bv.Equals(Hunger.ToString()))
+            {
+                Debug.WriteLine("Hunger: " + bv + " -> " + Hunger.ToString());
+                rpc.Perceive(EventHelper.PropertyChange("Hunger(" + rpc.CharacterName.ToString() + ")", Hunger.ToString(), rpc.CharacterName.ToString()));
+            }
 
-            rpc.Perceive(EventHelper.PropertyChange("Hunger(" + rpc.CharacterName.ToString() + ")", this.Hunger.ToString(), rpc.CharacterName.ToString()));
-            rpc.Perceive(EventHelper.PropertyChange("Health(" + rpc.CharacterName.ToString() + ")", this.Health.ToString(), rpc.CharacterName.ToString()));
-            rpc.Perceive(EventHelper.PropertyChange("Sanity(" + rpc.CharacterName.ToString() + ")", this.Sanity.ToString(), rpc.CharacterName.ToString()));
-            rpc.Perceive(EventHelper.PropertyChange("IsFreezing(" + rpc.CharacterName.ToString() + ")", this.IsFreezing.ToString(), rpc.CharacterName.ToString()));
-            rpc.Perceive(EventHelper.PropertyChange("IsOverheating(" + rpc.CharacterName.ToString() + ")", this.IsOverheating.ToString(), rpc.CharacterName.ToString()));
-            rpc.Perceive(EventHelper.PropertyChange("Moisture(" + rpc.CharacterName.ToString() + ")", this.Moisture.ToString(), rpc.CharacterName.ToString()));
-            rpc.Perceive(EventHelper.PropertyChange("Temperature(" + rpc.CharacterName.ToString() + ")", this.Temperature.ToString(), rpc.CharacterName.ToString()));
-            rpc.Perceive(EventHelper.PropertyChange("IsBusy(" + rpc.CharacterName.ToString() + ")", this.IsBusy.ToString(), rpc.CharacterName.ToString()));
+            bv = rpc.GetBeliefValue("Health(" + rpc.CharacterName.ToString() + ")");
+            if (bv == null || !bv.Equals(Health.ToString()))
+            {
+                Debug.WriteLine("Health: " + bv + " -> " + Health.ToString());
+                rpc.Perceive(EventHelper.PropertyChange("Health(" + rpc.CharacterName.ToString() + ")", Health.ToString(), rpc.CharacterName.ToString()));
+            }
+
+            bv = rpc.GetBeliefValue("Sanity(" + rpc.CharacterName.ToString() + ")");
+            if (bv == null || !bv.Equals(Sanity.ToString()))
+            {
+                Debug.WriteLine("Sanity: " + bv + " -> " + Sanity.ToString());
+                rpc.Perceive(EventHelper.PropertyChange("Sanity(" + rpc.CharacterName.ToString() + ")", Sanity.ToString(), rpc.CharacterName.ToString()));
+            }
+
+            bv = rpc.GetBeliefValue("IsFreezing(" + rpc.CharacterName.ToString() + ")");
+            if (bv == null || !bv.Equals(IsFreezing.ToString()))
+            {
+                Debug.WriteLine("IsFreezing: " + bv + " -> " + IsFreezing.ToString());
+                rpc.Perceive(EventHelper.PropertyChange("IsFreezing(" + rpc.CharacterName.ToString() + ")", IsFreezing.ToString(), rpc.CharacterName.ToString()));
+            }
+
+            bv = rpc.GetBeliefValue("IsOverheating(" + rpc.CharacterName.ToString() + ")");
+            if (bv == null || !bv.Equals(IsOverheating.ToString()))
+            {
+                Debug.WriteLine("IsOverheating: " + bv + " -> " + IsOverheating.ToString());
+                rpc.Perceive(EventHelper.PropertyChange("IsOverheating(" + rpc.CharacterName.ToString() + ")", IsOverheating.ToString(), rpc.CharacterName.ToString()));
+            }
+
+            bv = rpc.GetBeliefValue("Moisture(" + rpc.CharacterName.ToString() + ")");
+            if (bv == null || !bv.Equals(Moisture.ToString()))
+            {
+                Debug.WriteLine("Moisture: " + bv + " -> " + Moisture.ToString());
+                rpc.Perceive(EventHelper.PropertyChange("Moisture(" + rpc.CharacterName.ToString() + ")", Moisture.ToString(), rpc.CharacterName.ToString()));
+            }
+
+            bv = rpc.GetBeliefValue("Temperature(" + rpc.CharacterName.ToString() + ")");
+            if (bv == null || !bv.Equals(Temperature.ToString()))
+            {
+                Debug.WriteLine("Temperature: " + bv + " -> " + Temperature.ToString());
+                rpc.Perceive(EventHelper.PropertyChange("Temperature(" + rpc.CharacterName.ToString() + ")", Temperature.ToString(), rpc.CharacterName.ToString()));
+            }
+
+            bv = rpc.GetBeliefValue("IsBusy(" + rpc.CharacterName.ToString() + ")");
+            if (bv == null || !bv.Equals(IsBusy.ToString()))
+            {
+                Debug.WriteLine("IsBusy: " + bv + " -> " + IsBusy.ToString());
+                rpc.Perceive(EventHelper.PropertyChange("IsBusy(" + rpc.CharacterName.ToString() + ")", IsBusy.ToString(), rpc.CharacterName.ToString()));
+            }
+
+            bv = rpc.GetBeliefValue("PosX(" + rpc.CharacterName.ToString() + ")");
+            if (bv == null || !bv.Equals(PosX.ToString()))
+                rpc.Perceive(EventHelper.PropertyChange("PosX(" + rpc.CharacterName.ToString() + ")", PosX.ToString(), rpc.CharacterName.ToString()));
+
+            /*
+             * The Y-axis is always equal to zero, no need to save it in the knowledge base
+             * */
+            //bv = rpc.GetBeliefValue("PosY(" + rpc.CharacterName.ToString() + ")");
+            //if (bv == null || !bv.Equals(PosY.ToString()))
+            //    rpc.Perceive(EventHelper.PropertyChange("PosY(" + rpc.CharacterName.ToString() + ")", PosY.ToString(), rpc.CharacterName.ToString()));
+
+            bv = rpc.GetBeliefValue("PosZ(" + rpc.CharacterName.ToString() + ")");
+            if (bv == null || !bv.Equals(PosZ.ToString()))
+                rpc.Perceive(EventHelper.PropertyChange("PosZ(" + rpc.CharacterName.ToString() + ")", PosZ.ToString(), rpc.CharacterName.ToString()));
+
 
             foreach (Item i in Vision)
             {
-                rpc.Perceive(EventHelper.PropertyChange("InSight(" + i.GUID + ")", "TRUE", rpc.CharacterName.ToString()));
+                bv = rpc.GetBeliefValue("InSight(" + i.GUID + ")");
+                if (bv == null || !bv.Equals("True"))
+                    rpc.Perceive(EventHelper.PropertyChange("InSight(" + i.GUID + ")", "True", rpc.CharacterName.ToString()));
                 i.UpdatePerception(rpc);
             }
 
-            foreach(Item i in ItemSlots)
+            foreach (Item i in ItemSlots)
             {
-                rpc.Perceive(EventHelper.PropertyChange("InInventory(" + i.GUID + ")", "TRUE", rpc.CharacterName.ToString()));
+                bv = rpc.GetBeliefValue("InInventory(" + i.GUID + ")");
+                if (bv == null || !bv.Equals("True"))
+                    rpc.Perceive(EventHelper.PropertyChange("InInventory(" + i.GUID + ")", "TRUE", rpc.CharacterName.ToString()));
                 i.UpdatePerception(rpc);
             }
 
-            foreach(EquippedItems i in EquipSlots)
+            foreach (EquippedItems i in EquipSlots)
             {
-                rpc.Perceive(EventHelper.PropertyChange("IsEquipped(" + i.GUID + "," + i.Slot + ")", "TRUE", rpc.CharacterName.ToString()));
+                bv = rpc.GetBeliefValue("IsEquipped(" + i.GUID + "," + i.Slot + ")");
+                if (bv == null || !bv.Equals("True"))
+                    rpc.Perceive(EventHelper.PropertyChange("IsEquipped(" + i.GUID + "," + i.Slot + ")", "TRUE", rpc.CharacterName.ToString()));
                 i.UpdatePerception(rpc);
             }
 
             rpc.Update();
         }
-        
+
+        private void CleanBeliefs(RolePlayCharacterAsset rpc)
+        {
+            /*
+            * Find every InSight, InInventory, and IsEquipped belief and delete them
+            * */
+            var subset = new List<SubstitutionSet> { new SubstitutionSet() };
+
+            var beliefs = rpc.m_kb.AskPossibleProperties((Name)"InSight([x])", (Name)"SELF", subset);
+            foreach (var b in beliefs)
+            {
+                foreach (var s in b.Item2)
+                {
+                    rpc.RemoveBelief("InSight(" + s[(Name)"[x]"] + ")", "SELF");
+                }
+            }
+
+            beliefs = rpc.m_kb.AskPossibleProperties((Name)"InInventory([x])", (Name)"SELF", subset);
+            foreach (var b in beliefs)
+            {
+                foreach (var s in b.Item2)
+                {
+                    rpc.RemoveBelief("InInventory(" + s[(Name)"[x]"] + ")", "SELF");
+                }
+            }
+
+            beliefs = rpc.m_kb.AskPossibleProperties((Name)"IsEquipped([x], [y])", (Name)"SELF", subset);
+            foreach (var b in beliefs)
+            {
+                foreach (var s in b.Item2)
+                {
+                    rpc.RemoveBelief("IsEquipped(" + s[(Name)"[x]"] + ")", "SELF");
+                }
+            }
+        }
+
         /**
          * Just a quick way to show the Perceptions that we just got from the 'body'
          **/
         public override string ToString()
         {
             string s = "Perceptions:\n";
-            s += "\tHunger: " + this.Hunger;
-            s += "\tSanity: " + this.Sanity;
-            s += "\tHealth: " + this.Health;
-            s += "\n\tMoisture: " + this.Moisture;
-            s += "\tTemperature: " + this.Temperature;
-            s += "\tIsFreezing: " + this.IsFreezing;
-            s += "\tIsOverheating: " + this.IsOverheating;
-            s += "\tIsBusy: " + this.IsBusy;
+            s += "\tHunger: " + Hunger;
+            s += "\tSanity: " + Sanity;
+            s += "\tHealth: " + Health;
+            s += "\n\tMoisture: " + Moisture;
+            s += "\tTemperature: " + Temperature;
+            s += "\tIsFreezing: " + IsFreezing;
+            s += "\tIsOverheating: " + IsOverheating;
+            s += "\tIsBusy: " + IsBusy;
+            s += "\tPos: (" + PosX + ", " + PosY + ", " + PosZ + ")";
             s += "\n\tVision:\n";
             foreach (Item v in Vision)
             {

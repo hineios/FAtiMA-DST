@@ -1,7 +1,7 @@
 local SEE_DIST = 20
 local SEE_RANGE_HELPER = true
-local PERCEPTION_UPDATE_INTERVAL = .4
-local DECIDE_INTERVAL = .7
+local PERCEPTION_UPDATE_INTERVAL = .3
+local DECIDE_INTERVAL = 1
 
 local assets =
 {
@@ -23,7 +23,7 @@ local function AddSeeRangeHelper(inst)
         inst.seerangehelper:AddTag("NOCLICK")
         inst.seerangehelper:AddTag("placer")
 
-        inst.seerangehelper.Transform:SetScale(SEE_DIST/10, SEE_DIST/10, SEE_DIST/10)
+        inst.seerangehelper.Transform:SetScale(SEE_DIST/11, SEE_DIST/11, SEE_DIST/11)
 
         inst.seerangehelper.AnimState:SetBank("firefighter_placement")
         inst.seerangehelper.AnimState:SetBuild("firefighter_placement")
@@ -45,16 +45,22 @@ local function Vision(inst)
     local ONE_OF_TAGS = nil
     local ents = TheSim:FindEntities(x, y, z, SEE_DIST, TAGS, EXCLUDE_TAGS, ONE_OF_TAGS)
     
-    --Go over all the objects that the agent can see and take what information we need
+    -- Go over all the objects that the agent can see and take what information we need
     local data = {}
+	local j = 1
     for i, v in pairs(ents) do
-        local d = {}
-        d.GUID = v.GUID
-        d.Prefab = v.prefab
-        d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
-		-- Add information about the state of the entity (is it workable?)
-        --d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
-        data[i] = d
+		if v.GUID ~= inst.GUID then
+			local d = {}
+			d.GUID = v.GUID
+			d.Prefab = v.prefab
+			d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+			d.Pickable = v:HasTag("pickable")
+			d.Workable = v:HasTag("CHOP_workable") or v:HasTag("DIG_workable") or v:HasTag("HAMMER_workable") or v:HasTag("MINE_workable") 
+			d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
+
+			data[j] = d
+			j = j+1
+		end
     end
     return data
 end
@@ -68,9 +74,10 @@ local function Inventory(inst)
         local d = {}
         d.GUID = v.GUID
         d.Prefab = v.prefab
-        d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
-		--d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
-        ItemSlots[k] = d
+        d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
+
+		ItemSlots[k] = d
     end
 
     -- Go over equipped items and put them in an array
@@ -81,9 +88,9 @@ local function Inventory(inst)
         local d = {}
         d.GUID = v.GUID
         d.Prefab = v.prefab
-        d.Count = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+        d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
         d.Slot = k
-		--d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
+		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
         EquipSlots[i] = d
         i = i + 1
     end
@@ -149,6 +156,7 @@ local WalterBrain = Class(Brain, function(self, inst, server)
 				self.inst:InterruptBufferedAction()
 				self.inst.components.locomotor:Clear()
 				self.CurrentAction = action
+				print(action.Name, Ents[tonumber(action.Target)])
 			end
 		end
     end
@@ -209,9 +217,15 @@ function WalterBrain:OnStart()
             IfNode(function() return (self.CurrentAction ~= nil) end, "IfDoAction",
                 SequenceNode{
 					DoAction(self.inst, 
-						function() return BufferedAction(self.inst, 
-							Ents[tonumber(self.CurrentAction.Target)], 
-							ACTIONS[self.CurrentAction.Name]) end, 
+						function() return BufferedAction(
+							self.inst, -- Doer
+							Ents[tonumber(self.CurrentAction.Target)], -- Target
+							ACTIONS[self.CurrentAction.Name], -- Action
+							Ents[tonumber(self.CurrentAction.InvObject)], -- InvObject
+							nil,  --Vector3({tonumber(self.CurrentAction.PosX), tonumber(self.CurrentAction.PosY), tonumber(self.CurrentAction.PosZ)}), -- Pos
+							(self.CurrentAction.Recipe ~= "null") and self.CurrentAction.Recipe or nil, --Recipe
+							tonumber(self.CurrentAction.Distance) -- Distance
+							) end, 
 						"DoAction", 
 						true),
 					DoAction(self.inst,

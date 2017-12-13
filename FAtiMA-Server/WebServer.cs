@@ -23,14 +23,10 @@ namespace FAtiMA_Server
             if (prefixes == null || prefixes.Length == 0)
                 throw new ArgumentException("prefixes");
 
-            // A responder method is required
-            if (method == null)
-                throw new ArgumentException("method");
-
             foreach (string s in prefixes)
                 _listener.Prefixes.Add(s);
 
-            _responderMethod = method;
+            _responderMethod = method ?? throw new ArgumentException("method");
             _listener.Start();
         }
 
