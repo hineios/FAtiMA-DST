@@ -96,7 +96,7 @@ namespace FAtiMA_Server
     {
         public string Slot { get; set; }
 
-        public EquippedItems(int GUID, float x, float y, float z, string prefab, int count, bool workable, bool pickable, string slot) : base(GUID, x, y, z, prefab, count, workable, pickable)
+        public EquippedItems(int GUID, float x, float y, float z, string prefab, int count, bool chopworkable, bool hammerworkable, bool digworkable, bool mineworkable, bool pickable, string slot) : base(GUID, x, y, z, prefab, count, chopworkable, hammerworkable, digworkable, mineworkable, pickable)
         {
             Slot = slot;
         }
