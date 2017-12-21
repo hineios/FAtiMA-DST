@@ -159,7 +159,7 @@ local WalterBrain = Class(Brain, function(self, inst, server)
 				self.inst:InterruptBufferedAction()
 				self.inst.components.locomotor:Clear()
 				self.CurrentAction = action
-				print(action.Name, Ents[tonumber(action.Target)])
+				print("Action(" .. action.Name .. ", " .. action.InvObject .. ", (" .. action.PosX .. "," .. action.PosZ .. "), " .. action.Recipe .. ", " .. action.Distance .. ") = " .. action.Target)
 			end
 		end
     end
