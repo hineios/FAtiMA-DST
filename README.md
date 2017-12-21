@@ -15,7 +15,7 @@ This integration has two components: **FAtiMA-Server** and **FAtiMA-DST**. The f
 To create an agent you'll need to follow these general steps.
 
 1. Write a Role Play Character (RPC) using the FAtiMA Authoring Tools (check the FAtiMA-Toolkit page for more information) and place all it's files in the same folder as the **FAtiMA-Server** console application.
-2. Get the **FAtiMA-DST** mod from the workshop.
+2. Get the **FAtiMA-DST** mod from the workshop. (currently the mod is not yet published, copy the FAtiMA-DST folder into the the game's mods folder)
 3. Launch **FAtiMA-Server** console application.
 4. Launch a game with the **FAtiMA-DST** mod enabled.
 
@@ -34,17 +34,29 @@ The values enclosed in square brackets represent variables.
 These beliefs represent the agent's state, what he is seeing, carrying and using.
 
 `Health([Name]) = [value]`
+
 `Hunger([Name]) = [value]`
+
 `Sanity([Name]) = [value]`
+
 `Moisture([Name]) = [value]`
+
 `Temperature([Name]) = [value]`
+
 `IsFreezing([Name]) = [bool]`
+
 `IsOverheating([Name]) = [bool]`
+
 `IsBusy([Name]) = [bool]`
+
 `PosX([Name]) = [value]`
+
 `PosZ([Name]) = [value]`
+
 `InSight([GUID]) = [bool]`
+
 `InInventory([GUID]) = [bool]`
+
 `IsEquipped([GUID], [slot]) = [bool]`
 
 ##### World's State
@@ -52,10 +64,15 @@ These beliefs represent the agent's state, what he is seeing, carrying and using
 These beliefs represent information about the world and should be used in addiction to what the agent is seeing.
 
 `Entity([GUID], [prefab]) = [Quantity]`
+
 `Workable([GUID]) = [bool]`
+
 `Pickable([GUID]) = [bool]`
+
 `PosX([GUID]) = [value]`
+
 `PosZ([GUID]) = [value]`
+
 
 #### Actions
 

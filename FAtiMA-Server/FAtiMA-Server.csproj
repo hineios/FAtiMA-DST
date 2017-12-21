@@ -58,7 +58,7 @@
     <GenerateManifests>true</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ActionLibrary">
@@ -130,7 +130,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="FAtiMA-Server_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="walter.edm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
