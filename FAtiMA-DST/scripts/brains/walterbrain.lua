@@ -230,8 +230,7 @@ function WalterBrain:OnStart()
 							ACTIONS[self.CurrentAction.Name], -- Action
 							Ents[tonumber(self.CurrentAction.InvObject)], -- InvObject
 							nil,  --Vector3({tonumber(self.CurrentAction.PosX), tonumber(self.CurrentAction.PosY), tonumber(self.CurrentAction.PosZ)}), -- Pos
-							(self.CurrentAction.Recipe ~= "null") and self.CurrentAction.Recipe or nil, --Recipe
-							tonumber(self.CurrentAction.Distance) -- Distance
+							(self.CurrentAction.Recipe ~= "null") and self.CurrentAction.Recipe or nil --Recipe
 							) end, 
 						"DoAction", 
 						true),
