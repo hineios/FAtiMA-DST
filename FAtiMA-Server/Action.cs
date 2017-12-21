@@ -7,16 +7,19 @@ namespace FAtiMA_Server
         public string Target { get; set; }
         public string Name { get; set; }
         public string InvObject { get; set; }
-        public string Pos { get; set; }
+        public string PosX { get; set; }
+        //public int PosY { get; set; } The Y is always 0
+        public string PosZ { get; set; }
         public string Recipe { get; set; }
         public string Distance { get; set; }
 
-        public Action(string target, string name, string invobject, string pos, string recipe, string distance)
+        public Action(string target, string name, string invobject, string posx, string posz, string recipe, string distance)
         {
             Target = target;
             Name = name;
             InvObject = invobject;
-            Pos = pos;
+            PosX = posx;
+            PosZ = posz;
             Recipe = recipe;
             Distance = distance;
         }
@@ -26,11 +29,11 @@ namespace FAtiMA_Server
             Char[] delimiters = { '(', ',', ' ', ')' };
             String[] splitted = a.Name.ToString().Split(delimiters);
             
-            return new Action(splitted[1], splitted[3], splitted[5], splitted[7], splitted[9], splitted[11]);
+            return new Action(splitted[1], splitted[3], splitted[5], splitted[7], splitted[9], splitted[11], splitted[13]);
         }
         public override string ToString()
         {
-            return "Action(" + Target + ", " + Name + ", " + InvObject + ", " + Pos + ", " + Recipe + ", " + Distance + ")";
+            return "Action(" + Target + ", " + Name + ", " + InvObject + ", " + PosX + ", " + PosZ + ", " + Recipe + ", " + Distance + ")";
         }
     }
 }
