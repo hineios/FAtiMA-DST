@@ -55,7 +55,10 @@ local function Vision(inst)
 			d.Prefab = v.prefab
 			d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
 			d.Pickable = v:HasTag("pickable")
-			d.Workable = v:HasTag("CHOP_workable") or v:HasTag("DIG_workable") or v:HasTag("HAMMER_workable") or v:HasTag("MINE_workable") 
+			d.ChopWorkable = v:HasTag("CHOP_workable")
+			d.DigWorkable = v:HasTag("DIG_workable")
+			d.HammerWorkable = v:HasTag("HAMMER_workable")
+			d.MineWorkable = v:HasTag("MINE_workable") 
 			d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
 
 			data[j] = d
