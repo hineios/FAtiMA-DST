@@ -114,6 +114,10 @@ local function Perceptions(inst, brain)
     data.IsOverHeating = inst:IsOverheating()
     data.Moisture = inst:GetMoisture()
 	data.IsBusy = (brain.CurrentAction or false) and true
+	local x, y, z = inst.Transform:GetWorldPosition()
+	data.PosX = x
+	data.PosY = y
+	data.PosZ = z
 
     -- Add a perception that says which time of the day it is (day, dusk, night)
 
