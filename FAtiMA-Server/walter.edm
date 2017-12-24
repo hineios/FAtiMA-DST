@@ -5,7 +5,7 @@
 			"DefaultActionPriority": 1,
 			"ActionTendencies": [
 				{
-					"Action": "Action(PICK, null, null, null, null, null)",
+					"Action": "Action(PICK, -, -, -, -)",
 					"Target": "[GUID]",
 					"Conditions":
 						{
@@ -13,7 +13,7 @@
 						}
 				}, 
 				{
-					"Action": "Action(PICK, null, null, null, null, null)",
+					"Action": "Action(PICK, -, -, -, -)",
 					"Target": "[GUID]",
 					"Conditions":
 						{
@@ -21,7 +21,7 @@
 						}
 				}, 
 				{
-					"Action": "Action(PICK, null, null, null, null, null)",
+					"Action": "Action(PICK, -, -, -, -)",
 					"Target": "[GUID]",
 					"Conditions":
 						{
@@ -30,7 +30,7 @@
 					"Priority": 2
 				}, 
 				{
-					"Action": "Action(PICK, null, null, null, null, null)",
+					"Action": "Action(PICK, -, -, -, -)",
 					"Target": "[GUID]",
 					"Conditions":
 						{
@@ -38,7 +38,7 @@
 						}
 				}, 
 				{
-					"Action": "Action(PICK, null, null, null, null, null)",
+					"Action": "Action(PICK, -, -, -, -)",
 					"Target": "[GUID]",
 					"Conditions":
 						{
@@ -46,8 +46,8 @@
 						}
 				}, 
 				{
-					"Action": "Action(BUILD, null, null, null, axe, null)",
-					"Target": "null",
+					"Action": "Action(BUILD, -, -, -, axe)",
+					"Target": "-",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InInventory([G1]) = True", "Entity([G1], twigs) >= 1", "InInventory([G2]) = True", "Entity([G2], flint) >= 1"]
@@ -55,7 +55,7 @@
 					"Priority": 2
 				}, 
 				{
-					"Action": "Action(CHOP, null, null, null, null, null)",
+					"Action": "Action(CHOP, -, -, -, -)",
 					"Target": "[GUID]",
 					"Conditions":
 						{
@@ -64,7 +64,7 @@
 					"Priority": 3
 				}, 
 				{
-					"Action": "Action(PICK, null, null, null, null, null)",
+					"Action": "Action(PICK, -, -, -, -)",
 					"Target": "[GUID]",
 					"Conditions":
 						{
@@ -72,7 +72,7 @@
 						}
 				}, 
 				{
-					"Action": "Action(PICK, null, null, null, null, null)",
+					"Action": "Action(PICK, -, -, -, -)",
 					"Target": "[GUID]",
 					"Conditions":
 						{
@@ -80,8 +80,8 @@
 						}
 				}, 
 				{
-					"Action": "Action(BUILD, null, [x], [z], campfire, null)",
-					"Target": "null",
+					"Action": "Action(BUILD, -, [x], [z], campfire)",
+					"Target": "-",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InInventory([G1]) = True", "Entity([G1], cutgrass) >= 3", "InInventory([G2]) = True", "Entity([G2], log) >= 2", "PosX(SELF) = [x]", "PosZ(SELF) = [z]"]
