@@ -163,7 +163,7 @@ local WalterBrain = Class(Brain, function(self, inst, server)
 				self.inst:InterruptBufferedAction()
 				self.inst.components.locomotor:Clear()
 				self.CurrentAction = action
-				print("Action(" .. action.Name .. ", " .. action.InvObject .. ", (" .. action.PosX .. "," .. action.PosZ .. "), " .. action.Recipe .. ", " .. action.Distance .. ") = " .. action.Target)
+				print("Action(" .. action.Name .. ", " .. action.InvObject .. ", (" .. action.PosX .. ", 0, " .. action.PosZ .. "), " .. action.Recipe .. ") = " .. action.Target)
 			end
 		end
     end
@@ -229,8 +229,8 @@ function WalterBrain:OnStart()
 							Ents[tonumber(self.CurrentAction.Target)], -- Target
 							ACTIONS[self.CurrentAction.Name], -- Action
 							Ents[tonumber(self.CurrentAction.InvObject)], -- InvObject
-							nil,  --Vector3({tonumber(self.CurrentAction.PosX), tonumber(self.CurrentAction.PosY), tonumber(self.CurrentAction.PosZ)}), -- Pos
-							(self.CurrentAction.Recipe ~= "null") and self.CurrentAction.Recipe or nil --Recipe
+							(self.CurrentAction.PosX ~= "-" and Vector3(tonumber(self.CurrentAction.PosX), tonumber(self.CurrentAction.PosY), tonumber(self.CurrentAction.PosZ)) or nil), -- Pos
+							(self.CurrentAction.Recipe ~= "-") and self.CurrentAction.Recipe or nil --Recipe
 							) end, 
 						"DoAction", 
 						true),
