@@ -55,7 +55,10 @@ local function Vision(inst)
 			d.Prefab = v.prefab
 			d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
 			d.Pickable = v:HasTag("pickable")
-			d.Workable = v:HasTag("CHOP_workable") or v:HasTag("DIG_workable") or v:HasTag("HAMMER_workable") or v:HasTag("MINE_workable") 
+			d.ChopWorkable = v:HasTag("CHOP_workable")
+			d.DigWorkable = v:HasTag("DIG_workable")
+			d.HammerWorkable = v:HasTag("HAMMER_workable")
+			d.MineWorkable = v:HasTag("MINE_workable") 
 			d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
 
 			data[j] = d
@@ -111,6 +114,10 @@ local function Perceptions(inst, brain)
     data.IsOverHeating = inst:IsOverheating()
     data.Moisture = inst:GetMoisture()
 	data.IsBusy = (brain.CurrentAction or false) and true
+	local x, y, z = inst.Transform:GetWorldPosition()
+	data.PosX = x
+	data.PosY = y
+	data.PosZ = z
 
     -- Add a perception that says which time of the day it is (day, dusk, night)
 
@@ -156,7 +163,7 @@ local WalterBrain = Class(Brain, function(self, inst, server)
 				self.inst:InterruptBufferedAction()
 				self.inst.components.locomotor:Clear()
 				self.CurrentAction = action
-				print(action.Name, Ents[tonumber(action.Target)])
+				print("Action(" .. action.Name .. ", " .. action.InvObject .. ", (" .. action.PosX .. ", 0, " .. action.PosZ .. "), " .. action.Recipe .. ") = " .. action.Target)
 			end
 		end
     end
@@ -222,9 +229,8 @@ function WalterBrain:OnStart()
 							Ents[tonumber(self.CurrentAction.Target)], -- Target
 							ACTIONS[self.CurrentAction.Name], -- Action
 							Ents[tonumber(self.CurrentAction.InvObject)], -- InvObject
-							nil,  --Vector3({tonumber(self.CurrentAction.PosX), tonumber(self.CurrentAction.PosY), tonumber(self.CurrentAction.PosZ)}), -- Pos
-							(self.CurrentAction.Recipe ~= "null") and self.CurrentAction.Recipe or nil, --Recipe
-							tonumber(self.CurrentAction.Distance) -- Distance
+							(self.CurrentAction.PosX ~= "-" and Vector3(tonumber(self.CurrentAction.PosX), tonumber(self.CurrentAction.PosY), tonumber(self.CurrentAction.PosZ)) or nil), -- Pos
+							(self.CurrentAction.Recipe ~= "-") and self.CurrentAction.Recipe or nil --Recipe
 							) end, 
 						"DoAction", 
 						true),

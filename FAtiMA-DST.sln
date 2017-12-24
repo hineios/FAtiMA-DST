@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FAtiMA-Server", "FAtiMA-Server\FAtiMA-Server.csproj", "{DDDC370C-EC76-46A0-9C5B-F5BF26A17356}"
 EndProject
@@ -16,6 +16,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "brains", "brains", "{53F125D2-3CEF-4A94-BB09-D8697334E23D}"
 	ProjectSection(SolutionItems) = preProject
 		FAtiMA-DST\scripts\brains\walterbrain.lua = FAtiMA-DST\scripts\brains\walterbrain.lua
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8097FA78-4449-4CCA-8435-9D2434C6A860}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global

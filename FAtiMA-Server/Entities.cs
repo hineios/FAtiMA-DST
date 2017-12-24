@@ -27,14 +27,20 @@ namespace FAtiMA_Server
     {
         public string Prefab { get; set; }
         public int Quantity { get; set; }
-        public bool Workable { get; set; }
+        public bool ChopWorkable { get; set; }
+        public bool HammerWorkable { get; set; }
+        public bool DigWorkable { get; set; }
+        public bool MineWorkable { get; set; }
         public bool Pickable { get; set; }
 
-        public Item(int GUID, float x, float y, float z, string prefab, int quantity, bool workable, bool pickable) : base(GUID, x, y, z)
+        public Item(int GUID, float x, float y, float z, string prefab, int quantity, bool chopworkable, bool hammerworkable, bool digworkable, bool mineworkable, bool pickable) : base(GUID, x, y, z)
         {
             Prefab = prefab;
             Quantity = quantity;
-            Workable = workable;
+            ChopWorkable = chopworkable;
+            HammerWorkable = hammerworkable;
+            DigWorkable = digworkable;
+            MineWorkable = mineworkable;
             Pickable = pickable;
         }
 
@@ -44,9 +50,21 @@ namespace FAtiMA_Server
             if ( b == null || !(b.Equals(Quantity.ToString())))
                 rpc.Perceive(EventHelper.PropertyChange("Entity(" + GUID + "," + Prefab + ")", Quantity.ToString(), rpc.CharacterName.ToString()));
 
-            b = rpc.GetBeliefValue("Workable(" + GUID + ")");
-            if ( b == null || !(b.Equals(Workable.ToString())))
-                rpc.Perceive(EventHelper.PropertyChange("Workable(" + GUID + ")", Workable.ToString(), rpc.CharacterName.ToString()));
+            b = rpc.GetBeliefValue("ChopWorkable(" + GUID + ")");
+            if ( b == null || !(b.Equals(ChopWorkable.ToString())))
+                rpc.Perceive(EventHelper.PropertyChange("ChopWorkable(" + GUID + ")", ChopWorkable.ToString(), rpc.CharacterName.ToString()));
+
+            b = rpc.GetBeliefValue("HammerWorkable(" + GUID + ")");
+            if (b == null || !(b.Equals(HammerWorkable.ToString())))
+                rpc.Perceive(EventHelper.PropertyChange("HammerWorkable(" + GUID + ")", HammerWorkable.ToString(), rpc.CharacterName.ToString()));
+
+            b = rpc.GetBeliefValue("DigWorkable(" + GUID + ")");
+            if (b == null || !(b.Equals(DigWorkable.ToString())))
+                rpc.Perceive(EventHelper.PropertyChange("DigWorkable(" + GUID + ")", DigWorkable.ToString(), rpc.CharacterName.ToString()));
+
+            b = rpc.GetBeliefValue("MineWorkable(" + GUID + ")");
+            if (b == null || !(b.Equals(MineWorkable.ToString())))
+                rpc.Perceive(EventHelper.PropertyChange("MineWorkable(" + GUID + ")", MineWorkable.ToString(), rpc.CharacterName.ToString()));
 
             b = rpc.GetBeliefValue("Pickable(" + GUID + ")");
             if ( b == null || !(b.Equals(Pickable.ToString())))
@@ -78,7 +96,7 @@ namespace FAtiMA_Server
     {
         public string Slot { get; set; }
 
-        public EquippedItems(int GUID, float x, float y, float z, string prefab, int count, bool workable, bool pickable, string slot) : base(GUID, x, y, z, prefab, count, workable, pickable)
+        public EquippedItems(int GUID, float x, float y, float z, string prefab, int count, bool chopworkable, bool hammerworkable, bool digworkable, bool mineworkable, bool pickable, string slot) : base(GUID, x, y, z, prefab, count, chopworkable, hammerworkable, digworkable, mineworkable, pickable)
         {
             Slot = slot;
         }

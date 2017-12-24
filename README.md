@@ -65,7 +65,13 @@ These beliefs represent information about the world and should be used in addict
 
 `Entity([GUID], [prefab]) = [Quantity]`
 
-`Workable([GUID]) = [bool]`
+`ChopWorkable([GUID]) = [bool]`
+
+`DigWorkable([GUID]) = [bool]`
+
+`HammerWorkable([GUID]) = [bool]`
+
+`MineWorkable([GUID]) = [bool]`
 
 `Pickable([GUID]) = [bool]`
 
@@ -78,7 +84,7 @@ These beliefs represent information about the world and should be used in addict
 
 **It's imperative that all actions have the following structure**
 
-`Action([target], [action], [invobject], [pos], [recipe], [distance]) = [target]`
+`Action([action], [invobject], [posx], [posz], [recipe]) = [target]`
 
 Even if an action those not requires a specific parameter you must specify it as *null*.
 
