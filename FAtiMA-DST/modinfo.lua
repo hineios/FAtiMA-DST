@@ -37,7 +37,51 @@ server_filter_tags = {"ai"}
  {
      {
          name = "Killed",
-         label = "Listen to the 'killed' event",
+         label = "'killed'",
+         options = 
+         {
+             {description = "False", data = false},
+			 {description = "True", data = true}
+             
+         },
+         default = false,
+     },
+	 {
+         name = "Death",
+         label = "'death'",
+         options = 
+         {
+             {description = "False", data = false},
+			 {description = "True", data = true}
+             
+         },
+         default = false,
+     },
+	 {
+         name = "Attacked",
+         label = "'attacked'",
+         options = 
+         {
+             {description = "False", data = false},
+			 {description = "True", data = true}
+             
+         },
+         default = false,
+     },
+	 {
+         name = "MissOther",
+         label = "'onmissother'",
+         options = 
+         {
+             {description = "False", data = false},
+			 {description = "True", data = true}
+             
+         },
+         default = false,
+     },
+	 {
+         name = "HitOther",
+         label = "'onhitother'",
          options = 
          {
              {description = "False", data = false},
@@ -46,27 +90,4 @@ server_filter_tags = {"ai"}
          },
          default = false,
      }
---	 ,
---	 {
---         name = "onattackother",
---         label = "Listen to the 'onattackother' event",
---         options = 
---         {
---             {description = "False", data = false},
---             {description = "True", data = true}
-
---         },
---         default = false,
---     },
---	 {
---         name = "onmissother",
---         label = "Listen to the 'onmissother' event",
---         options = 
---         {
---             {description = "False", data = false},
---             {description = "True", data = true}
---         },
---         default = false,
---     }
-	 
- }
+}
