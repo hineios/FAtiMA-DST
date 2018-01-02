@@ -8,7 +8,7 @@ This repository aims to provide an integration of FAtiMA-Toolkit with Don't Star
 - Although not a prerequisite, some knowledge of the game will be helpful.
 - DST modding is encouraged and completely accepted by the game developers, however, there is no documentation whatsoever. Luckily, every line of code is available in the game directory. I recommend the use of an editor that supports the *Search in files* functionality. You won't need to make any mod for the game, but you'll eventually need to search the game files to understand the actions and how everything works. Check the Understanding the Actions section.
 
-### Creating an agent
+## Creating an agent
 
 This integration has two components: **FAtiMA-Server** and **FAtiMA-DST**. The former is a C# console application that will run FAtiMA, and the latter is a mod for DST that will control the character. You can think of **FAtiMA-Server** has the brains of the agents and **FAtiMA-DST** has the body.
 
@@ -19,76 +19,75 @@ To create an agent you'll need to follow these general steps.
 3. Launch **FAtiMA-Server** console application.
 4. Launch a game with the **FAtiMA-DST** mod enabled.
 
-### Creating a RPC
+## Creating a RPC
 
 FAtiMA-Toolkit provides tools to create agents for any scenarios. For this particular scenario, there are some restrictions you'll need to understand before you can write your agent.
 
-#### Beliefs
+### Beliefs
 
 These represent the information the agent has available when making decisions. They will represent both the state of the agent and the state of the world. These beliefs will be used in the conditions for the actions you'll define.
 
 The values enclosed in square brackets represent variables.
 
-##### Agent's State
+#### Agent's State
 
 These beliefs represent the agent's state, what he is seeing, carrying and using.
 
-`Health([Name]) = [value]`
+|Belief|Description|
+|:---|:---|
+|`Health([name]) = [value]`|Describes the agent's (*name*) health|
+|`Hunger([name]) = [value]`|Describes the agent's (*name*) hunger|
+|`Sanity([name]) = [value]`|Describes the agent's (*name*) sanity|
+|`Moisture([name]) = [value]`|Describes the agent's (*name*) moisture level|
+|`Temperature([name]) = [value]`|Describes the agent's (*name*) temperature|
+|`IsFreezing([name]) = [bool]`|Describes if the agent (*name*) is taking damage from extreme cold|
+|`IsOverheating([name]) = [bool]`|Describes if the agent (*name*) is taking damage from extreme hot|
+|`IsBusy([name]) = [bool]`|Describes if the agent (*name*) is currently executing any action|
+|`PosX([name]) = [value]`|The agent's (*name*) current X position|
+|`PosZ([name]) = [value]`|The agent's (*name*) current Y position|
+|`InSight([GUID]) = [bool]`|What the agent (*name*) is currently seeing|
+|`InInventory([GUID]) = [bool]`|What the agent (*name*) has in his inventory|
+|`IsEquipped([GUID], [slot]) = [bool]`|What the agent (*name*) has equipped in which *slot*|
+|`Light([name]) = [value]`|Defines if the agent (*name*) is in the light or darkness. *value* can be 'light' or 'dark'|
 
-`Hunger([Name]) = [value]`
-
-`Sanity([Name]) = [value]`
-
-`Moisture([Name]) = [value]`
-
-`Temperature([Name]) = [value]`
-
-`IsFreezing([Name]) = [bool]`
-
-`IsOverheating([Name]) = [bool]`
-
-`IsBusy([Name]) = [bool]`
-
-`PosX([Name]) = [value]`
-
-`PosZ([Name]) = [value]`
-
-`InSight([GUID]) = [bool]`
-
-`InInventory([GUID]) = [bool]`
-
-`IsEquipped([GUID], [slot]) = [bool]`
-
-##### World's State
+#### World's State
 
 These beliefs represent information about the world and should be used in addiction to what the agent is seeing.
 
-`Entity([GUID], [prefab]) = [Quantity]`
+|Belief|Description|
+|:---|:---|
+|`Entity([GUID], [prefab]) = [quantity]`|Defines entities, what they are (*prefab*) and how big is the stack (*quantity*)|
+|`ChopWorkable([GUID]) = [bool]`|Defines if the given entity is workable by an axe|
+|`DigWorkable([GUID]) = [bool]`|Defines if the given entity is workable by a shovel|
+|`HammerWorkable([GUID]) = [bool]`|Defines if the given entity is workable by an hammer|
+|`MineWorkable([GUID]) = [bool]`|Defines if the given entity is workable by a pick|
+|`Pickable([GUID]) = [bool]`|Defines if the given entity is pickable (either from the ground or collectable)|
+|`PosX([GUID]) = [value]`|Defines the X coordinate (*value*) of an entity|
+|`PosZ([GUID]) = [value]`|Defines the Z coordinate (*value*) of an entity|
+|`Day(Phase) = [value]`|Defines the phase of the day. *value* can be 'day', 'dusk', and 'night'|
 
-`ChopWorkable([GUID]) = [bool]`
+### Events
 
-`DigWorkable([GUID]) = [bool]`
+In addition to the Beliefs, we also provide a way to listen to in-game events and register them in FAtiMA, e.g. whenever something is killed, DST does a 'killed' event which can be listened to and registered as a FAtiMA event by simply enabling it on the mod configurations (by default all event listening is turned off).
 
-`HammerWorkable([GUID]) = [bool]`
-
-`MineWorkable([GUID]) = [bool]`
-
-`Pickable([GUID]) = [bool]`
-
-`PosX([GUID]) = [value]`
-
-`PosZ([GUID]) = [value]`
+|Event|Description|
+|:----:|:---|
+|`Event(Action-End, [subject], Attacked, [target])`|Represents an attack made on the *target* by the *subject*|
+|`Event(Action-End, [subject], Killed, [target])`|Represents the killing of the *target* by the hand of the *subject*|
+|`Event(Action-End, [subject], Death, [target])`|Represents the death of the *subject* by the hand of the *target*|
+|`Event(Action-End, [subject], HitOther, [target])`|Represents attacks the *subject* made against the *target*|
+|`Event(Action-End, [subject], MissOther, [target])`|Represents attacks the *subject* missed against the *target*|
 
 
-#### Actions
+### Actions
 
 **It's imperative that all actions have the following structure**
 
 `Action([action], [invobject], [posx], [posz], [recipe]) = [target]`
 
-Even if an action those not requires a specific parameter you must specify it as *-*.
+Even if an action those not requires a specific parameter you must specify it as `-`.
 
-##### Understanding the Actions
+#### Understanding the Actions
 
 Whenever you want to better understand a specific action, you should look for it in the **actions.lua** script and see what it checks and does. Eventually you'll need to dig into the **components** folder and search in those scripts.
 
