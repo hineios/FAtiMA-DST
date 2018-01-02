@@ -86,7 +86,7 @@ These beliefs represent information about the world and should be used in addict
 
 `Action([action], [invobject], [posx], [posz], [recipe]) = [target]`
 
-Even if an action those not requires a specific parameter you must specify it as *null*.
+Even if an action those not requires a specific parameter you must specify it as *-*.
 
 ##### Understanding the Actions
 
