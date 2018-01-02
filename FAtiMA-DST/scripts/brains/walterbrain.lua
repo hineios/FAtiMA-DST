@@ -119,8 +119,6 @@ local function Perceptions(inst, brain)
 	data.PosY = y
 	data.PosZ = z
 
-    -- Add a perception that says which time of the day it is (day, dusk, night)
-
     TheSim:QueryServer(
         brain.FAtiMAServer .. "/perceptions",
         brain.PerceptionsCallback,
@@ -135,8 +133,31 @@ local function Decide(inst, brain)
         "GET")
 end
 
-local function OnEvent(inst, FAtiMAServer, DecideCallback)
-	
+local function OnActionEndEvent(name, value, brain)
+	local d = {}
+	d.Type= "Action-End"
+	d.Name = name
+	d.Value = value
+	d.Subject = "Walter"
+	print("Event(" .. d.Type .. ", " .. d.Subject .. ", " .. d.Name .. ", " .. d.Value .. ")")
+	TheSim:QueryServer(
+        brain.FAtiMAServer .. "/events",
+        brain.OnEventCallback,
+        "POST",
+        json.encode(d))
+end
+
+local function OnPropertyChangedEvent(name, value, brain)
+	local d = {}
+	d.Type= "Property-Change"
+	d.Name = name
+	d.Value = value
+	d.Subject = "Walter"
+	TheSim:QueryServer(
+        brain.FAtiMAServer .. "/events",
+        brain.OnEventCallback,
+        "POST",
+        json.encode(d))
 end
 
 local WalterBrain = Class(Brain, function(self, inst, server)
@@ -156,6 +177,10 @@ local WalterBrain = Class(Brain, function(self, inst, server)
         -- Intentionally left blank
     end
 
+	self.OnEventCallback = function(result, isSuccessful , http_code)
+		-- Intentionally left blank
+	end
+
     self.DecideCallback = function(result, isSuccessful , http_code)
         if isSuccessful then
 			local action = result and (result ~= "") and json.decode(result)
@@ -167,17 +192,6 @@ local WalterBrain = Class(Brain, function(self, inst, server)
 			end
 		end
     end
-
-	self.OnEvent = function(inst, data)
-		print(inst.prefab)
-		print("data")
-		for k,v in pairs(data) do 
-			print(k, v)
-			for i, j in pairs(v) do
-				print(i, j)
-			end
-		end
-	end
 end)
 
 function WalterBrain:OnStart()
@@ -212,7 +226,15 @@ function WalterBrain:OnStart()
     --- Event Listeners ---
     -----------------------
     -- EntityScript:ListenForEvent(event, fn, source)
-    -- self.inst:ListenForEvent("killed", self.OnEvent)
+
+	-- Listen to phases of the day changes
+	-- This is actualy a perception, but it is perferable to check for changes instead of constantly checking its value.
+	self.inst:ListenForEvent("phasechanged", function(inst, data) OnPropertyChangedEvent("Day(Phase)", data, self) end, TheWorld)
+    
+	-- Events configurable in the Mod Config
+	if GetModConfigData("Killed", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("killed", function(inst, data) OnActionEndEvent("Killed", data.victim.GUID, self) end) end
+	-- self.inst:ListenForEvent("onattackother", function(inst, data) OnActionEndEvent("AttackOther", data, self) end)
+	-- "onattackother", "onmissother", "onhitother", "attacked", "weathertick", "seasontick", "precipitationchanged", "death", "playeractivated", "playerdeactivated", "enterdark", "enterlight", "nightvision", "healthdelta", "ms_playerjoined", "ms_playerleft", "playerdied", "ms_advanceseason", "onignite", "buildstructure", "builditem"
 
     -----------------------
     -------- Brain --------
@@ -269,8 +291,8 @@ function WalterBrain:OnStop()
     -----------------------
     --- Event Listeners ---
     -----------------------
-    self.inst:RemoveEventCallback("killed", self.OnEvent)
-
+    if GetModConfigData("Killed", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:RemoveEventCallback("killed", function(inst, data) OnActionEndEvent("Killed", data.victim.GUID, self) end) end
+	self.inst:RemoveEventCallback("phasechanged", OnPropertyChangedEvent)
 end
 
 return WalterBrain

@@ -25,8 +25,6 @@ namespace FAtiMA_Server
         public int PosY { get; set; }
         public int PosZ { get; set; }
 
-        //TODO: Add something to track which part of the day the agent is in.
-
         [JsonConstructor]
         public Perceptions(List<EquippedItems> equipslots, List<Item> vision, List<Item> itemslots,
             float hunger, float sanity, float health, float moisture, float temperature, bool isfreezing, bool isoverheating, bool isbusy, float posx, float posy, float posz)

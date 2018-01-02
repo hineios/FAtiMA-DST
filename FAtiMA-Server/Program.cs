@@ -77,24 +77,30 @@ namespace FAtiMA_Server
                         Debug.WriteLine(t);
                         return JsonConvert.SerializeObject(action);
                     case "/events":
-                        //Console.Write("An event occured... ");
-                        //if (request.HasEntityBody)
-                        //{
-                        //    using (System.IO.Stream body = request.InputStream) // here we have data
-                        //    {
-                        //        using (System.IO.StreamReader reader = new System.IO.StreamReader(body, request.ContentEncoding))
-                        //        {
-                        //            string e = reader.ReadToEnd();
-                        //            var p = JsonConvert.DeserializeObject<Event>(e);
-                        //            Walter.Perceive(p.ToName());
-                        //            Console.Write(p.ToString());
-                        //            Console.WriteLine(" Done!");
-                        //            return JsonConvert.True;
-                        //        }
-                        //    }
-                        //}
-                        //Console.WriteLine("Event processed!");
-                        return JsonConvert.True;
+                        Console.Write("An event occured... ");
+                        if (request.HasEntityBody)
+                        {
+                            using (System.IO.Stream body = request.InputStream) // here we have data
+                            {
+                                using (System.IO.StreamReader reader = new System.IO.StreamReader(body, request.ContentEncoding))
+                                {
+                                    string s = reader.ReadToEnd();
+                                    var e = JsonConvert.DeserializeObject<Event>(s);
+                                    Console.WriteLine(e.ToString());
+                                    try
+                                    {
+                                        e.Perceive(Walter);
+                                    }
+                                    catch (Exception excpt)
+                                    {
+                                        Debug.WriteLine(e.ToString());
+                                        throw excpt;
+                                    }
+                                    return JsonConvert.True;
+                                }
+                            }
+                        }
+                        return JsonConvert.False;
                     default:
                         return JsonConvert.Null;
                 }
