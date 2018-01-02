@@ -132,26 +132,35 @@ namespace FAtiMA_Server
 
             foreach (Item i in Vision)
             {
-                bv = rpc.GetBeliefValue("InSight(" + i.GUID + ")");
-                if (bv == null || !bv.Equals("True"))
-                    rpc.Perceive(EventHelper.PropertyChange("InSight(" + i.GUID + ")", "True", rpc.CharacterName.ToString()));
-                i.UpdatePerception(rpc);
+                if(i != null)
+                {
+                    bv = rpc.GetBeliefValue("InSight(" + i.GUID + ")");
+                    if (bv == null || !bv.Equals("True"))
+                        rpc.Perceive(EventHelper.PropertyChange("InSight(" + i.GUID + ")", "True", rpc.CharacterName.ToString()));
+                    i.UpdatePerception(rpc);
+                }
             }
 
             foreach (Item i in ItemSlots)
             {
-                bv = rpc.GetBeliefValue("InInventory(" + i.GUID + ")");
-                if (bv == null || !bv.Equals("True"))
-                    rpc.Perceive(EventHelper.PropertyChange("InInventory(" + i.GUID + ")", "TRUE", rpc.CharacterName.ToString()));
-                i.UpdatePerception(rpc);
+                if (i != null)
+                {
+                    bv = rpc.GetBeliefValue("InInventory(" + i.GUID + ")");
+                    if (bv == null || !bv.Equals("True"))
+                        rpc.Perceive(EventHelper.PropertyChange("InInventory(" + i.GUID + ")", "TRUE", rpc.CharacterName.ToString()));
+                    i.UpdatePerception(rpc);
+                }
             }
 
             foreach (EquippedItems i in EquipSlots)
             {
-                bv = rpc.GetBeliefValue("IsEquipped(" + i.GUID + "," + i.Slot + ")");
-                if (bv == null || !bv.Equals("True"))
-                    rpc.Perceive(EventHelper.PropertyChange("IsEquipped(" + i.GUID + "," + i.Slot + ")", "TRUE", rpc.CharacterName.ToString()));
-                i.UpdatePerception(rpc);
+                if (i != null)
+                {
+                    bv = rpc.GetBeliefValue("IsEquipped(" + i.GUID + "," + i.Slot + ")");
+                    if (bv == null || !bv.Equals("True"))
+                        rpc.Perceive(EventHelper.PropertyChange("IsEquipped(" + i.GUID + "," + i.Slot + ")", "TRUE", rpc.CharacterName.ToString()));
+                    i.UpdatePerception(rpc);
+                }
             }
 
             rpc.Update();
@@ -210,17 +219,17 @@ namespace FAtiMA_Server
             s += "\n\tVision:\n";
             foreach (Item v in Vision)
             {
-                s += "\t\t" + v.ToString() + "\n";
+                if (v != null) s += "\t\t" + v.ToString() + "\n";
             }
             s += "\tItemSlots:\n";
             foreach (Item i in ItemSlots)
             {
-                s += "\t\t" + i.ToString() + "\n";
+                if (i != null) s += "\t\t" + i.ToString() + "\n";
             }
             s += "\tEquipSlots:\n";
             foreach (Item e in EquipSlots)
             {
-                s += "\t\t" + e.ToString() + "\n";
+                if (e != null) s += "\t\t" + e.ToString() + "\n";
             }
             return s;
         }
