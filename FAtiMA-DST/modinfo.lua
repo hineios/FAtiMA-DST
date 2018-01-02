@@ -35,25 +35,59 @@ server_filter_tags = {"ai"}
 
  configuration_options =
  {
---     {
---         name = "EventKilled",
---         label = "Listen to the 'killed' event",
---         options = 
---         {
---             {description = "1", data = 1},
---             {description = "5", data = 5},
---             {description = "25", data = 25}
---         },
---         default = 5,
---     },
      {
-         name = "EventKilled",
-         label = "Listen to the 'killed' event",
+         name = "Killed",
+         label = "'killed'",
          options = 
          {
-             {description = "True", data = true},
-             {description = "False", data = false}
+             {description = "False", data = false},
+			 {description = "True", data = true}
+             
          },
-         default = true,
+         default = false,
+     },
+	 {
+         name = "Death",
+         label = "'death'",
+         options = 
+         {
+             {description = "False", data = false},
+			 {description = "True", data = true}
+             
+         },
+         default = false,
+     },
+	 {
+         name = "Attacked",
+         label = "'attacked'",
+         options = 
+         {
+             {description = "False", data = false},
+			 {description = "True", data = true}
+             
+         },
+         default = false,
+     },
+	 {
+         name = "MissOther",
+         label = "'onmissother'",
+         options = 
+         {
+             {description = "False", data = false},
+			 {description = "True", data = true}
+             
+         },
+         default = false,
+     },
+	 {
+         name = "HitOther",
+         label = "'onhitother'",
+         options = 
+         {
+             {description = "False", data = false},
+			 {description = "True", data = true}
+             
+         },
+         default = false,
      }
- }
+}

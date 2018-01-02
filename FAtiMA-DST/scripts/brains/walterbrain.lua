@@ -119,8 +119,6 @@ local function Perceptions(inst, brain)
 	data.PosY = y
 	data.PosZ = z
 
-    -- Add a perception that says which time of the day it is (day, dusk, night)
-
     TheSim:QueryServer(
         brain.FAtiMAServer .. "/perceptions",
         brain.PerceptionsCallback,
@@ -135,8 +133,37 @@ local function Decide(inst, brain)
         "GET")
 end
 
-local function OnEvent(inst, FAtiMAServer, DecideCallback)
-	
+local function Event(name, value, brain)
+	print(name, value)
+	for k, v in pairs(value) do
+		print(k, v)
+	end
+end
+local function OnActionEndEvent(name, value, brain)
+	local d = {}
+	d.Type= "Action-End"
+	d.Name = name
+	d.Value = value
+	d.Subject = "Walter"
+	print("Event(" .. d.Type .. ", " .. d.Subject .. ", " .. d.Name .. ", " .. d.Value .. ")")
+	TheSim:QueryServer(
+        brain.FAtiMAServer .. "/events",
+        brain.OnEventCallback,
+        "POST",
+        json.encode(d))
+end
+
+local function OnPropertyChangedEvent(name, value, brain)
+	local d = {}
+	d.Type= "Property-Change"
+	d.Name = name
+	d.Value = value
+	d.Subject = "Walter"
+	TheSim:QueryServer(
+        brain.FAtiMAServer .. "/events",
+        brain.OnEventCallback,
+        "POST",
+        json.encode(d))
 end
 
 local WalterBrain = Class(Brain, function(self, inst, server)
@@ -156,6 +183,10 @@ local WalterBrain = Class(Brain, function(self, inst, server)
         -- Intentionally left blank
     end
 
+	self.OnEventCallback = function(result, isSuccessful , http_code)
+		-- Intentionally left blank
+	end
+
     self.DecideCallback = function(result, isSuccessful , http_code)
         if isSuccessful then
 			local action = result and (result ~= "") and json.decode(result)
@@ -167,17 +198,6 @@ local WalterBrain = Class(Brain, function(self, inst, server)
 			end
 		end
     end
-
-	self.OnEvent = function(inst, data)
-		print(inst.prefab)
-		print("data")
-		for k,v in pairs(data) do 
-			print(k, v)
-			for i, j in pairs(v) do
-				print(i, j)
-			end
-		end
-	end
 end)
 
 function WalterBrain:OnStart()
@@ -212,7 +232,36 @@ function WalterBrain:OnStart()
     --- Event Listeners ---
     -----------------------
     -- EntityScript:ListenForEvent(event, fn, source)
-    -- self.inst:ListenForEvent("killed", self.OnEvent)
+
+	-- Listen to phases of the day changes
+	-- This is actualy a perception, but it is perferable to check for changes instead of constantly checking its value.
+	self.inst:ListenForEvent("phasechanged", function(inst, data) OnPropertyChangedEvent("Day(Phase)", data, self) end)
+    self.inst:ListenForEvent("enterdark", function(inst, data) OnPropertyChangedEvent("Light(Walter)", "dark", self) end)
+	self.inst:ListenForEvent("enterlight", function(inst, data) OnPropertyChangedEvent("Light(Walter)", "light", self) end)
+
+	-- Events configurable in the Mod Config
+	if GetModConfigData("Killed", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("killed", function(inst, data) OnActionEndEvent("Killed", data.victim.GUID, self) end) end
+	if GetModConfigData("Attacked", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("attacked", function(inst, data) OnActionEndEvent("Attacked", data.attacker.GUID, self) end) end
+	if GetModConfigData("Death", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("death", function(inst, data) OnActionEndEvent("Death", data.afflicter.GUID, self) end) end
+	if GetModConfigData("MissOther", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("onmissother", function(inst, data) OnActionEndEvent("MissOther", data.target.GUID, self) end) end
+	if GetModConfigData("HitOther", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("onhitother", function(inst, data) OnActionEndEvent("HitOther", data.target.GUID, self) end) end
+	
+	
+
+--	if GetModConfigData("HealthDelta", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("healthdelta", function(inst, data) Event("HealthDelta", data, self) end) end
+--	if GetModConfigData("PlayerDied", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("playerdied", function(inst, data) Event("PlayerDied", data.victim.GUID, self) end) end
+--	if GetModConfigData("AdvanceSeason", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("ms_advanceseason", function(inst, data) Event("AdvanceSeason", data.victim.GUID, self) end) end
+--	if GetModConfigData("Ignite", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("onignite", function(inst, data) Event("Ignite", data.victim.GUID, self) end) end
+--	if GetModConfigData("BuildStructure", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("buildstructure", function(inst, data) Event("BuildStructure", data.victim.GUID, self) end) end
+--	if GetModConfigData("BuildItem", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("builditem", function(inst, data) Event("BuildItem", data.victim.GUID, self) end) end
+--	if GetModConfigData("WeatherTick", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("weathertick", function(inst, data) Event("WeatherTick", data.victim.GUID, self) end) end
+--	if GetModConfigData("SeasonTick", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("seasontick", function(inst, data) Event("SeasonTick", data.victim.GUID, self) end) end
+--	if GetModConfigData("PrecipitationChanged", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("precipitationchanged", function(inst, data) Event("PrecipitationChanged", data.victim.GUID, self) end) end
+--	if GetModConfigData("PlayerActivated", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("playeractivated", function(inst, data) Event("PlayerActivated", data.victim.GUID, self) end) end
+--	if GetModConfigData("PlayerDeactivated", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("playerdeactivated", function(inst, data) Event("PlayerDeactivated", data.victim.GUID, self) end) end
+--	if GetModConfigData("PlayerJoined", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("ms_playerjoined", function(inst, data) Event("PlayerJoined", data.victim.GUID, self) end) end
+--	if GetModConfigData("PlayerLeft", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("ms_playerleft", function(inst, data) Event("PlayerLeft", data.victim.GUID, self) end) end
+	-- "killed", "onhitother", "attacked", "weathertick", "seasontick", "precipitationchanged", "death", "playeractivated", "playerdeactivated", "enterdark", "enterlight", "nightvision", "healthdelta", "ms_playerjoined", "ms_playerleft", "playerdied", "ms_advanceseason", "onignite", "buildstructure", "builditem"
 
     -----------------------
     -------- Brain --------
@@ -269,8 +318,8 @@ function WalterBrain:OnStop()
     -----------------------
     --- Event Listeners ---
     -----------------------
-    self.inst:RemoveEventCallback("killed", self.OnEvent)
-
+    if GetModConfigData("Killed", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:RemoveEventCallback("killed", function(inst, data) OnActionEndEvent("Killed", data.victim.GUID, self) end) end
+	self.inst:RemoveEventCallback("phasechanged", OnPropertyChangedEvent)
 end
 
 return WalterBrain

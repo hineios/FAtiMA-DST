@@ -1,48 +1,79 @@
 ﻿using Newtonsoft.Json;
 using RolePlayCharacter;
 using System;
+using System.Diagnostics;
 using WellFormedNames;
 
 namespace FAtiMA_Server
 {
     public class Event
     {
-        private string Subject { get; set; }
-        private string ActionName { get; set; }
-        private string Target { get; set; }
         private string Type { get; set; }
+        // What was it?/Belief
+        private string Name { get; set; }
+        // Who was the target/value
+        private string Value { get; set; }
+        // Who did it?/For who did it change
+        private string Subject { get; set; }
 
-        public Event(string subject, string action, string target, string type)
+        [JsonConstructor]
+        public Event(string type, string name, string value, string subject)
         {
             Subject = subject;
-            ActionName = action;
-            Target = target;
+            Name = name;
+            Value = value;
             Type = type;
         }
 
-        public Name ToName()
+        public void Perceive(RolePlayCharacterAsset rpc)
         {
             switch (Type)
             {
-                case "actionend":
-                    return EventHelper.ActionEnd(Subject, ActionName, Target);
-                case "actionstart":
-                    return EventHelper.ActionStart(Subject, ActionName, Target);
-                case "propertychange":
-                    return EventHelper.PropertyChange(Subject, ActionName, Target);
+                case "Action-End":
+                    PerceiveActionEnd(rpc);
+                    return;
+                case "Action-Start":
+                    PerceiveActionStart(rpc);
+                    return;
+                case "Property-Change":
+                    PerceivePropertyChanged(rpc);
+                    return;
+
                 default:
-                    throw new Exception("Event of unknown type. Events must be 'actionstart', 'actionend', or 'propertychange'.");
+                    throw new Exception("Event of unknown type. Events must be 'Action-Start', 'Action-End', or 'Property-Change'.");
             }
         }
 
-        public static Name FromJSON(string s)
+        private void PerceiveActionStart(RolePlayCharacterAsset rpc)
         {
-            return JsonConvert.DeserializeObject<Event>(s).ToName();
+            var e = EventHelper.ActionStart(Subject, Name, Value);
+            Debug.WriteLine(e.ToString());
+            rpc.Perceive(e);
+        }
+
+        private void PerceiveActionEnd(RolePlayCharacterAsset rpc)
+        {
+            var e = EventHelper.ActionEnd(Subject, Name, Value);
+            Debug.WriteLine(e.ToString());
+            rpc.Perceive(e);
+        }
+
+        private void PerceivePropertyChanged(RolePlayCharacterAsset rpc)
+        {
+            /*
+             * Update the KB with the new belief if it is different from the current belief
+             * */
+            string bv = rpc.GetBeliefValue(Name);
+            if (bv == null || !bv.Equals(Value.ToString()))
+            {
+                Debug.WriteLine(Name + ": " + bv + " -> " + Value.ToString());
+                rpc.Perceive(EventHelper.PropertyChange(Name, Value, Subject));
+            }
         }
 
         public override string ToString()
         {
-            return Type + "(" + ActionName + ", " + Subject + ", " + Target + ")";
+            return Type + "(" + Name + ", " + Value + ", " + Subject + ")";
         }
     }
 }
