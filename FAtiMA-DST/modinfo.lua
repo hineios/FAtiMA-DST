@@ -1,8 +1,8 @@
 -- This information tells other players more about the mod
 name = "FAtiMA-DST"
-description = "Build your agents using FAtiMA and play with them in the Don't Starve Together World."
-author = "Fábio Almeida (hineios)"
-version = "0.2"
+description = "Build your agents using FAtiMA and play with them in Don't Starve Together."
+author = "Hineios"
+version = "1.3"
 --version_compatible = "1.7"
 
 -- This is the URL name of the mod's thread on the forum; the part after the index.php? and before the first & in the URL

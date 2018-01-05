@@ -57,14 +57,37 @@ These beliefs represent information about the world and should be used in addict
 |Belief|Description|
 |:---|:---|
 |`Entity([GUID], [prefab]) = [quantity]`|Defines entities, what they are (*prefab*) and how big is the stack (*quantity*)|
-|`ChopWorkable([GUID]) = [bool]`|Defines if the given entity is workable by an axe|
-|`DigWorkable([GUID]) = [bool]`|Defines if the given entity is workable by a shovel|
-|`HammerWorkable([GUID]) = [bool]`|Defines if the given entity is workable by an hammer|
-|`MineWorkable([GUID]) = [bool]`|Defines if the given entity is workable by a pick|
-|`Pickable([GUID]) = [bool]`|Defines if the given entity is pickable (either from the ground or collectable)|
+|`ChopWorkable([GUID]) = [bool]`|True if the given entity is workable by an axe|
+|`DigWorkable([GUID]) = [bool]`|True if the given entity is workable by a shovel|
+|`HammerWorkable([GUID]) = [bool]`|True if the given entity is workable by an hammer|
+|`MineWorkable([GUID]) = [bool]`|True if the given entity is workable by a pick|
+|`Pickable([GUID]) = [bool]`|True if the given entity is pickable (either from the ground or collectable)|
 |`PosX([GUID]) = [value]`|Defines the X coordinate (*value*) of an entity|
 |`PosZ([GUID]) = [value]`|Defines the Z coordinate (*value*) of an entity|
-|`Day(Phase) = [value]`|Defines the phase of the day. *value* can be 'day', 'dusk', and 'night'|
+|`World(CurrentSegment) = [value]`|The current segment, ranges between 0 and 15|
+|`World(Cycle) = [value]`|Defines how many cycles (days) have passed since the start of the game|
+|`World(Phase) = [value]`|Defines the phase of the day. *value* can be: 'day', 'dusk', or 'night'|
+|`World(PhaseLenght, [phase]) = [value]`|The current duration of the day *phase* in clock segments. The sum of all segments is always 16|
+|`World(IsDay) = [bool]`|True if the phase of the day is 'day'|
+|`World(IsDusk) = [bool]`|True if the phase of the day is 'dusk'|
+|`World(IsNight) = [bool]`|True if the phase of the day is 'night'|
+|`World(Season) = [value]`|Defines the current season. *value* can be: 'spring', 'summer', 'autumn', or 'winter'|
+|`World(SeasonProgress) = [value]`|A value between 0 and 1 that defines the progress of the season|
+|`World(SpringLength) = [value]`|Defines the current lenght of Spring|
+|`World(SummerLength) = [value]`|Defines the current lenght of Summer|
+|`World(AutumnLenght) = [value]`|Defines the current lenght of Autumn|
+|`World(WinterLenght) = [value]`|Defines the current lenght of Winter|
+|`World(IsSpring) = [bool]`|True if the season is Spring|
+|`World(IsSummer) = [bool]`|True if the season is Summer|
+|`World(IsAutumn) = [bool]`|True if the season is Autumn|
+|`World(IsWinter) = [bool]`|True if the season is Winter|
+|`World(ElapsedDaysInSeason) = [value]`|How many days ahve passed in the current season|
+|`World(RemainingDaysInSeason) = [value]`|How many days are left to the end of the season|
+|`World(IsSnowing) = [bool]`|True if it is snowing|
+|`World(IsRaining) = [bool]`|True if it is raining|
+|`World(MoonPhase) = [value]`|Defines the current moon phase. *value* can be: 'new', 'quarter', 'half', 'threequarter', or 'full'|
+|`World(IsFullMoon) = [bool]`|True if there is a full moon|
+|`World(IsNewMoon) = [bool]`|True if there is a new moon|
 
 ### Events
 
