@@ -8,7 +8,7 @@ local ArtificalWalterEnabled = false
 local function SetSelfAI()
 	print("Enabling Artificial Walter")
 
-	local brain = GLOBAL.require "brains/walterbrain"
+	local brain = GLOBAL.require "brains/fatimabrain"
 	GLOBAL.ThePlayer:SetBrain(brain)
 	GLOBAL.ThePlayer:RestartBrain()
 	

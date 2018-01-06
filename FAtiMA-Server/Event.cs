@@ -73,7 +73,7 @@ namespace FAtiMA_Server
 
         public override string ToString()
         {
-            return Type + "(" + Name + ", " + Value + ", " + Subject + ")";
+            return "Event(" + Type + ", " + Name + ", " + Value + ", " + Subject + ")";
         }
     }
 }

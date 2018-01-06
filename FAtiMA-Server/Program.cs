@@ -72,12 +72,11 @@ namespace FAtiMA_Server
                         string t = decision.Count().ToString() + ": ";
                         foreach (var a in decision)
                         {
-                            t += a.Name + " " + a.Target + "; ";
+                            t += a.Name + " = " + a.Target + "; ";
                         }
                         Debug.WriteLine(t);
                         return JsonConvert.SerializeObject(action);
                     case "/events":
-                        Console.Write("An event occured... ");
                         if (request.HasEntityBody)
                         {
                             using (System.IO.Stream body = request.InputStream) // here we have data
@@ -86,7 +85,6 @@ namespace FAtiMA_Server
                                 {
                                     string s = reader.ReadToEnd();
                                     var e = JsonConvert.DeserializeObject<Event>(s);
-                                    Console.WriteLine(e.ToString());
                                     try
                                     {
                                         e.Perceive(Walter);

@@ -15,7 +15,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "scripts", "scripts", "{8B4F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "brains", "brains", "{53F125D2-3CEF-4A94-BB09-D8697334E23D}"
 	ProjectSection(SolutionItems) = preProject
-		FAtiMA-DST\scripts\brains\walterbrain.lua = FAtiMA-DST\scripts\brains\walterbrain.lua
+		FAtiMA-DST\scripts\brains\fatimabrain.lua = FAtiMA-DST\scripts\brains\fatimabrain.lua
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8097FA78-4449-4CCA-8435-9D2434C6A860}"
