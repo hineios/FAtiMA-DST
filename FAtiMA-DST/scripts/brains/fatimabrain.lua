@@ -254,7 +254,7 @@ function FAtiMABrain:OnPropertyChangedEvent(name, value)
 	d.Name = name
 	d.Value = value
 	d.Subject = "Walter"
-	print(d.Name .. " = " .. d.Value)
+	print(d.Name , d.Value)
 	TheSim:QueryServer(
         self.FAtiMAServer .. "/events",
         self.OnEventCallback,
