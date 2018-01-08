@@ -55,7 +55,7 @@ local function Vision(inst)
 			d.GUID = v.GUID
 			d.Prefab = v.prefab
 			d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
-			d.Pickable = v:HasTag("pickable")
+			d.Pickable = v:HasTag("pickable") or v:HasTag("_inventoryitem")
 			d.ChopWorkable = v:HasTag("CHOP_workable")
 			d.DigWorkable = v:HasTag("DIG_workable")
 			d.HammerWorkable = v:HasTag("HAMMER_workable")
@@ -79,6 +79,12 @@ local function Inventory(inst)
         d.GUID = v.GUID
         d.Prefab = v.prefab
         d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+		-- Stuff in the inventory is neither pickable nor workable
+		d.Pickable = false
+		d.ChopWorkable = false
+		d.DigWorkable = false
+		d.HammerWorkable = false
+		d.MineWorkable = false
 		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
 
 		ItemSlots[k] = d
@@ -93,8 +99,15 @@ local function Inventory(inst)
         d.GUID = v.GUID
         d.Prefab = v.prefab
         d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+		-- Stuff in the inventory is neither pickable nor workable
+		d.Pickable = false
+		d.ChopWorkable = false
+		d.DigWorkable = false
+		d.HammerWorkable = false
+		d.MineWorkable = false
         d.Slot = k
 		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
+
         EquipSlots[i] = d
         i = i + 1
     end
@@ -403,7 +416,19 @@ function FAtiMABrain:OnStart()
 						"DoAction", 
 						true),
 					DoAction(self.inst,
-						function() self.CurrentAction = nil end,
+						function() 
+							-- If the target of the action ceases to exist, we need to inform FAtiMA
+							-- For performance will consider deleting the belief
+							if Ents[tonumber(self.CurrentAction.Target)] == nil then
+								-- Target no longer exists
+								self:OnPropertyChangedEvent("Pickable(" .. self.CurrentAction.Target .. ")", false)
+								self:OnPropertyChangedEvent("ChopWorkable(" .. self.CurrentAction.Target .. ")", false)
+								self:OnPropertyChangedEvent("DigWorkable(" .. self.CurrentAction.Target .. ")", false)
+								self:OnPropertyChangedEvent("HammerWorkable(" .. self.CurrentAction.Target .. ")", false)
+								self:OnPropertyChangedEvent("MineWorkable(" .. self.CurrentAction.Target .. ")", false)
+							end
+							self.CurrentAction = nil 
+						end,
 						"CleanAction",
 						true)
 				}
