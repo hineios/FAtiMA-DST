@@ -56,8 +56,8 @@ namespace FAtiMA_Server
                                     }
                                     catch (Exception excpt)
                                     {
-                                        Debug.WriteLine(p.ToString());
-                                        throw excpt;
+                                        //Debug.WriteLine(p.ToString());
+                                        throw new Exception(p.ToString());
                                     }
                                     return JsonConvert.True;
                                 }
@@ -91,8 +91,8 @@ namespace FAtiMA_Server
                                     }
                                     catch (Exception excpt)
                                     {
-                                        Debug.WriteLine(e.ToString());
-                                        throw excpt;
+                                        //Debug.WriteLine(e.ToString());
+                                        throw new Exception(e.ToString());
                                     }
                                     return JsonConvert.True;
                                 }
