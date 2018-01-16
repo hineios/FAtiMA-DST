@@ -55,7 +55,8 @@ local function Vision(inst)
 			d.GUID = v.GUID
 			d.Prefab = v.prefab
 			d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
-			d.Pickable = v:HasTag("pickable") or v:HasTag("_inventoryitem")
+			d.Pickable = v:HasTag("_inventoryitem") -- PICKUP
+			d.Collectable = v:HasTag("pickable") -- PICK
 			d.ChopWorkable = v:HasTag("CHOP_workable")
 			d.DigWorkable = v:HasTag("DIG_workable")
 			d.HammerWorkable = v:HasTag("HAMMER_workable")
@@ -81,6 +82,7 @@ local function Inventory(inst)
         d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
 		-- Stuff in the inventory is neither pickable nor workable
 		d.Pickable = false
+		d.Collectable = false
 		d.ChopWorkable = false
 		d.DigWorkable = false
 		d.HammerWorkable = false
@@ -101,6 +103,7 @@ local function Inventory(inst)
         d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
 		-- Stuff in the inventory is neither pickable nor workable
 		d.Pickable = false
+		d.Collectable = false
 		d.ChopWorkable = false
 		d.DigWorkable = false
 		d.HammerWorkable = false
@@ -422,6 +425,7 @@ function FAtiMABrain:OnStart()
 							if Ents[tonumber(self.CurrentAction.Target)] == nil then
 								-- Target no longer exists
 								self:OnPropertyChangedEvent("Pickable(" .. self.CurrentAction.Target .. ")", false)
+								self:OnPropertyChangedEvent("Collectable(" .. self.CurrentAction.Target .. ")", false)
 								self:OnPropertyChangedEvent("ChopWorkable(" .. self.CurrentAction.Target .. ")", false)
 								self:OnPropertyChangedEvent("DigWorkable(" .. self.CurrentAction.Target .. ")", false)
 								self:OnPropertyChangedEvent("HammerWorkable(" .. self.CurrentAction.Target .. ")", false)

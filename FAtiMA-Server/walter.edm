@@ -8,21 +8,21 @@
           "Action": "Action(PICK, -, -, -, -)",
           "Target": "[GUID]",
           "Conditions": {
-            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], grass) = [Quantity]", "Pickable([GUID]) = True" ]
+            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], grass) = [Quantity]", "Collectable([GUID]) = True" ]
           }
         },
         {
           "Action": "Action(PICK, -, -, -, -)",
           "Target": "[GUID]",
           "Conditions": {
-            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], berrybush) = [Quantity]", "Pickable([GUID]) = True" ]
+            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], berrybush) = [Quantity]", "Collectable([GUID]) = True" ]
           }
         },
         {
           "Action": "Action(PICKUP, -, -, -, -)",
           "Target": "[GUID]",
           "Conditions": {
-            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], log) = [Quantity]", "Pickable([GUID]) = True" ]
+            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], log) = [Quantity]", "Collectable([GUID]) = True" ]
           },
           "Priority": 2
         },
@@ -37,7 +37,7 @@
           "Action": "Action(PICK, -, -, -, -)",
           "Target": "[GUID]",
           "Conditions": {
-            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], carrot_planted) = [Quantity]", "Pickable([GUID]) = True" ]
+            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], carrot_planted) = [Quantity]", "Collectable([GUID]) = True" ]
           }
         },
         {
@@ -52,7 +52,7 @@
           "Action": "Action(CHOP, -, -, -, -)",
           "Target": "[GUID]",
           "Conditions": {
-            "Set": [ "IsBusy(SELF) = False", "IsEquiped([tool], hands) = True", "Entity([tool], axe) = [q]", "InSight([tree]) = True", "Entity([tree], evergreen) = [q1]", "Workable([tree]) = True" ]
+            "Set": [ "IsBusy(SELF) = False", "IsEquiped([tool], hands) = True", "Entity([tool], axe) = [q]", "InSight([tree]) = True", "Entity([tree], evergreen) = [q1]", "ChopWorkable([tree]) = True" ]
           },
           "Priority": 3
         },
@@ -60,14 +60,14 @@
           "Action": "Action(PICK, -, -, -, -)",
           "Target": "[GUID]",
           "Conditions": {
-            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], sapling) = [Quantity]", "Pickable([GUID]) = True" ]
+            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], sapling) = [Quantity]", "Collectable([GUID]) = True" ]
           }
         },
         {
           "Action": "Action(PICK, -, -, -, -)",
           "Target": "[GUID]",
           "Conditions": {
-            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], flower) = [Quantity]", "Pickable([GUID]) = True" ]
+            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], flower) = [Quantity]", "Collectable([GUID]) = True" ]
           }
         },
         {
