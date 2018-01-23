@@ -13,7 +13,7 @@
 			"BodyName": "",
 			"VoiceName": null,
 			"EmotionalAppraisalAssetSource": null,
-			"EmotionalDecisionMakingSource": ".\\walter.edm",
+			"EmotionalDecisionMakingSource": "walter.edm",
 			"SocialImportanceAssetSource": null,
 			"CommeillFautAssetSource": null,
 			"EmotionalState":
@@ -44,6 +44,6 @@
 	"types": [
 		{
 			"TypeId": 0,
-			"ClassName": "RolePlayCharacter.RolePlayCharacterAsset, RolePlayCharacter, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null"
+			"ClassName": "RolePlayCharacter.RolePlayCharacterAsset, RolePlayCharacter, Version=1.5.0.0, Culture=neutral, PublicKeyToken=null"
 		}]
 }

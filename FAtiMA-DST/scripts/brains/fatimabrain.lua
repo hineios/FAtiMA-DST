@@ -160,7 +160,9 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 				self.CurrentAction = action
 				if action.Type == "Action" then
 					print(action.Type .. "(" .. action.Name .. ", " .. action.InvObject .. ", (" .. action.PosX .. ", 0, " .. action.PosZ .. "), " .. action.Recipe .. ") = " .. action.Target)
-				elseif action.Type == "Talk" then
+				elseif action.Type == "Speak" then
+					-- m = meaning
+					-- Speak([cs],[ns],[m],[sty]) = [t]
 					print(action.Type .. " = " .. action.Target)
 				end
 			end
@@ -441,15 +443,18 @@ function FAtiMABrain:OnStart()
 						true)
 				}
 			),
-			IfNode(function() return (self.CurrentAction ~= nil and self.CurrentAction.Type == "Talk") end, "IfTalk",
+			IfNode(function() return (self.CurrentAction ~= nil and self.CurrentAction.Type == "Speak") end, "IfSpeak",
 				SequenceNode{
 					DoAction(self.inst,
-						function() inst.components.talker:Say(self.CurrentAction.Name) end,
-						"Talk",
+						function() self.inst.components.talker:Say(self.CurrentAction.Utterance) end,
+						"Speak",
 						true
 					),
 					DoAction(self.inst,
-						function() self.CurrentAction = nil end,
+						function() 
+							self.CurrentAction = nil
+							-- Send Action-End
+						end,
 						"CleanAction",
 						true
 					)
