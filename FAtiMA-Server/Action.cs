@@ -5,6 +5,9 @@ namespace FAtiMA_Server
 {
     public class Action
     {
+        
+        public string Type { get; set; }
+
         // This represents the Target of the given action
         public string Target { get; set; }
 
@@ -22,7 +25,7 @@ namespace FAtiMA_Server
         // The name of the recipe to be built
         public string Recipe { get; set; }
 
-        public Action(string target, string name, string invobject, string posx, string posz, string recipe)
+        public Action(string target, string type, string name, string invobject, string posx, string posz, string recipe)
         {
             Target = target;
             Name = name;
@@ -30,6 +33,13 @@ namespace FAtiMA_Server
             PosX = posx;
             PosZ = posz;
             Recipe = recipe;
+            Type = type;
+        }
+
+        public Action(string target, string type)
+        {
+            Target = target;
+            Type = type;
         }
 
         public static Action ToAction(ActionLibrary.IAction a)
@@ -37,11 +47,29 @@ namespace FAtiMA_Server
             Char[] delimiters = { '(', ',', ' ', ')' };
             String[] splitted = a.Name.ToString().Split(delimiters);
 
-            return new Action(a.Target.ToString(), splitted[1], splitted[3], splitted[5], splitted[7], splitted[9]);
+            switch (splitted[0])
+            {
+                case "Action":
+                    return new Action(a.Target.ToString(), splitted[0], splitted[1], splitted[3], splitted[5], splitted[7], splitted[9]);
+                case "Talk":
+                    return new Action(a.Target.ToString(), splitted[0]);
+                default:
+                    throw new Exception("This type of action (" + splitted[0] + ") is not recognized");
+            }
+            
         }
         public override string ToString()
         {
-            return "Action(" + Name + ", " + InvObject + ", " + PosX + ", " + PosZ + ", " + Recipe +  ") = " + Target;
+            switch (Type)
+            {
+                case "Action":
+                    return Type + "(" + Name + ", " + InvObject + ", " + PosX + ", " + PosZ + ", " + Recipe + ") = " + Target;
+                case "Talk":
+                    return Type + "(" + Target + ")";
+                default:
+                    return "";
+            }
+            
         }
     }
 }

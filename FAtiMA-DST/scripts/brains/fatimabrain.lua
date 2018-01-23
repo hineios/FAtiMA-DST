@@ -154,11 +154,15 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
     self.DecideCallback = function(result, isSuccessful , http_code)
         if isSuccessful then
 			local action = result and (result ~= "") and json.decode(result)
-			if action and action.Name then
+			if action and action.Type then
 				self.inst:InterruptBufferedAction()
 				self.inst.components.locomotor:Clear()
 				self.CurrentAction = action
-				print("Action(" .. action.Name .. ", " .. action.InvObject .. ", (" .. action.PosX .. ", 0, " .. action.PosZ .. "), " .. action.Recipe .. ") = " .. action.Target)
+				if action.Type == "Action" then
+					print(action.Type .. "(" .. action.Name .. ", " .. action.InvObject .. ", (" .. action.PosX .. ", 0, " .. action.PosZ .. "), " .. action.Recipe .. ") = " .. action.Target)
+				elseif action.Type == "Talk" then
+					print(action.Type .. " = " .. action.Target)
+				end
 			end
 		end
     end
@@ -405,7 +409,7 @@ function FAtiMABrain:OnStart()
     local root = 
         PriorityNode(
         {
-            IfNode(function() return (self.CurrentAction ~= nil) end, "IfDoAction",
+            IfNode(function() return (self.CurrentAction ~= nil and self.CurrentAction.Type == "Action") end, "IfAction",
                 SequenceNode{
 					DoAction(self.inst, 
 						function() return BufferedAction(
@@ -435,6 +439,20 @@ function FAtiMABrain:OnStart()
 						end,
 						"CleanAction",
 						true)
+				}
+			),
+			IfNode(function() return (self.CurrentAction ~= nil and self.CurrentAction.Type == "Talk") end, "IfTalk",
+				SequenceNode{
+					DoAction(self.inst,
+						function() inst.components.talker:Say(self.CurrentAction.Name) end,
+						"Talk",
+						true
+					),
+					DoAction(self.inst,
+						function() self.CurrentAction = nil end,
+						"CleanAction",
+						true
+					)
 				}
 			)
         }, 1)

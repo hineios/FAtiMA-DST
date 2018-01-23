@@ -75,6 +75,7 @@ namespace FAtiMA_Server
                             t += a.Name + " = " + a.Target + "; ";
                         }
                         Debug.WriteLine(t);
+                        Console.WriteLine(JsonConvert.SerializeObject(action));
                         return JsonConvert.SerializeObject(action);
                     case "/events":
                         if (request.HasEntityBody)
