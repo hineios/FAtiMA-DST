@@ -55,7 +55,8 @@ local function Vision(inst)
 			d.GUID = v.GUID
 			d.Prefab = v.prefab
 			d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
-			d.Pickable = v:HasTag("pickable")
+			d.Pickable = v:HasTag("_inventoryitem") -- PICKUP
+			d.Collectable = v:HasTag("pickable") -- PICK
 			d.ChopWorkable = v:HasTag("CHOP_workable")
 			d.DigWorkable = v:HasTag("DIG_workable")
 			d.HammerWorkable = v:HasTag("HAMMER_workable")
@@ -79,6 +80,13 @@ local function Inventory(inst)
         d.GUID = v.GUID
         d.Prefab = v.prefab
         d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+		-- Stuff in the inventory is neither pickable nor workable
+		d.Pickable = false
+		d.Collectable = false
+		d.ChopWorkable = false
+		d.DigWorkable = false
+		d.HammerWorkable = false
+		d.MineWorkable = false
 		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
 
 		ItemSlots[k] = d
@@ -93,8 +101,16 @@ local function Inventory(inst)
         d.GUID = v.GUID
         d.Prefab = v.prefab
         d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+		-- Stuff in the inventory is neither pickable nor workable
+		d.Pickable = false
+		d.Collectable = false
+		d.ChopWorkable = false
+		d.DigWorkable = false
+		d.HammerWorkable = false
+		d.MineWorkable = false
         d.Slot = k
 		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
+
         EquipSlots[i] = d
         i = i + 1
     end
@@ -178,7 +194,13 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 	------------------------------
     ------ Watch World State -----
     ------------------------------
-	self.OnCycles = function(inst, cycle) self:OnPropertyChangedEvent("World(Cycle)", cycle) end
+	self.OnCycles = function(inst, cycle) 
+		if cycle ~= nil then
+			self:OnPropertyChangedEvent("World(Cycle)", cycle)
+		else 
+			self:OnPropertyChangedEvent("World(Cycle)", "0")
+		end
+	end
 	self.OnPhase = function(inst, phase) self:OnPropertyChangedEvent("World(Phase)", phase) end
 	self.OnIsDay = function(inst, isday) self:OnPropertyChangedEvent("World(IsDay)", isday) end
 	self.OnIsDusk = function(inst, isdusk) self:OnPropertyChangedEvent("World(IsDusk)", isdusk) end
@@ -254,7 +276,7 @@ function FAtiMABrain:OnPropertyChangedEvent(name, value)
 	d.Name = name
 	d.Value = value
 	d.Subject = "Walter"
-	print(d.Name .. " = " .. d.Value)
+	print(d.Name .. " = ", d.Value)
 	TheSim:QueryServer(
         self.FAtiMAServer .. "/events",
         self.OnEventCallback,
@@ -299,7 +321,7 @@ function FAtiMABrain:OnStart()
     self.inst:ListenForEvent("enterdark", self.OnEnterDark)
 	self.inst:ListenForEvent("enterlight", self.OnEnterLight)
 	self.inst:ListenForEvent("clocksegschanged", self.OnClockSegsChanged, TheWorld)
-	self.inst:ListenForEvent("clocktick", self.OnClockTick, TheWorld)
+	self.inst:ListenForEvent("clocktick", self.OnClockTick, TheWorld) -- this is called so often there is no need to initialize
 	
 	-- Events configurable in the Mod Config
 	if GetModConfigData("Killed", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("killed", self.OnKilled) end
@@ -347,28 +369,34 @@ function FAtiMABrain:OnStart()
 --	self.inst:WatchWorldState("snowlevel", OnSnowLevel)
 	
 	-- Registered listeners to tell FAtiMA about changes, now let's tell FAtiMA the initial values
-	self:OnPropertyChangedEvent("World(Cycle)", TheWorld.state.cycle)
-	self:OnPropertyChangedEvent("World(Phase)", TheWorld.state.phase)
-	self:OnPropertyChangedEvent("World(IsDay)", TheWorld.state.isday)
-	self:OnPropertyChangedEvent("World(IsDusk)", TheWorld.state.isdusk)
-	self:OnPropertyChangedEvent("World(IsNight)", TheWorld.state.isnight)
-	self:OnPropertyChangedEvent("World(MoonPhase)", TheWorld.state.moonphase)
-	self:OnPropertyChangedEvent("World(IsFullMoon)", TheWorld.state.isfullmoon)
-	self:OnPropertyChangedEvent("World(IsNewMoon)", TheWorld.state.isnewmoon)
-	self:OnPropertyChangedEvent("World(Season)", TheWorld.state.season)
-	self:OnPropertyChangedEvent("World(SeasonProgress)", TheWorld.state.seasonprogress)
-	self:OnPropertyChangedEvent("World(SpringLength)", TheWorld.state.springlength)
-	self:OnPropertyChangedEvent("World(SummerLength)", TheWorld.state.summerlength)
-	self:OnPropertyChangedEvent("World(AutumnLenght)", TheWorld.state.autumnlength)
-	self:OnPropertyChangedEvent("World(WinterLenght)", TheWorld.state.winterlength)
-	self:OnPropertyChangedEvent("World(IsSpring)", TheWorld.state.isspring)
-	self:OnPropertyChangedEvent("World(IsSummer)", TheWorld.state.issummer)
-	self:OnPropertyChangedEvent("World(IsAutumn)", TheWorld.state.isautumn)
-	self:OnPropertyChangedEvent("World(IsWinter)", TheWorld.state.iswinter)
-	self:OnPropertyChangedEvent("World(ElapsedDaysInSeason)", TheWorld.state.elapseddaysinseason)
-	self:OnPropertyChangedEvent("World(RemainingDaysInSeason)", TheWorld.state.remainingdaysinseason)
-	self:OnPropertyChangedEvent("World(IsSnowing)", TheWorld.state.issnowing)
-	self:OnPropertyChangedEvent("World(IsRaining)", TheWorld.state.israining)
+	self.OnClockSegsChanged(self.inst, TheWorld.net.components.clock:OnSave().segs)
+	if self.inst.LightWatcher:IsInLight() then
+		self.OnEnterLight(self.inst, nil)
+	else
+		self.OnEnterDark(self.inst, nil)
+	end
+	self.OnCycles(self.inst, TheWorld.state.cycle)
+	self.OnPhase(self.inst, TheWorld.state.phase)
+	self.OnIsDay(self.inst, TheWorld.state.isday)
+	self.OnIsDusk(self.inst, TheWorld.state.isdusk)
+	self.OnIsNight(self.inst, TheWorld.state.isnight)
+	self.OnMoonPhase(self.inst, TheWorld.state.moonphase)
+	self.OnIsFullMoon(self.inst, TheWorld.state.isfullmoon)
+	self.OnIsNewMoon(self.inst, TheWorld.state.isnewmoon)
+	self.OnSeason(self.inst, TheWorld.state.season)
+	self.OnSeasonProgress(self.inst, TheWorld.state.seasonprogress)
+	self.OnSpringLength(self.inst, TheWorld.state.springlength)
+	self.OnSummerLength(self.inst, TheWorld.state.summerlength)
+	self.OnAutumnLength(self.inst, TheWorld.state.autumnlength)
+	self.OnWinterLength(self.inst, TheWorld.state.winterlength)
+	self.OnIsSpring(self.inst, TheWorld.state.isspring)
+	self.OnIsSummer(self.inst, TheWorld.state.issummer)
+	self.OnIsAutumn(self.inst, TheWorld.state.isautumn)
+	self.OnIsWinter(self.inst, TheWorld.state.iswinter)
+	self.OnElapsedDaysInSeason(self.inst, TheWorld.state.elapseddaysinseason)
+	self.OnRemainingDaysInSeason(self.inst, TheWorld.state.remainingdaysinseason)
+	self.OnIsSnowing(self.inst, TheWorld.state.issnowing)
+	self.OnIsRaining(self.inst, TheWorld.state.israining)
 
     -----------------------
     -------- Brain --------
@@ -391,7 +419,20 @@ function FAtiMABrain:OnStart()
 						"DoAction", 
 						true),
 					DoAction(self.inst,
-						function() self.CurrentAction = nil end,
+						function() 
+							-- If the target of the action ceases to exist, we need to inform FAtiMA
+							-- For performance will consider deleting the belief
+							if Ents[tonumber(self.CurrentAction.Target)] == nil then
+								-- Target no longer exists
+								self:OnPropertyChangedEvent("Pickable(" .. self.CurrentAction.Target .. ")", false)
+								self:OnPropertyChangedEvent("Collectable(" .. self.CurrentAction.Target .. ")", false)
+								self:OnPropertyChangedEvent("ChopWorkable(" .. self.CurrentAction.Target .. ")", false)
+								self:OnPropertyChangedEvent("DigWorkable(" .. self.CurrentAction.Target .. ")", false)
+								self:OnPropertyChangedEvent("HammerWorkable(" .. self.CurrentAction.Target .. ")", false)
+								self:OnPropertyChangedEvent("MineWorkable(" .. self.CurrentAction.Target .. ")", false)
+							end
+							self.CurrentAction = nil 
+						end,
 						"CleanAction",
 						true)
 				}
