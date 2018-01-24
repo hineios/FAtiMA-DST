@@ -1,7 +1,8 @@
 local SEE_DIST = 20
 local SEE_RANGE_HELPER = true
 local PERCEPTION_UPDATE_INTERVAL = .3
-local DECIDE_INTERVAL = 1
+local DSTACTION_INTERVAL = 1
+local SPEAKACTION_INTERVAL = 10
 local NUM_SEGS = 16
 
 local assets =
@@ -150,20 +151,24 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 		-- Intentionally left blank
 	end
 
-	self.OnDecide = function() self:Decide() end
+	self.OnDSTActionDecide = function() self:Decide("Behaviour") end
+	self.OnSpeakActionDecide = function() self:Decide("Dialog") end
     self.DecideCallback = function(result, isSuccessful , http_code)
         if isSuccessful then
 			local action = result and (result ~= "") and json.decode(result)
 			if action and action.Type then
-				self.inst:InterruptBufferedAction()
-				self.inst.components.locomotor:Clear()
-				self.CurrentAction = action
 				if action.Type == "Action" then
 					print(action.Type .. "(" .. action.Name .. ", " .. action.InvObject .. ", (" .. action.PosX .. ", 0, " .. action.PosZ .. "), " .. action.Recipe .. ") = " .. action.Target)
+					self.inst:InterruptBufferedAction()
+					self.inst.components.locomotor:Clear()
+					self.CurrentAction = action
 				elseif action.Type == "Speak" then
-					-- m = meaning
+					-- Speak Action are made the moment they are received. They only occur every SPEAKACTION_INTERVAL seconds
 					-- Speak([cs],[ns],[m],[sty]) = [t]
-					print(action.Type .. " = " .. action.Target)
+					print(action.Type .. " = " .. action.Utterance)
+					self.inst.components.talker:Say(action.Utterance)
+					-- Tell FAtiMA that the action has ended
+					self:OnActionEndEvent(action.Name, action.Target)
 				end
 			end
 		end
@@ -255,9 +260,9 @@ function FAtiMABrain:Perceptions()
         json.encode(data))
 end
 
-function FAtiMABrain:Decide()
+function FAtiMABrain:Decide(layer)
     TheSim:QueryServer(
-        self.FAtiMAServer .. "/decide",
+        self.FAtiMAServer .. "/decide/" .. layer,
         self.DecideCallback,
         "GET")
 end
@@ -313,11 +318,16 @@ function FAtiMABrain:OnStart()
     -----------------------
     -------- Decide -------
     -----------------------
-	if self.DecideTask ~= nil then
-        self.DecideTask:Cancel()
+	if self.DSTActionTask ~= nil then
+        self.DSTActionTask:Cancel()
     end
-    self.DecideTask = self.inst:DoPeriodicTask(DECIDE_INTERVAL, self.OnDecide, 0)
-
+    self.DSTActionTask = self.inst:DoPeriodicTask(DSTACTION_INTERVAL, self.OnDSTActionDecide, 0)
+	
+	if self.SpeakActionTask ~= nil then
+		self.SpeakActionTask:Cancel()
+	end
+	self.SpeakActionTask = self.inst:DoPeriodicTask(SPEAKACTION_INTERVAL, self.OnSpeakActionDecide, 0)
+	
     -----------------------
     --- Event Listeners ---
     -----------------------
@@ -414,18 +424,21 @@ function FAtiMABrain:OnStart()
             IfNode(function() return (self.CurrentAction ~= nil and self.CurrentAction.Type == "Action") end, "IfAction",
                 SequenceNode{
 					DoAction(self.inst, 
+						-- BufferedAction(Doer, Target, Action, InvObject, Pos, Recipe)
 						function() return BufferedAction(
-							self.inst, -- Doer
-							Ents[tonumber(self.CurrentAction.Target)], -- Target
-							ACTIONS[self.CurrentAction.Name], -- Action
-							Ents[tonumber(self.CurrentAction.InvObject)], -- InvObject
-							(self.CurrentAction.PosX ~= "-" and Vector3(tonumber(self.CurrentAction.PosX), tonumber(self.CurrentAction.PosY), tonumber(self.CurrentAction.PosZ)) or nil), -- Pos
-							(self.CurrentAction.Recipe ~= "-") and self.CurrentAction.Recipe or nil) --Recipe 
+							self.inst,
+							Ents[tonumber(self.CurrentAction.Target)],
+							ACTIONS[self.CurrentAction.Action],
+							Ents[tonumber(self.CurrentAction.InvObject)],
+							(self.CurrentAction.PosX ~= "-" and Vector3(tonumber(self.CurrentAction.PosX), tonumber(self.CurrentAction.PosY), tonumber(self.CurrentAction.PosZ)) or nil),
+							(self.CurrentAction.Recipe ~= "-") and self.CurrentAction.Recipe or nil)
 						end, 
 						"DoAction", 
 						true),
 					DoAction(self.inst,
 						function() 
+							-- Tell FAtiMA that the action has ended
+							self:OnActionEndEvent(self.CurrentAction.Name, self.CurrentAction.Target)
 							-- If the target of the action ceases to exist, we need to inform FAtiMA
 							-- For performance will consider deleting the belief
 							if Ents[tonumber(self.CurrentAction.Target)] == nil then
@@ -441,23 +454,6 @@ function FAtiMABrain:OnStart()
 						end,
 						"CleanAction",
 						true)
-				}
-			),
-			IfNode(function() return (self.CurrentAction ~= nil and self.CurrentAction.Type == "Speak") end, "IfSpeak",
-				SequenceNode{
-					DoAction(self.inst,
-						function() self.inst.components.talker:Say(self.CurrentAction.Utterance) end,
-						"Speak",
-						true
-					),
-					DoAction(self.inst,
-						function() 
-							self.CurrentAction = nil
-							-- Send Action-End
-						end,
-						"CleanAction",
-						true
-					)
 				}
 			)
         }, 1)
@@ -482,10 +478,16 @@ function FAtiMABrain:OnStop()
     -----------------------
     -------- Decide -------
     -----------------------
-    if self.DecideTask ~= nil then
-        self.DecideTask:Cancel()
-        self.DecideTask = nil
+	if self.DSTActionTask ~= nil then
+        self.DSTActionTask:Cancel()
+		self.DSTActionTask= nil
     end
+	
+	if self.SpeakActionTask ~= nil then
+		self.SpeakActionTask:Cancel()
+		self.SpeakActionTask = nil
+	end
+
     -----------------------
     --- Event Listeners ---
     -----------------------

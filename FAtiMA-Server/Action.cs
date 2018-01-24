@@ -8,14 +8,15 @@ namespace FAtiMA_Server
     public class Action
     {
         public string Type { get; set; }
-
         // This represents the Target of the given action
         public string Target { get; set; }
+        public string Name { get; set; }
 
-        public Action(string type, string target)
+        public Action(string type, string target, string name)
         {
             Type = type;
             Target = target;
+            Name = name;
         }
 
         public static Action ToAction(ActionLibrary.IAction a, IntegratedAuthoringToolAsset IAT)
@@ -26,14 +27,14 @@ namespace FAtiMA_Server
             switch (splitted[0])
             {
                 case "Action":
-                    return new DSTAction(splitted[0], a.Target.ToString(), splitted[1], splitted[3], splitted[5], splitted[7], splitted[9]);
+                    return new DSTAction(splitted[0], a.Target.ToString(), splitted[1], splitted[3], splitted[5], splitted[7], splitted[9], a.Name.ToString());
                 case "Speak":
                     var dialog = IAT.GetDialogueActions(
                         a.Parameters[0],
                         a.Parameters[1],
                         a.Parameters[2],
                         a.Parameters[3]).FirstOrDefault();
-                    return new SpeakAction(splitted[0], a.Target.ToString(), splitted[1], splitted[3], splitted[5], splitted[7], dialog.Utterance);
+                    return new SpeakAction(splitted[0], a.Target.ToString(), splitted[1], splitted[3], splitted[5], splitted[7], a.Name.ToString(), dialog.Utterance);
                 default:
                     throw new Exception("This type of action (" + splitted[0] + ") is not recognized");
             }
@@ -49,7 +50,7 @@ namespace FAtiMA_Server
     public class DSTAction : Action
     {
         // The action itself. It MUST match the table present in the README.md
-        public string Name { get; set; }
+        public string Action { get; set; }
 
         // An inventory object. Can be null
         public string InvObject { get; set; }
@@ -62,10 +63,10 @@ namespace FAtiMA_Server
         // The name of the recipe to be built
         public string Recipe { get; set; }
 
-        public DSTAction(string type, string target, string name, string invobject, string posx, string posz, string recipe) : base(type, target)
+        public DSTAction(string type, string target, string action, string invobject, string posx, string posz, string recipe, string name) : base(type, target, name)
         {
             Target = target;
-            Name = name;
+            Action = action;
             InvObject = invobject;
             PosX = posx;
             PosZ = posz;
@@ -75,7 +76,7 @@ namespace FAtiMA_Server
         
         public override string ToString()
         {
-            return Type + "(" + Name + ", " + InvObject + ", " + PosX + ", " + PosZ + ", " + Recipe + ") = " + Target;
+            return Type + "(" + Action + ", " + InvObject + ", " + PosX + ", " + PosZ + ", " + Recipe + ") = " + Target;
         }
     }
 
@@ -87,7 +88,7 @@ namespace FAtiMA_Server
         public string Style { get; set; }
         public string Utterance { get; set; }
 
-        public SpeakAction(string type, string target, string currentstate, string nextstate, string meaning, string style, string utterance) : base(type, target)
+        public SpeakAction(string type, string target, string currentstate, string nextstate, string meaning, string style, string name, string utterance) : base(type, target, name)
         {
             CurrentState = currentstate;
             NextState = nextstate;

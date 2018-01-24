@@ -6,7 +6,7 @@
 				{
 					"Action": "Action(PICK, -, -, -, -)",
 					"Target": "[GUID]",
-					"Layer": "-",
+					"Layer": "Behaviour",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], grass) = [Quantity]", "Collectable([GUID]) = True"]
@@ -16,7 +16,7 @@
 				{
 					"Action": "Action(PICK, -, -, -, -)",
 					"Target": "[GUID]",
-					"Layer": "-",
+					"Layer": "Behaviour",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], berrybush) = [Quantity]", "Collectable([GUID]) = True"]
@@ -26,7 +26,7 @@
 				{
 					"Action": "Action(PICKUP, -, -, -, -)",
 					"Target": "[GUID]",
-					"Layer": "-",
+					"Layer": "Behaviour",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], log) = [Quantity]", "Collectable([GUID]) = True"]
@@ -36,7 +36,7 @@
 				{
 					"Action": "Action(PICKUP, -, -, -, -)",
 					"Target": "[GUID]",
-					"Layer": "-",
+					"Layer": "Behaviour",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], flint) = [Quantity]", "Pickable([GUID]) = True"]
@@ -46,7 +46,7 @@
 				{
 					"Action": "Action(PICK, -, -, -, -)",
 					"Target": "[GUID]",
-					"Layer": "-",
+					"Layer": "Behaviour",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], carrot_planted) = [Quantity]", "Collectable([GUID]) = True"]
@@ -56,7 +56,7 @@
 				{
 					"Action": "Action(BUILD, -, -, -, axe)",
 					"Target": "-",
-					"Layer": "-",
+					"Layer": "Behaviour",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InInventory([G1]) = True", "Entity([G1], twigs) >= 1", "InInventory([G2]) = True", "Entity([G2], flint) >= 1"]
@@ -66,7 +66,7 @@
 				{
 					"Action": "Action(CHOP, -, -, -, -)",
 					"Target": "[GUID]",
-					"Layer": "-",
+					"Layer": "Behaviour",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "IsEquiped([tool], hands) = True", "Entity([tool], axe) = [q]", "InSight([tree]) = True", "Entity([tree], evergreen) = [q1]", "ChopWorkable([tree]) = True"]
@@ -76,7 +76,7 @@
 				{
 					"Action": "Action(PICK, -, -, -, -)",
 					"Target": "[GUID]",
-					"Layer": "-",
+					"Layer": "Behaviour",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], sapling) = [Quantity]", "Collectable([GUID]) = True"]
@@ -86,7 +86,7 @@
 				{
 					"Action": "Action(PICK, -, -, -, -)",
 					"Target": "[GUID]",
-					"Layer": "-",
+					"Layer": "Behaviour",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], flower) = [Quantity]", "Collectable([GUID]) = True"]
@@ -96,7 +96,7 @@
 				{
 					"Action": "Action(PICKUP, -, -, -, -)",
 					"Target": "[GUID]",
-					"Layer": "-",
+					"Layer": "Behaviour",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], twigs) = [Quantity]", "Pickable([GUID]) = True"]
@@ -106,7 +106,7 @@
 				{
 					"Action": "Action(PICKUP, -, -, -, -)",
 					"Target": "[GUID]",
-					"Layer": "-",
+					"Layer": "Behaviour",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], petals) = [Quantity]", "Pickable([GUID]) = True"]
@@ -116,7 +116,7 @@
 				{
 					"Action": "Action(BUILD, -, [x], [z], campfire)",
 					"Target": "-",
-					"Layer": "-",
+					"Layer": "Behaviour",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InInventory([G1]) = True", "Entity([G1], cutgrass) >= 3", "InInventory([G2]) = True", "Entity([G2], log) >= 2", "PosX(SELF) = [x]", "PosZ(SELF) = [z]"]
@@ -126,7 +126,7 @@
 				{
 					"Action": "Action(BUILD, -, -, -, garland)",
 					"Target": "-",
-					"Layer": "-",
+					"Layer": "Behaviour",
 					"Conditions":
 						{
 							"Set": ["IsBusy(SELF) = False", "InInventory([G1]) = True", "Entity([G1], petals) >= 12"]
@@ -136,12 +136,12 @@
 				{
 					"Action": "Speak(*, *, Stuck, *)",
 					"Target": "-",
-					"Layer": "-",
+					"Layer": "Dialog",
 					"Conditions":
 						{
-							"Set": ["IsBusy(SELF) = False"]
+							"Set": []
 						},
-					"Priority": 10
+					"Priority": 1
 				}]
 		},
 	"types": [

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using WellFormedNames;
 
 namespace FAtiMA_Server
 {
@@ -39,9 +40,11 @@ namespace FAtiMA_Server
                     {
                         lock (l)
                         {
-                            switch (request.RawUrl)
+                            Char[] delimiters = { '/' };
+                            String[] splitted = request.RawUrl.Split(delimiters);
+                            switch (splitted[1])
                             {
-                                case "/perceptions":
+                                case "perceptions":
                                     if (request.HasEntityBody)
                                     {
                                         using (System.IO.Stream body = request.InputStream) // here we have data
@@ -63,21 +66,27 @@ namespace FAtiMA_Server
                                             }
                                         }
                                     }
-                                    return JsonConvert.False;
-                                case "/decide":
-                                    var decision = Walter.Decide();
+                                    return JsonConvert.Null;
+                                case "decide":
+                                    // If there is a layer for the decision, use it
+                                    IEnumerable<ActionLibrary.IAction> decision;
+                                    if (splitted.Count() > 2 && splitted[2] != "")
+                                        decision = Walter.Decide((Name)splitted[2]);
+                                    else
+                                        decision = Walter.Decide();
+
                                     if (decision.Count() < 1)
                                         return JsonConvert.Null;
-                                    var action = Action.ToAction(decision.First(), IAT);
+                                    FAtiMA_Server.Action action = Action.ToAction(decision.First(), IAT);
                                     string t = decision.Count().ToString() + ": ";
-                                    foreach (var a in decision)
+                                    foreach (ActionLibrary.IAction a in decision)
                                     {
                                         t += a.Name + " = " + a.Target + "; ";
                                     }
                                     Debug.WriteLine(t);
                                     Console.WriteLine(JsonConvert.SerializeObject(action));
                                     return JsonConvert.SerializeObject(action);
-                                case "/events":
+                                case "events":
                                     if (request.HasEntityBody)
                                     {
                                         using (System.IO.Stream body = request.InputStream) // here we have data
@@ -99,7 +108,7 @@ namespace FAtiMA_Server
                                             }
                                         }
                                     }
-                                    return JsonConvert.False;
+                                    return JsonConvert.Null;
                                 default:
                                     return JsonConvert.Null;
                             }

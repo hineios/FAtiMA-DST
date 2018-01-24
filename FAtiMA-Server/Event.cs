@@ -9,15 +9,15 @@ namespace FAtiMA_Server
     public class Event
     {
         private string Type { get; set; }
+        // Who did it?/For who did it change
+        private string Subject { get; set; }
         // What was it?/Belief
         private string Name { get; set; }
         // Who was the target/value
         private string Value { get; set; }
-        // Who did it?/For who did it change
-        private string Subject { get; set; }
 
         [JsonConstructor]
-        public Event(string type, string name, string value, string subject)
+        public Event(string type, string subject, string name, string value)
         {
             Subject = subject;
             Name = name;
@@ -73,7 +73,7 @@ namespace FAtiMA_Server
 
         public override string ToString()
         {
-            return "Event(" + Type + ", " + Name + ", " + Value + ", " + Subject + ")";
+            return "Event(" + Type + ", " + Subject + ", " + Name + ", " + Value + ")";
         }
     }
 }
