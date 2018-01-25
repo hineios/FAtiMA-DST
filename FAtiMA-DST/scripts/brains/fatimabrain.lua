@@ -128,6 +128,19 @@ local function Event(name, value, brain)
 	end
 end
 
+local function KeepWorking(action, target)
+	local t = Ents[tonumber(target)]
+	if action == "CHOP" and t ~= nil and t:HasTag("CHOP_workable") then return true
+	elseif action == "HAMMER" and t ~= nil and t:HasTag("HAMMER_workable") then return true
+	elseif action == "DIG" and t ~= nil and t:HasTag("DIG_workable") then return true
+	elseif action == "MINE" and t ~= nil and t:HasTag("MINE_workable") then return true
+	else return false end
+end
+
+local function IsWorkAction(action)
+	return action == "CHOP" or action == "MINE" or action == "HAMMER" or action == "DIG"
+end
+
 local FAtiMABrain = Class(Brain, function(self, inst, server)
     Brain._ctor(self, inst)
     self.inst = inst
@@ -407,19 +420,19 @@ function FAtiMABrain:OnStart()
                 SequenceNode{
 					DoAction(self.inst, 
 						function() return BufferedAction(
-							self.inst, -- Doer
-							Ents[tonumber(self.CurrentAction.Target)], -- Target
-							ACTIONS[self.CurrentAction.Name], -- Action
-							Ents[tonumber(self.CurrentAction.InvObject)], -- InvObject
-							(self.CurrentAction.PosX ~= "-" and Vector3(tonumber(self.CurrentAction.PosX), tonumber(self.CurrentAction.PosY), tonumber(self.CurrentAction.PosZ)) or nil), -- Pos
-							(self.CurrentAction.Recipe ~= "-") and self.CurrentAction.Recipe or nil) --Recipe 
+							self.inst,
+							Ents[tonumber(self.CurrentAction.Target)],
+							ACTIONS[self.CurrentAction.Name],
+							Ents[tonumber(self.CurrentAction.InvObject)],
+							(self.CurrentAction.PosX ~= "-" and Vector3(tonumber(self.CurrentAction.PosX), tonumber(self.CurrentAction.PosY), tonumber(self.CurrentAction.PosZ)) or nil),
+							(self.CurrentAction.Recipe ~= "-") and self.CurrentAction.Recipe or nil)
 						end, 
 						"DoAction", 
 						true),
 					DoAction(self.inst,
 						function() 
 							-- If the target of the action ceases to exist, we need to inform FAtiMA
-							-- For performance will consider deleting the belief
+							-- applyable for both working actions and not working actions
 							if self.CurrentAction.Target ~= "-" and Ents[tonumber(self.CurrentAction.Target)] == nil then
 								-- Target no longer exists
 								self:OnPropertyChangedEvent("Pickable(" .. self.CurrentAction.Target .. ")", false)
@@ -429,7 +442,16 @@ function FAtiMABrain:OnStart()
 								self:OnPropertyChangedEvent("HammerWorkable(" .. self.CurrentAction.Target .. ")", false)
 								self:OnPropertyChangedEvent("MineWorkable(" .. self.CurrentAction.Target .. ")", false)
 							end
-							self.CurrentAction = nil 
+
+							-- Working actions we want to keep executing until the target is not workable anymore
+							if IsWorkAction(self.CurrentAction.Name) then
+								if not KeepWorking(self.CurrentAction.Name, self.CurrentAction.Target) then
+									self.CurrentAction = nil
+								end
+							else
+								-- All other actions we want to stop here
+								self.CurrentAction = nil
+							end
 						end,
 						"CleanAction",
 						true)
