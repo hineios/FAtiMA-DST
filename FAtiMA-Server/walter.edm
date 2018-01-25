@@ -52,7 +52,7 @@
           "Action": "Action(CHOP, -, -, -, -)",
           "Target": "[GUID]",
           "Conditions": {
-            "Set": [ "IsBusy(SELF) = False", "IsEquiped([tool], hands) = True", "Entity([tool], axe) = [q]", "InSight([tree]) = True", "Entity([tree], evergreen) = [q1]", "ChopWorkable([tree]) = True" ]
+            "Set": [ "IsBusy(SELF) = False", "IsEquipped([tool], hands) = True", "Entity([tool], axe) = [qu]", "InSight([tree]) = True", "Entity([tree], evergreen) = [q]", "ChopWorkable([tree]) = True" ]
           },
           "Priority": 3
         },
@@ -93,7 +93,7 @@
           "Priority": 5
         },
         {
-          "Action": "Action(BUILD, -, -, -, garland)",
+          "Action": "Action(BUILD, -, -, -, flowerhat)",
           "Target": "-",
           "Conditions": {
             "Set": [ "IsBusy(SELF) = False", "InInventory([G1]) = True", "Entity([G1], petals) >= 12"]
