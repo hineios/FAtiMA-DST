@@ -33,8 +33,9 @@ namespace FAtiMA_Server
         public bool MineWorkable { get; set; }
         public bool Pickable { get; set; }
         public bool Collectable { get; set; }
+        public bool Equippable { get; set; }
 
-        public Item(int GUID, float x, float y, float z, string prefab, int quantity, bool chopworkable, bool hammerworkable, bool digworkable, bool mineworkable, bool pickable, bool collectable) : base(GUID, x, y, z)
+        public Item(int GUID, float x, float y, float z, string prefab, int quantity, bool chopworkable, bool hammerworkable, bool digworkable, bool mineworkable, bool pickable, bool collectable, bool equippable) : base(GUID, x, y, z)
         {
             Prefab = prefab;
             Quantity = quantity;
@@ -44,6 +45,7 @@ namespace FAtiMA_Server
             MineWorkable = mineworkable;
             Pickable = pickable;
             Collectable = collectable;
+            Equippable = equippable;
         }
 
         public void UpdatePerception(RolePlayCharacterAsset rpc)
@@ -76,6 +78,10 @@ namespace FAtiMA_Server
             if (b == null || !(b.Equals(Collectable.ToString())))
                 rpc.Perceive(EventHelper.PropertyChange("Collectable(" + GUID + ")", Collectable.ToString(), rpc.CharacterName.ToString()));
 
+            b = rpc.GetBeliefValue("Equippable(" + GUID + ")");
+            if (b == null || !(b.Equals(Equippable.ToString())))
+                rpc.Perceive(EventHelper.PropertyChange("Equippable(" + GUID + ")", Equippable.ToString(), rpc.CharacterName.ToString()));
+
             b = rpc.GetBeliefValue("PosX(" + GUID + ")");
             if ( b == null || !(b.Equals(X.ToString())))
                 rpc.Perceive(EventHelper.PropertyChange("PosX(" + GUID + ")", X.ToString(), rpc.CharacterName.ToString()));
@@ -102,7 +108,7 @@ namespace FAtiMA_Server
     {
         public string Slot { get; set; }
 
-        public EquippedItems(int GUID, float x, float y, float z, string prefab, int count, bool chopworkable, bool hammerworkable, bool digworkable, bool mineworkable, bool pickable, bool collectable, string slot) : base(GUID, x, y, z, prefab, count, chopworkable, hammerworkable, digworkable, mineworkable, pickable, collectable)
+        public EquippedItems(int GUID, float x, float y, float z, string prefab, int count, bool chopworkable, bool hammerworkable, bool digworkable, bool mineworkable, bool pickable, bool collectable, bool equippable, string slot) : base(GUID, x, y, z, prefab, count, chopworkable, hammerworkable, digworkable, mineworkable, pickable, collectable, equippable)
         {
             Slot = slot;
         }
