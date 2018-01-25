@@ -420,7 +420,7 @@ function FAtiMABrain:OnStart()
 						function() 
 							-- If the target of the action ceases to exist, we need to inform FAtiMA
 							-- For performance will consider deleting the belief
-							if Ents[tonumber(self.CurrentAction.Target)] == nil then
+							if self.CurrentAction.Target ~= "-" and Ents[tonumber(self.CurrentAction.Target)] == nil then
 								-- Target no longer exists
 								self:OnPropertyChangedEvent("Pickable(" .. self.CurrentAction.Target .. ")", false)
 								self:OnPropertyChangedEvent("Collectable(" .. self.CurrentAction.Target .. ")", false)
