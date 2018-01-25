@@ -205,11 +205,9 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 	------------------------------
     ------ Watch World State -----
     ------------------------------
-	self.OnCycles = function(inst, cycle) 
-		if cycle ~= nil then
-			self:OnPropertyChangedEvent("World(Cycle)", cycle)
-		else 
-			self:OnPropertyChangedEvent("World(Cycle)", "0")
+	self.OnCycles = function(inst, cycles) 
+		if cycles ~= nil then
+			self:OnPropertyChangedEvent("World(Cycle)", cycles + 1)
 		end
 	end
 	self.OnPhase = function(inst, phase) self:OnPropertyChangedEvent("World(Phase)", phase) end
@@ -391,7 +389,7 @@ function FAtiMABrain:OnStart()
 	else
 		self.OnEnterDark(self.inst, nil)
 	end
-	self.OnCycles(self.inst, TheWorld.state.cycle)
+	self.OnCycles(self.inst, TheWorld.state.cycles)
 	self.OnPhase(self.inst, TheWorld.state.phase)
 	self.OnIsDay(self.inst, TheWorld.state.isday)
 	self.OnIsDusk(self.inst, TheWorld.state.isdusk)
@@ -441,7 +439,7 @@ function FAtiMABrain:OnStart()
 							self:OnActionEndEvent(self.CurrentAction.Name, self.CurrentAction.Target)
 							-- If the target of the action ceases to exist, we need to inform FAtiMA
 							-- For performance will consider deleting the belief
-							if Ents[tonumber(self.CurrentAction.Target)] == nil then
+							if self.CurrentAction.Target ~= "-" and Ents[tonumber(self.CurrentAction.Target)] == nil then
 								-- Target no longer exists
 								self:OnPropertyChangedEvent("Pickable(" .. self.CurrentAction.Target .. ")", false)
 								self:OnPropertyChangedEvent("Collectable(" .. self.CurrentAction.Target .. ")", false)

@@ -69,7 +69,7 @@
 					"Layer": "Behaviour",
 					"Conditions":
 						{
-							"Set": ["IsBusy(SELF) = False", "IsEquiped([tool], hands) = True", "Entity([tool], axe) = [q]", "InSight([tree]) = True", "Entity([tree], evergreen) = [q1]", "ChopWorkable([tree]) = True"]
+							"Set": ["IsBusy(SELF) = False", "IsEquipped([tool], hands) = True", "Entity([tool], axe) = [AQuantity]", "InSight([tree]) = True", "Entity([tree], evergreen) = [TQuantity]", "ChopWorkable([tree]) = True"]
 						},
 					"Priority": 3
 				}, 
@@ -124,7 +124,7 @@
 					"Priority": 5
 				}, 
 				{
-					"Action": "Action(BUILD, -, -, -, garland)",
+					"Action": "Action(BUILD, -, -, -, flowerhat)",
 					"Target": "-",
 					"Layer": "Behaviour",
 					"Conditions":
