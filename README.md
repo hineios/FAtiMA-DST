@@ -63,7 +63,9 @@ These beliefs represent information about the world and should be used in addict
 |`MineWorkable([GUID]) = [bool]`|True if the given entity is workable by a pick|
 |`Pickable([GUID]) = [bool]`|True if the given entity is pickable (pick stuff from the ground). *PICKUP* action|
 |`Collectable([GUID]) = [bool]`|True if the given entity is pickable (collect natural resources). *PICK* action|
-|`Equippable([GUID]) = [bool]`|True is the given entity may be equipped. *EQUIP* action|
+|`Equippable([GUID]) = [bool]`|True if the given entity may be equipped. *EQUIP* action|
+|`Fuel([GUID]) = [bool]`|True if the given entity may be used to fuel stuff|
+|`Fueled([GUID]) = [bool]`|True if the given entity requires fuel to function|
 |`PosX([GUID]) = [value]`|Defines the X coordinate (*value*) of an entity|
 |`PosZ([GUID]) = [value]`|Defines the Z coordinate (*value*) of an entity|
 |`World(CurrentSegment) = [value]`|The current segment, ranges between 0 and 15|

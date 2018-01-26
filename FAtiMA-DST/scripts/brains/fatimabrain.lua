@@ -62,6 +62,8 @@ local function Vision(inst)
 			d.HammerWorkable = v:HasTag("HAMMER_workable")
 			d.MineWorkable = v:HasTag("MINE_workable") 
 			d.Equippable = v:HasTag("_equippable")
+			d.Fuel = v:HasTag("BURNABLE_fuel")
+			d.Fueled = v:HasTag("BURNABLE_fueled")
 			d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
 
 			data[j] = d
@@ -89,6 +91,8 @@ local function Inventory(inst)
 		d.HammerWorkable = false
 		d.MineWorkable = false
 		d.Equippable = v:HasTag("_equippable")
+		d.Fuel = v:HasTag("BURNABLE_fuel")
+		d.Fueled = v:HasTag("BURNABLE_fueled")
 		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
 
 		ItemSlots[k] = d
@@ -111,6 +115,8 @@ local function Inventory(inst)
 		d.HammerWorkable = false
 		d.MineWorkable = false
 		d.Equippable = v:HasTag("_equippable")
+		d.Fuel = v:HasTag("BURNABLE_fuel")
+		d.Fueled = v:HasTag("BURNABLE_fueled")
         d.Slot = k
 		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
 

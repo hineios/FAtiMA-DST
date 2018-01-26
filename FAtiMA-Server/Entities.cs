@@ -34,8 +34,10 @@ namespace FAtiMA_Server
         public bool Pickable { get; set; }
         public bool Collectable { get; set; }
         public bool Equippable { get; set; }
+        public bool Fuel { get; set; }
+        public bool Fueled { get; set; }
 
-        public Item(int GUID, float x, float y, float z, string prefab, int quantity, bool chopworkable, bool hammerworkable, bool digworkable, bool mineworkable, bool pickable, bool collectable, bool equippable) : base(GUID, x, y, z)
+        public Item(int GUID, float x, float y, float z, string prefab, int quantity, bool chopworkable, bool hammerworkable, bool digworkable, bool mineworkable, bool pickable, bool collectable, bool equippable, bool fuel, bool fueled) : base(GUID, x, y, z)
         {
             Prefab = prefab;
             Quantity = quantity;
@@ -46,6 +48,8 @@ namespace FAtiMA_Server
             Pickable = pickable;
             Collectable = collectable;
             Equippable = equippable;
+            Fuel = fuel;
+            Fueled = fueled;
         }
 
         public void UpdatePerception(RolePlayCharacterAsset rpc)
@@ -82,6 +86,14 @@ namespace FAtiMA_Server
             if (b == null || !(b.Equals(Equippable.ToString())))
                 rpc.Perceive(EventHelper.PropertyChange("Equippable(" + GUID + ")", Equippable.ToString(), rpc.CharacterName.ToString()));
 
+            b = rpc.GetBeliefValue("Fuel(" + GUID + ")");
+            if (b == null || !(b.Equals(Fuel.ToString())))
+                rpc.Perceive(EventHelper.PropertyChange("Fuel(" + GUID + ")", Fuel.ToString(), rpc.CharacterName.ToString()));
+
+            b = rpc.GetBeliefValue("Fueled(" + GUID + ")");
+            if (b == null || !(b.Equals(Fueled.ToString())))
+                rpc.Perceive(EventHelper.PropertyChange("Fueled(" + GUID + ")", Fueled.ToString(), rpc.CharacterName.ToString()));
+
             b = rpc.GetBeliefValue("PosX(" + GUID + ")");
             if ( b == null || !(b.Equals(X.ToString())))
                 rpc.Perceive(EventHelper.PropertyChange("PosX(" + GUID + ")", X.ToString(), rpc.CharacterName.ToString()));
@@ -108,7 +120,7 @@ namespace FAtiMA_Server
     {
         public string Slot { get; set; }
 
-        public EquippedItems(int GUID, float x, float y, float z, string prefab, int count, bool chopworkable, bool hammerworkable, bool digworkable, bool mineworkable, bool pickable, bool collectable, bool equippable, string slot) : base(GUID, x, y, z, prefab, count, chopworkable, hammerworkable, digworkable, mineworkable, pickable, collectable, equippable)
+        public EquippedItems(int GUID, float x, float y, float z, string prefab, int count, bool chopworkable, bool hammerworkable, bool digworkable, bool mineworkable, bool pickable, bool collectable, bool equippable, bool fuel, bool fueled, string slot) : base(GUID, x, y, z, prefab, count, chopworkable, hammerworkable, digworkable, mineworkable, pickable, collectable, equippable, fuel, fueled)
         {
             Slot = slot;
         }
