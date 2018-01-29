@@ -62,6 +62,14 @@ local function Vision(inst)
 			d.DigWorkable = v:HasTag("DIG_workable")
 			d.HammerWorkable = v:HasTag("HAMMER_workable")
 			d.MineWorkable = v:HasTag("MINE_workable") 
+			d.Equippable = v:HasTag("_equippable")
+			d.Fuel = v:HasTag("BURNABLE_fuel")
+			d.Fueled = v:HasTag("BURNABLE_fueled")
+			if v.components and v.components.edible then
+				d.Edible = v.components.edible.foodtype
+			else
+				d.Edible = "false"
+			end
 			d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
 
 			data[j] = d
@@ -88,6 +96,14 @@ local function Inventory(inst)
 		d.DigWorkable = false
 		d.HammerWorkable = false
 		d.MineWorkable = false
+		d.Equippable = v:HasTag("_equippable")
+		d.Fuel = v:HasTag("BURNABLE_fuel")
+		d.Fueled = v:HasTag("BURNABLE_fueled")
+		if v.components and v.components.edible then
+			d.Edible = v.components.edible.foodtype
+		else
+			d.Edible = "false"
+		end
 		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
 
 		ItemSlots[k] = d
@@ -109,6 +125,14 @@ local function Inventory(inst)
 		d.DigWorkable = false
 		d.HammerWorkable = false
 		d.MineWorkable = false
+		d.Equippable = v:HasTag("_equippable")
+		d.Fuel = v:HasTag("BURNABLE_fuel")
+		d.Fueled = v:HasTag("BURNABLE_fueled")
+		if v.components and v.components.edible then
+			d.Edible = v.components.edible.foodtype
+		else
+			d.Edible = "false"
+		end
         d.Slot = k
 		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
 
