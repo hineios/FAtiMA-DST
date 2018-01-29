@@ -66,6 +66,7 @@ These beliefs represent information about the world and should be used in addict
 |`Equippable([GUID]) = [bool]`|True if the given entity may be equipped. *EQUIP* action|
 |`Fuel([GUID]) = [bool]`|True if the given entity may be used to fuel stuff|
 |`Fueled([GUID]) = [bool]`|True if the given entity requires fuel to function|
+|`Edible([GUID]) = [type]`|If the item is edible, it represents the food type of the item, else it is false. [type] can be "GENERIC", "MEAT", "WOOD", "VEGGIE", "ELEMENTAL", "GEARS", "HORRIBLE", "INSECT", "SEEDS", "BERRY", "RAW", "ROUGHAGE", "GOODIES"|
 |`PosX([GUID]) = [value]`|Defines the X coordinate (*value*) of an entity|
 |`PosZ([GUID]) = [value]`|Defines the Z coordinate (*value*) of an entity|
 |`World(CurrentSegment) = [value]`|The current segment, ranges between 0 and 15|
