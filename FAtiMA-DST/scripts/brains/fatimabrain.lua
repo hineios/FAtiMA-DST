@@ -289,7 +289,7 @@ function FAtiMABrain:Perceptions()
 	data.PosZ = z
 
     TheSim:QueryServer(
-        self.FAtiMAServer .. "/perceptions",
+        self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/perceptions",
         self.PerceptionsCallback,
         "POST",
         json.encode(data))
@@ -297,7 +297,7 @@ end
 
 function FAtiMABrain:Decide(layer)
     TheSim:QueryServer(
-        self.FAtiMAServer .. "/decide/" .. layer,
+        self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/decide/" .. layer,
         self.DecideCallback,
         "GET")
 end
@@ -310,7 +310,7 @@ function FAtiMABrain:OnActionEndEvent(name, value)
 	d.Subject = "Walter"
 	print("Event(" .. d.Type .. ", " .. d.Name .. ", " .. d.Value .. ", " .. d.Subject .. ")")
 	TheSim:QueryServer(
-        self.FAtiMAServer .. "/events",
+        self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/events",
         self.OnEventCallback,
         "POST",
         json.encode(d))
@@ -324,7 +324,7 @@ function FAtiMABrain:OnPropertyChangedEvent(name, value)
 	d.Subject = "Walter"
 	print(d.Name .. " = ", d.Value)
 	TheSim:QueryServer(
-        self.FAtiMAServer .. "/events",
+        self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/events",
         self.OnEventCallback,
         "POST",
         json.encode(d))

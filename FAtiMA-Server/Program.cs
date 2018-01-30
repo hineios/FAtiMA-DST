@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using RolePlayCharacter;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using WellFormedNames;
@@ -20,21 +20,20 @@ namespace FAtiMA_Server
             Object l = new Object();
 
             AssetManager.Instance.Bridge = new BasicIOBridge();
+            
+            // FAtiMA stuff
+            IntegratedAuthoringToolAsset IAT;
+            Dictionary<string, RolePlayCharacterAsset> RPCs = new Dictionary<string, RolePlayCharacterAsset>();
 
-            //Loading the asset
+            // Ensure that the save directory exists
+            Directory.CreateDirectory("Saved Characters");
+
+            // Loading the Scenario
+            // Need to use fullpaths for everything due to FAtiMA's handling of paths
             Console.Write("Loading Scenario...");
-            IntegratedAuthoringToolAsset IAT = IntegratedAuthoringToolAsset.LoadFromFile("Example Character/FAtiMA-DST.iat");
+            IAT = IntegratedAuthoringToolAsset.LoadFromFile(Path.GetFullPath("Example Character\\FAtiMA-DST.iat"));
             Console.WriteLine(" Done");
 
-            // TODO Support multiple RPCs
-            Console.Write("Loading character...");
-            RolePlayCharacterAsset Walter = RolePlayCharacterAsset.LoadFromFile(IAT.GetAllCharacterSources().FirstOrDefault().Source);
-            Walter.LoadAssociatedAssets();
-            // bind ValidDialogue dynamic property to RPC
-            IAT.BindToRegistry(Walter.DynamicPropertiesRegistry);
-
-            Console.WriteLine(" Complete!");
-            
             WebServer ws = new WebServer(
                 (HttpListenerRequest request) =>
                     {
@@ -42,7 +41,54 @@ namespace FAtiMA_Server
                         {
                             Char[] delimiters = { '/' };
                             String[] splitted = request.RawUrl.Split(delimiters);
-                            switch (splitted[1])
+
+                            if (splitted.Length < 3) throw new Exception("Invalid number of arguments for the request.");
+
+                            RolePlayCharacterAsset RPC;
+
+                            // Check if the referenced RPC already exists (either loaded or saved) and create or load it
+                            if (!RPCs.ContainsKey(splitted[1]))
+                            {
+                                try
+                                {
+                                    // Try and load it from a saved file
+                                    string s = Path.GetFullPath("Saved Characters\\" + splitted[1] + ".rpc");
+                                    Console.Write("Loading from saved file... ");
+                                    
+                                    RPC = RolePlayCharacterAsset.LoadFromFile(s);
+                                    RPC.LoadAssociatedAssets();
+                                    // Bind ValidDialogue dynamic property to RPC
+                                    IAT.BindToRegistry(RPC.DynamicPropertiesRegistry);
+
+                                    RPCs.Add(splitted[1], RPC);
+                                    Console.WriteLine("Done");
+                                }
+                                catch
+                                {
+                                    // If it fails we need to load it from the default RPC in the scenario
+                                    string s = IAT.GetAllCharacterSources().FirstOrDefault().Source;
+                                    Console.Write("No save file found, loading from default character... ");
+
+                                    RPC = RolePlayCharacterAsset.LoadFromFile(s);
+                                    RPC.LoadAssociatedAssets();
+                                    // Bind ValidDialogue dynamic property to RPC
+                                    IAT.BindToRegistry(RPC.DynamicPropertiesRegistry);
+
+                                    RPCs.Add(splitted[1], RPC);
+                                    Console.WriteLine("Done");
+                                }
+                            }
+                            else
+                            {
+                                // The RPC should exist (already checked)
+                                // If we get an error it should stop processing the request with the error
+                                // So there is no handling for the ArgumentNullException
+                                RPCs.TryGetValue(splitted[1], out RPC);
+                            }
+                            
+
+                            // Process the request
+                            switch (splitted[2])
                             {
                                 case "perceptions":
                                     if (request.HasEntityBody)
@@ -53,15 +99,7 @@ namespace FAtiMA_Server
                                             {
                                                 string e = reader.ReadToEnd();
                                                 var p = JsonConvert.DeserializeObject<Perceptions>(e);
-                                                try
-                                                {
-                                                    p.UpdatePerceptions(Walter);
-                                                }
-                                                catch (Exception excpt)
-                                                {
-                                                    //Debug.WriteLine(p.ToString());
-                                                    throw new Exception(p.ToString());
-                                                }
+                                                p.UpdatePerceptions(RPC);
                                                 return JsonConvert.True;
                                             }
                                         }
@@ -70,21 +108,16 @@ namespace FAtiMA_Server
                                 case "decide":
                                     // If there is a layer for the decision, use it
                                     IEnumerable<ActionLibrary.IAction> decision;
-                                    if (splitted.Count() > 2 && splitted[2] != "")
-                                        decision = Walter.Decide((Name)splitted[2]);
+                                    if (splitted.Count() > 3 && splitted[3] != "")
+                                        decision = RPC.Decide((Name)splitted[3]);
                                     else
-                                        decision = Walter.Decide();
+                                        decision = RPC.Decide();
 
                                     if (decision.Count() < 1)
                                         return JsonConvert.Null;
-                                    FAtiMA_Server.Action action = Action.ToAction(decision.First(), IAT);
-                                    string t = decision.Count().ToString() + ": ";
-                                    foreach (ActionLibrary.IAction a in decision)
-                                    {
-                                        t += a.Name + " = " + a.Target + "; ";
-                                    }
-                                    Debug.WriteLine(t);
-                                    Console.WriteLine(JsonConvert.SerializeObject(action));
+
+                                    Action action = Action.ToAction(decision.First(), IAT);
+
                                     return JsonConvert.SerializeObject(action);
                                 case "events":
                                     if (request.HasEntityBody)
@@ -95,15 +128,7 @@ namespace FAtiMA_Server
                                             {
                                                 string s = reader.ReadToEnd();
                                                 var e = JsonConvert.DeserializeObject<Event>(s);
-                                                try
-                                                {
-                                                    e.Perceive(Walter);
-                                                }
-                                                catch (Exception excpt)
-                                                {
-                                                    //Debug.WriteLine(e.ToString());
-                                                    throw new Exception(e.ToString());
-                                                }
+                                                e.Perceive(RPC);
                                                 return JsonConvert.True;
                                             }
                                         }
@@ -115,12 +140,18 @@ namespace FAtiMA_Server
                         }
                     }
             , "http://localhost:8080/");
+
             ws.Run();
             Console.WriteLine("Press a key to quit.");
             Console.ReadKey();
+            Console.WriteLine("Stopping Server...");
             ws.Stop();
 
-            Walter.SaveToFile("./walter-final.rpc");
+            Console.Write("Saving Characters to files... ");
+            foreach (KeyValuePair<string, RolePlayCharacterAsset> pair in RPCs)
+                pair.Value.SaveToFile(Path.GetFullPath("Saved Characters\\" + pair.Key + ".rpc"));
+            Console.WriteLine("Saved {0} characters successfuly.", RPCs.Count);
+            Console.ReadKey();
         }
     }
 }
