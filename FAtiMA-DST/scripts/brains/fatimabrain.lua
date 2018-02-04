@@ -211,6 +211,9 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 			if prevseg ~= nextseg then
 				self:OnPropertyChangedEvent("World(CurrentSegment)", nextseg)
 			end
+		else
+			-- The first time we need to tell FAtiMA what is the current segment
+			self:OnPropertyChangedEvent("World(CurrentSegment)", math.floor(data.time * NUM_SEGS))
 		end
 		self.time = data.time
 	end
