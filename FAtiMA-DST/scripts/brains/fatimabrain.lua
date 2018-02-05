@@ -473,10 +473,12 @@ function FAtiMABrain:OnStart()
 							-- Working actions we want to keep executing until the target is not workable anymore
 							if IsWorkAction(self.CurrentAction.Name) then
 								if not KeepWorking(self.CurrentAction.Name, self.CurrentAction.Target) then
+									self:OnActionEndEvent("Action(" .. self.CurrentAction.Name .. ", " .. self.CurrentAction.InvObject .. ", " .. (self.CurrentAction.PosX == "-" and "-" or self.CurrentAction.PosX) .. ", " .. (self.CurrentAction.PosZ == "-" and "-" or  self.CurrentAction.PosZ) .. ", " .. self.CurrentAction.Recipe .. ")", self.CurrentAction.Target)
 									self.CurrentAction = nil
 								end
 							else
 								-- All other actions we want to stop here
+								self:OnActionEndEvent("Action(" .. self.CurrentAction.Name .. ", " .. self.CurrentAction.InvObject .. ", " .. (self.CurrentAction.PosX == "-" and "-" or self.CurrentAction.PosX) .. ", " .. (self.CurrentAction.PosZ == "-" and "-" or  self.CurrentAction.PosZ) .. ", " .. self.CurrentAction.Recipe .. ")", self.CurrentAction.Target)
 								self.CurrentAction = nil
 							end
 						end,
