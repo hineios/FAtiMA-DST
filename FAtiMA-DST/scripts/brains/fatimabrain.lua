@@ -222,6 +222,9 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 			if prevseg ~= nextseg then
 				self:OnPropertyChangedEvent("World(CurrentSegment)", nextseg)
 			end
+		else
+			-- The first time we need to tell FAtiMA what is the current segment
+			self:OnPropertyChangedEvent("World(CurrentSegment)", math.floor(data.time * NUM_SEGS))
 		end
 		self.time = data.time
 	end
@@ -489,10 +492,12 @@ function FAtiMABrain:OnStart()
 							-- Working actions we want to keep executing until the target is not workable anymore
 							if IsWorkAction(self.CurrentAction.Name) then
 								if not KeepWorking(self.CurrentAction.Name, self.CurrentAction.Target) then
+									self:OnActionEndEvent("Action(" .. self.CurrentAction.Name .. ", " .. self.CurrentAction.InvObject .. ", " .. (self.CurrentAction.PosX == "-" and "-" or self.CurrentAction.PosX) .. ", " .. (self.CurrentAction.PosZ == "-" and "-" or  self.CurrentAction.PosZ) .. ", " .. self.CurrentAction.Recipe .. ")", self.CurrentAction.Target)
 									self.CurrentAction = nil
 								end
 							else
 								-- All other actions we want to stop here
+								self:OnActionEndEvent("Action(" .. self.CurrentAction.Name .. ", " .. self.CurrentAction.InvObject .. ", " .. (self.CurrentAction.PosX == "-" and "-" or self.CurrentAction.PosX) .. ", " .. (self.CurrentAction.PosZ == "-" and "-" or  self.CurrentAction.PosZ) .. ", " .. self.CurrentAction.Recipe .. ")", self.CurrentAction.Target)
 								self.CurrentAction = nil
 							end
 						end,

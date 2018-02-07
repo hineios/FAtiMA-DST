@@ -194,7 +194,7 @@ namespace FAtiMA_Server
             {
                 foreach (var s in b.Item2)
                 {
-                    rpc.RemoveBelief("IsEquipped(" + s[(Name)"[x]"] + ")", "SELF");
+                    rpc.RemoveBelief("IsEquipped(" + s[(Name)"[x]"] + "," + s[(Name)"[y]"]  + ")", "SELF");
                 }
             }
         }
