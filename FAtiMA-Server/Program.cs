@@ -142,7 +142,7 @@ namespace FAtiMA_Server
             , "http://localhost:8080/");
 
             ws.Run();
-            Console.WriteLine("Press a key to quit.");
+            Console.WriteLine("Press a key to stop the server and save currently loaded characters.");
             Console.ReadKey();
             Console.WriteLine("Stopping Server...");
             ws.Stop();
@@ -151,6 +151,7 @@ namespace FAtiMA_Server
             foreach (KeyValuePair<string, RolePlayCharacterAsset> pair in RPCs)
                 pair.Value.SaveToFile(Path.GetFullPath("Saved Characters\\" + pair.Key + ".rpc"));
             Console.WriteLine("Saved {0} characters successfuly.", RPCs.Count);
+            Console.WriteLine("Press a key to exit the application...");
             Console.ReadKey();
         }
     }
