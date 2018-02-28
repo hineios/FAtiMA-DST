@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using RolePlayCharacter;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -117,6 +118,13 @@ namespace FAtiMA_Server
                                         return JsonConvert.Null;
 
                                     Action action = Action.ToAction(decision.First(), IAT);
+
+                                    string t = decision.Count().ToString() + ": ";
+                                    foreach (ActionLibrary.IAction a in decision)
+                                    {
+                                        t += a.Name + " = (" + a.Target + ", " + a.Utility + "); ";
+                                    }
+                                    Debug.WriteLine(t);
 
                                     return JsonConvert.SerializeObject(action);
                                 case "events":
