@@ -14,16 +14,6 @@
 					"Priority": 1
 				}, 
 				{
-					"Action": "Action(PICK, -, -, -, -)",
-					"Target": "[GUID]",
-					"Layer": "Behaviour",
-					"Conditions":
-						{
-							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], berrybush) = [Quantity]", "Collectable([GUID]) = True"]
-						},
-					"Priority": 1
-				}, 
-				{
 					"Action": "Action(PICKUP, -, -, -, -)",
 					"Target": "[GUID]",
 					"Layer": "Behaviour",
@@ -32,26 +22,6 @@
 							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], log) = [Quantity]", "Collectable([GUID]) = True"]
 						},
 					"Priority": 2
-				}, 
-				{
-					"Action": "Action(PICKUP, -, -, -, -)",
-					"Target": "[GUID]",
-					"Layer": "Behaviour",
-					"Conditions":
-						{
-							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], flint) = [Quantity]", "Pickable([GUID]) = True"]
-						},
-					"Priority": 1
-				}, 
-				{
-					"Action": "Action(PICK, -, -, -, -)",
-					"Target": "[GUID]",
-					"Layer": "Behaviour",
-					"Conditions":
-						{
-							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], carrot_planted) = [Quantity]", "Collectable([GUID]) = True"]
-						},
-					"Priority": 1
 				}, 
 				{
 					"Action": "Action(BUILD, -, -, -, axe)",
@@ -69,49 +39,9 @@
 					"Layer": "Behaviour",
 					"Conditions":
 						{
-							"Set": ["IsBusy(SELF) = False", "IsEquipped([tool], hands) = True", "Entity([tool], axe) = [AQuantity]", "InSight([tree]) = True", "Entity([tree], evergreen) = [TQuantity]", "ChopWorkable([tree]) = True"]
+							"Set": ["IsBusy(SELF) = False", "IsEquipped([tool], hands) = True", "Entity([tool], axe) = [AQuantity]", "InSight([tree]) = True", "Entity([tree], [prefab]) = [TQuantity]", "ChopWorkable([tree]) = True"]
 						},
 					"Priority": 3
-				}, 
-				{
-					"Action": "Action(PICK, -, -, -, -)",
-					"Target": "[GUID]",
-					"Layer": "Behaviour",
-					"Conditions":
-						{
-							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], sapling) = [Quantity]", "Collectable([GUID]) = True"]
-						},
-					"Priority": 1
-				}, 
-				{
-					"Action": "Action(PICK, -, -, -, -)",
-					"Target": "[GUID]",
-					"Layer": "Behaviour",
-					"Conditions":
-						{
-							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], flower) = [Quantity]", "Collectable([GUID]) = True"]
-						},
-					"Priority": 1
-				}, 
-				{
-					"Action": "Action(PICKUP, -, -, -, -)",
-					"Target": "[GUID]",
-					"Layer": "Behaviour",
-					"Conditions":
-						{
-							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], twigs) = [Quantity]", "Pickable([GUID]) = True"]
-						},
-					"Priority": 1
-				}, 
-				{
-					"Action": "Action(PICKUP, -, -, -, -)",
-					"Target": "[GUID]",
-					"Layer": "Behaviour",
-					"Conditions":
-						{
-							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "Entity([GUID], petals) = [Quantity]", "Pickable([GUID]) = True"]
-						},
-					"Priority": 1
 				}, 
 				{
 					"Action": "Action(BUILD, -, [x], [z], campfire)",

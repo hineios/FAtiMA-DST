@@ -1,7 +1,7 @@
 local SEE_DIST = 20
 local SEE_RANGE_HELPER = true
-local PERCEPTION_UPDATE_INTERVAL = .3
-local DSTACTION_INTERVAL = 1
+local PERCEPTION_UPDATE_INTERVAL = .5
+local DSTACTION_INTERVAL = 1.5
 local SPEAKACTION_INTERVAL = 10
 local NUM_SEGS = 16
 
@@ -169,7 +169,6 @@ end
 local FAtiMABrain = Class(Brain, function(self, inst, server)
     Brain._ctor(self, inst)
     self.inst = inst
-	--self.inst.entity:SetCanSleep(false)
 
     ------------------------------
     ---- FAtiMA Communication ----
@@ -215,6 +214,15 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
     -- Event Listener Functions --
     ------------------------------
 	-- I need to keep references to these functions to remove the listeners later
+	self.OnKilled = function(inst, data) self:OnActionEndEvent("Killed", data.victim.GUID) end
+	self.OnAttacked = function(inst, data) self:OnActionEndEvent("Attacked", data.attacker.GUID) end
+	self.OnDeath = function(inst, data) self:OnActionEndEvent("Death", data.afflicter.GUID) end
+	self.OnMissOther = function(inst, data) self:OnActionEndEvent("MissOther", data.target.GUID) end
+	self.OnHitOther = function(inst, data) self:OnActionEndEvent("HitOther", data.target.GUID) end
+
+	------------------------------
+    ------ Watch World State -----
+    ------------------------------
 	self.OnClockTick = function (inst, data)
 		if self.time ~= nil then
 			local prevseg = math.floor(self.time * NUM_SEGS)
@@ -235,40 +243,17 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 	end
 	self.OnEnterDark = function(inst, data) self:OnPropertyChangedEvent("Light(Walter)", "dark") end
 	self.OnEnterLight = function(inst, data) self:OnPropertyChangedEvent("Light(Walter)", "light") end
-
-	self.OnKilled = function(inst, data) self:OnActionEndEvent("Killed", data.victim.GUID) end
-	self.OnAttacked = function(inst, data) self:OnActionEndEvent("Attacked", data.attacker.GUID) end
-	self.OnDeath = function(inst, data) self:OnActionEndEvent("Death", data.afflicter.GUID) end
-	self.OnMissOther = function(inst, data) self:OnActionEndEvent("MissOther", data.target.GUID) end
-	self.OnHitOther = function(inst, data) self:OnActionEndEvent("HitOther", data.target.GUID) end
-
-	------------------------------
-    ------ Watch World State -----
-    ------------------------------
-	self.OnCycles = function(inst, cycles) 
-		if cycles ~= nil then
-			self:OnPropertyChangedEvent("World(Cycle)", cycles + 1)
-		end
-	end
+	self.OnCycles = function(inst, cycles) if cycles ~= nil then self:OnPropertyChangedEvent("World(Cycle)", cycles + 1) end end
 	self.OnPhase = function(inst, phase) self:OnPropertyChangedEvent("World(Phase)", phase) end
-	self.OnIsDay = function(inst, isday) self:OnPropertyChangedEvent("World(IsDay)", isday) end
-	self.OnIsDusk = function(inst, isdusk) self:OnPropertyChangedEvent("World(IsDusk)", isdusk) end
-	self.OnIsNight = function(inst, isnight) self:OnPropertyChangedEvent("World(IsNight)", isnight) end
 	self.OnMoonPhase = function(inst, moonphase) self:OnPropertyChangedEvent("World(MoonPhase)", moonphase) end
-	self.OnIsFullMoon = function(inst, isfullmoon) self:OnPropertyChangedEvent("World(IsFullMoon)", isfullmoon) end
-	self.OnIsNewMoon = function(inst, isnewmoon) self:OnPropertyChangedEvent("World(IsNewMoon)", isnewmoon) end
 	self.OnSeason = function(inst, season) self:OnPropertyChangedEvent("World(Season)", season) end
 	self.OnSeasonProgress = function(inst, seasonprogress) self:OnPropertyChangedEvent("World(SeasonProgress)", seasonprogress) end
+	self.OnElapsedDaysInSeason = function(inst, elapseddaysinseason) self:OnPropertyChangedEvent("World(ElapsedDaysInSeason)", elapseddaysinseason) end
+	self.OnRemainingDaysInSeason = function(inst, remainingdaysinseason) self:OnPropertyChangedEvent("World(RemainingDaysInSeason)", remainingdaysinseason) end
 	self.OnSpringLength = function(inst, springlength) self:OnPropertyChangedEvent("World(SpringLength)", springlength) end
 	self.OnSummerLength = function(inst, summerlength) self:OnPropertyChangedEvent("World(SummerLength)", summerlength) end
 	self.OnAutumnLength = function(inst, autumnlength) self:OnPropertyChangedEvent("World(AutumnLenght)", autumnlength) end
 	self.OnWinterLength = function(inst, winterlength) self:OnPropertyChangedEvent("World(WinterLenght)", winterlength) end
-	self.OnIsSpring = function(inst, isspring) self:OnPropertyChangedEvent("World(IsSpring)", isspring) end
-	self.OnIsSummer = function(inst, issummer) self:OnPropertyChangedEvent("World(IsSummer)", issummer) end
-	self.OnIsAutumn = function(inst, isautumn) self:OnPropertyChangedEvent("World(IsAutumn)", isautumn) end
-	self.OnIsWinter = function(inst, iswinter) self:OnPropertyChangedEvent("World(IsWinter)", iswinter) end
-	self.OnElapsedDaysInSeason = function(inst, elapseddaysinseason) self:OnPropertyChangedEvent("World(ElapsedDaysInSeason)", elapseddaysinseason) end
-	self.OnRemainingDaysInSeason = function(inst, remainingdaysinseason) self:OnPropertyChangedEvent("World(RemainingDaysInSeason)", remainingdaysinseason) end
 	self.OnIsSnowing = function(inst, issnowing) self:OnPropertyChangedEvent("World(IsSnowing)", issnowing) end
 	self.OnIsRaining = function(inst, israining) self:OnPropertyChangedEvent("World(IsRaining)", israining) end
 end)
@@ -334,6 +319,7 @@ function FAtiMABrain:OnPropertyChangedEvent(name, value)
 end
 
 function FAtiMABrain:OnStart()
+	self.inst.entity:SetCanSleep(false)
     -----------------------
     ----- Deliberator -----
     -----------------------
@@ -370,85 +356,52 @@ function FAtiMABrain:OnStart()
     --- Event Listeners ---
     -----------------------
 	-- EntityScript:ListenForEvent(event, fn, source)
-	-- These are actualy perceptions/beliefs, but it is perferable to check for changes instead of constantly checking their values.
-	
-    self.inst:ListenForEvent("enterdark", self.OnEnterDark)
-	self.inst:ListenForEvent("enterlight", self.OnEnterLight)
-	self.inst:ListenForEvent("clocksegschanged", self.OnClockSegsChanged, TheWorld)
-	self.inst:ListenForEvent("clocktick", self.OnClockTick, TheWorld) -- this is called so often there is no need to initialize
-	
-	-- Events configurable in the Mod Config
-	if GetModConfigData("Killed", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("killed", self.OnKilled) end
-	if GetModConfigData("Attacked", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("attacked", self.OnAttacked) end
-	if GetModConfigData("Death", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("death", self.OnDeath)	end
-	if GetModConfigData("MissOther", KnownModIndex:GetModActualName("FAtiMA-DST")) then	self.inst:ListenForEvent("onmissother", self.OnMissOther) end
-	if GetModConfigData("HitOther", KnownModIndex:GetModActualName("FAtiMA-DST")) then self.inst:ListenForEvent("onhitother", self.OnHitOther) end
+	self.inst:ListenForEvent("killed", self.OnKilled)
+	self.inst:ListenForEvent("attacked", self.OnAttacked)
+	self.inst:ListenForEvent("death", self.OnDeath)
+	self.inst:ListenForEvent("onmissother", self.OnMissOther)
+	self.inst:ListenForEvent("onhitother", self.OnHitOther)
 
     -----------------------
     ---- World Watchers ---
     -----------------------
 	-- EntityScript:WatchWorldState(var, fn)
-	-- Day Related beliefs
+	self.inst:ListenForEvent("enterdark", self.OnEnterDark)
+	self.inst:ListenForEvent("enterlight", self.OnEnterLight)
+	self.inst:ListenForEvent("clocksegschanged", self.OnClockSegsChanged, TheWorld)
+	self.inst:ListenForEvent("clocktick", self.OnClockTick, TheWorld) -- this is called so often there is no need to initialize
 	self.inst:WatchWorldState("cycles", self.OnCycles)
 	self.inst:WatchWorldState("phase", self.OnPhase)
-	self.inst:WatchWorldState("isday", self.OnIsDay)
-	self.inst:WatchWorldState("isdusk", self.OnIsDusk)
-	self.inst:WatchWorldState("isnight", self.OnIsNight)
-
-	-- Moon Related beliefs
 	self.inst:WatchWorldState("moonphase", self.OnMoonPhase)
-	self.inst:WatchWorldState("isfullmoon", self.OnIsFullMoon)
-	self.inst:WatchWorldState("isnewmoon", self.OnIsNewMoon)
-
-	-- Season related beliefs
 	self.inst:WatchWorldState("season", self.OnSeason)
 	self.inst:WatchWorldState("seasonprogress", self.OnSeasonProgress)
+	self.inst:WatchWorldState("elapseddaysinseason", self.OnElapsedDaysInSeason)
+	self.inst:WatchWorldState("remainingdaysinseason", self.OnRemainingDaysInSeason)
 	self.inst:WatchWorldState("springlength", self.OnSpringLenght)
 	self.inst:WatchWorldState("summerlength", self.OnSummerLength)	
 	self.inst:WatchWorldState("autumnlength", self.OnAutumnLenght)
 	self.inst:WatchWorldState("winterlength", self.OnWinterLenght)
-	self.inst:WatchWorldState("isspring", self.OnIsSpring)
-	self.inst:WatchWorldState("issummer", self.OnIsSummer)
-	self.inst:WatchWorldState("isautumn", self.OnIsAutumn)
-	self.inst:WatchWorldState("iswinter", self.OnIsWinter)
-	self.inst:WatchWorldState("elapseddaysinseason", self.OnElapsedDaysInSeason)
-	self.inst:WatchWorldState("remainingdaysinseason", self.OnRemainingDaysInSeason)
-
-	-- Weather related beliefs
 	self.inst:WatchWorldState("issnowing", self.OnIsSnowing)
 	self.inst:WatchWorldState("israining", self.OnIsRaining)
---	self.inst:WatchWorldState("precipitationrate", OnPrecipitationRate)
---	self.inst:WatchWorldState("precipitation", OnPrecipitation)
---	self.inst:WatchWorldState("issnowcovered", OnIsSnowCovered)
---	self.inst:WatchWorldState("snowlevel", OnSnowLevel)
-	
+
 	-- Registered listeners to tell FAtiMA about changes, now let's tell FAtiMA the initial values
 	self.OnClockSegsChanged(self.inst, TheWorld.net.components.clock:OnSave().segs)
-	if self.inst.LightWatcher:IsInLight() then
-		self.OnEnterLight(self.inst, nil)
-	else
-		self.OnEnterDark(self.inst, nil)
+		if self.inst.LightWatcher:IsInLight() then
+			self.OnEnterLight(self.inst, nil)
+		else
+			self.OnEnterDark(self.inst, nil)
 	end
 	self.OnCycles(self.inst, TheWorld.state.cycles)
 	self.OnPhase(self.inst, TheWorld.state.phase)
-	self.OnIsDay(self.inst, TheWorld.state.isday)
-	self.OnIsDusk(self.inst, TheWorld.state.isdusk)
-	self.OnIsNight(self.inst, TheWorld.state.isnight)
 	self.OnMoonPhase(self.inst, TheWorld.state.moonphase)
-	self.OnIsFullMoon(self.inst, TheWorld.state.isfullmoon)
-	self.OnIsNewMoon(self.inst, TheWorld.state.isnewmoon)
 	self.OnSeason(self.inst, TheWorld.state.season)
 	self.OnSeasonProgress(self.inst, TheWorld.state.seasonprogress)
+	self.OnElapsedDaysInSeason(self.inst, TheWorld.state.elapseddaysinseason)
+	self.OnRemainingDaysInSeason(self.inst, TheWorld.state.remainingdaysinseason)
 	self.OnSpringLength(self.inst, TheWorld.state.springlength)
 	self.OnSummerLength(self.inst, TheWorld.state.summerlength)
 	self.OnAutumnLength(self.inst, TheWorld.state.autumnlength)
 	self.OnWinterLength(self.inst, TheWorld.state.winterlength)
-	self.OnIsSpring(self.inst, TheWorld.state.isspring)
-	self.OnIsSummer(self.inst, TheWorld.state.issummer)
-	self.OnIsAutumn(self.inst, TheWorld.state.isautumn)
-	self.OnIsWinter(self.inst, TheWorld.state.iswinter)
-	self.OnElapsedDaysInSeason(self.inst, TheWorld.state.elapseddaysinseason)
-	self.OnRemainingDaysInSeason(self.inst, TheWorld.state.remainingdaysinseason)
 	self.OnIsSnowing(self.inst, TheWorld.state.issnowing)
 	self.OnIsRaining(self.inst, TheWorld.state.israining)
 
@@ -475,8 +428,6 @@ function FAtiMABrain:OnStart()
 						true),
 					DoAction(self.inst,
 						function() 
-							-- Tell FAtiMA that the action has ended
-							self:OnActionEndEvent(self.CurrentAction.Name, self.CurrentAction.Target)
 							-- If the target of the action ceases to exist, we need to inform FAtiMA
 							-- applyable for both working actions and not working actions
 							if self.CurrentAction.Target ~= "-" and Ents[tonumber(self.CurrentAction.Target)] == nil then
@@ -510,6 +461,7 @@ function FAtiMABrain:OnStart()
 end
 
 function FAtiMABrain:OnStop()
+	self.inst.entity:SetCanSleep(true)
     -----------------------
     ----- Range Helper ----
     -----------------------
@@ -540,11 +492,6 @@ function FAtiMABrain:OnStop()
     -----------------------
     --- Event Listeners ---
     -----------------------
-	self.inst:RemoveEventCallback("enterdark", self.OnEnterDark)
-	self.inst:RemoveEventCallback("enterlight", self.OnEnterLight)
-	self.inst:RemoveEventCallback("clocksegschanged", self.OnClockSegsChanged, TheWorld)
-	self.inst:RemoveEventCallback("clocktick", self.OnClockTick, TheWorld)
-
 	self.inst:RemoveEventCallback("killed", self.OnKilled)
 	self.inst:RemoveEventCallback("attacked", self.OnAttacked)
 	self.inst:RemoveEventCallback("death", self.OnDeath)
@@ -554,33 +501,21 @@ function FAtiMABrain:OnStop()
 	-----------------------
     ---- World Watchers ---
     -----------------------
-	-- Day Related beliefs
+	self.inst:RemoveEventCallback("enterdark", self.OnEnterDark)
+	self.inst:RemoveEventCallback("enterlight", self.OnEnterLight)
+	self.inst:RemoveEventCallback("clocksegschanged", self.OnClockSegsChanged, TheWorld)
+	self.inst:RemoveEventCallback("clocktick", self.OnClockTick, TheWorld)
 	self.inst:StopWatchingWorldState("cycles", self.OnCycles)
 	self.inst:StopWatchingWorldState("phase", self.OnPhase)
-	self.inst:StopWatchingWorldState("isday", self.OnIsDay)
-	self.inst:StopWatchingWorldState("isdusk", self.OnIsDusk)
-	self.inst:StopWatchingWorldState("isnight", self.OnIsNight)
-
-	-- Moon Related beliefs
 	self.inst:StopWatchingWorldState("moonphase", self.OnMoonPhase)
-	self.inst:StopWatchingWorldState("isfullmoon", self.OnIsFullMoon)
-	self.inst:StopWatchingWorldState("isnewmoon", self.OnIsNewMoon)
-
-	-- Season related beliefs
 	self.inst:StopWatchingWorldState("season", self.OnSeason)
 	self.inst:StopWatchingWorldState("seasonprogress", self.OnSeasonProgress)
+	self.inst:StopWatchingWorldState("elapseddaysinseason", self.OnElapsedDaysInSeason)
+	self.inst:StopWatchingWorldState("remainingdaysinseason", self.OnRemainingDaysInSeason)
 	self.inst:StopWatchingWorldState("springlength", self.OnSpringLenght)
 	self.inst:StopWatchingWorldState("summerlength", self.OnSummerLength)	
 	self.inst:StopWatchingWorldState("autumnlength", self.OnAutumnLenght)
 	self.inst:StopWatchingWorldState("winterlength", self.OnWinterLenght)
-	self.inst:StopWatchingWorldState("isspring", self.OnIsSpring)
-	self.inst:StopWatchingWorldState("issummer", self.OnIsSummer)
-	self.inst:StopWatchingWorldState("isautumn", self.OnIsAutumn)
-	self.inst:StopWatchingWorldState("iswinter", self.OnIsWinter)
-	self.inst:StopWatchingWorldState("elapseddaysinseason", self.OnElapsedDaysInSeason)
-	self.inst:StopWatchingWorldState("remainingdaysinseason", self.OnRemainingDaysInSeason)
-
-	-- Weather related beliefs
 	self.inst:StopWatchingWorldState("issnowing", self.OnIsSnowing)
 	self.inst:StopWatchingWorldState("israining", self.OnIsRaining)
 end
