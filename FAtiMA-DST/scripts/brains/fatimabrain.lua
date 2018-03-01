@@ -40,107 +40,24 @@ local function AddSeeRangeHelper(inst)
     end
 end
 
-local function Vision(inst)
-    local x, y, z = inst.Transform:GetWorldPosition()
-    local TAGS = nil
-    local EXCLUDE_TAGS = {"INLIMBO", "NOCLICK", "CLASSIFIED", "FX"}
-    local ONE_OF_TAGS = nil
-    local ents = TheSim:FindEntities(x, y, z, SEE_DIST, TAGS, EXCLUDE_TAGS, ONE_OF_TAGS)
-    
-    -- Go over all the objects that the agent can see and take what information we need
-    local data = {}
-	local j = 1
-    for i, v in pairs(ents) do
-		if v.GUID ~= inst.GUID then
-			local d = {}
-			d.GUID = v.GUID
-			d.Prefab = v.prefab
-			d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
-			d.Pickable = v:HasTag("_inventoryitem") -- PICKUP
-			d.Collectable = v:HasTag("pickable") -- PICK
-			d.ChopWorkable = v:HasTag("CHOP_workable")
-			d.DigWorkable = v:HasTag("DIG_workable")
-			d.HammerWorkable = v:HasTag("HAMMER_workable")
-			d.MineWorkable = v:HasTag("MINE_workable") 
-			d.Equippable = v:HasTag("_equippable")
-			d.Fuel = v:HasTag("BURNABLE_fuel")
-			d.Fueled = v:HasTag("BURNABLE_fueled")
-			if v.components and v.components.edible then
-				d.Edible = v.components.edible.foodtype
-			else
-				d.Edible = "false"
-			end
-			d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
+local function Entity(inst, v)
+	local d = {}
+	d.GUID = v.GUID
+	d.Prefab = v.prefab
+	d.Collectable = v:HasTag("pickable") -- PICK
+	d.Pickable = v.components.inventoryitem and v.components.inventoryitem.canbepickedup -- PICKUP
+	d.Edible = inst.components.eater:CanEat(v)
+	d.Equippable = v:HasTag("_equippable")
+	d.Choppable = v:HasTag("CHOP_workable")
+	d.Diggable = v:HasTag("DIG_workable")
+	d.Hammerable = v:HasTag("HAMMER_workable")
+	d.Mineable = v:HasTag("MINE_workable")
+	d.Fuel = v:HasTag("BURNABLE_fuel")
+	d.Fueled = v:HasTag("BURNABLE_fueled")
+	d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
+	d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
 
-			data[j] = d
-			j = j+1
-		end
-    end
-    return data
-end
-
-local function Inventory(inst)
-    local EquipSlots = {}
-    local ItemSlots = {}
- 
-    -- Go over all items in the inventory and take what information we need
-    for k, v in pairs(inst.components.inventory.itemslots) do
-        local d = {}
-        d.GUID = v.GUID
-        d.Prefab = v.prefab
-        d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
-		-- Stuff in the inventory is neither pickable nor workable
-		d.Pickable = false
-		d.Collectable = false
-		d.ChopWorkable = false
-		d.DigWorkable = false
-		d.HammerWorkable = false
-		d.MineWorkable = false
-		d.Equippable = v:HasTag("_equippable")
-		d.Fuel = v:HasTag("BURNABLE_fuel")
-		d.Fueled = v:HasTag("BURNABLE_fueled")
-		if v.components and v.components.edible then
-			d.Edible = v.components.edible.foodtype
-		else
-			d.Edible = "false"
-		end
-		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
-
-		ItemSlots[k] = d
-    end
-
-    -- Go over equipped items and put them in an array
-    -- I chose to use an array not to limit which equip slots the agent has.
-    -- This way I do not need to change any code, should any new slot appear.
-    local i = 1
-    for k, v in pairs(inst.components.inventory.equipslots) do
-        local d = {}
-        d.GUID = v.GUID
-        d.Prefab = v.prefab
-        d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
-		-- Stuff in the inventory is neither pickable nor workable
-		d.Pickable = false
-		d.Collectable = false
-		d.ChopWorkable = false
-		d.DigWorkable = false
-		d.HammerWorkable = false
-		d.MineWorkable = false
-		d.Equippable = v:HasTag("_equippable")
-		d.Fuel = v:HasTag("BURNABLE_fuel")
-		d.Fueled = v:HasTag("BURNABLE_fueled")
-		if v.components and v.components.edible then
-			d.Edible = v.components.edible.foodtype
-		else
-			d.Edible = "false"
-		end
-        d.Slot = k
-		d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
-
-        EquipSlots[i] = d
-        i = i + 1
-    end
-
-    return EquipSlots, ItemSlots
+	return d
 end
 
 -- here for testing purposes...
@@ -260,8 +177,43 @@ end)
 
 function FAtiMABrain:Perceptions()
     local data = {}
-    data.Vision = Vision(self.inst)
-    data.EquipSlots, data.ItemSlots = Inventory(self.inst) 
+
+	-- Vision
+	local x, y, z = self.inst.Transform:GetWorldPosition()
+    local TAGS = nil
+    local EXCLUDE_TAGS = {"INLIMBO", "NOCLICK", "CLASSIFIED", "FX"}
+    local ONE_OF_TAGS = nil
+    local ents = TheSim:FindEntities(x, y, z, SEE_DIST, TAGS, EXCLUDE_TAGS, ONE_OF_TAGS)
+    
+    -- Go over all the objects that the agent can see and take what information we need
+    local vision = {}
+	local j = 1
+    for i, v in pairs(ents) do
+		if v.GUID ~= self.inst.GUID then
+			vision[j] = Entity(self.inst, v)
+			j = j+1
+		end
+    end
+    data.Vision = vision
+
+	-- Inventory
+	local equipslots = {}
+    local itemslots = {}
+ 
+    -- Go over all items in the inventory and take what information we need
+    for k, v in pairs(self.inst.components.inventory.itemslots) do
+        itemslots[k] = Entity(self.inst, v)
+    end
+
+    -- Go over equipped items and put them in an array
+    -- I chose to use an array not to limit which equip slots the agent has.
+    -- This way I do not need to change any code, should any new slot appear.
+    local i = 1
+    for k, v in pairs(self.inst.components.inventory.equipslots) do
+        equipslots[i] = Entity(self.inst, v)
+        i = i + 1
+    end
+    data.EquipSlots, data.ItemSlots = equipslots, itemslots
 
     data.Health = self.inst.components.health.currenthealth
     data.Hunger = self.inst.components.hunger.current
@@ -271,10 +223,7 @@ function FAtiMABrain:Perceptions()
     data.IsOverHeating = self.inst:IsOverheating()
     data.Moisture = self.inst:GetMoisture()
 	data.IsBusy = (self.CurrentAction or false) and true
-	local x, y, z = self.inst.Transform:GetWorldPosition()
-	data.PosX = x
-	data.PosY = y
-	data.PosZ = z
+	data.PosX, data.PosY, data.PosZ = self.inst.Transform:GetWorldPosition()
 
     TheSim:QueryServer(
         self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/perceptions",
@@ -461,7 +410,6 @@ function FAtiMABrain:OnStart()
 end
 
 function FAtiMABrain:OnStop()
-	self.inst.entity:SetCanSleep(true)
     -----------------------
     ----- Range Helper ----
     -----------------------
@@ -518,6 +466,8 @@ function FAtiMABrain:OnStop()
 	self.inst:StopWatchingWorldState("winterlength", self.OnWinterLenght)
 	self.inst:StopWatchingWorldState("issnowing", self.OnIsSnowing)
 	self.inst:StopWatchingWorldState("israining", self.OnIsRaining)
+
+	self.inst.entity:SetCanSleep(true)
 end
 
 return FAtiMABrain

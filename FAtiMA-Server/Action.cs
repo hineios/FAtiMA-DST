@@ -8,15 +8,16 @@ namespace FAtiMA_Server
     public class Action
     {
         public string Type { get; set; }
-        // This represents the Target of the given action
         public string Target { get; set; }
         public string Name { get; set; }
+        public string WFN { get; set; }
 
         public Action(string type, string target, string name)
         {
             Type = type;
             Target = target;
             Name = name;
+            WFN = Type + "(" + Name + ")"; 
         }
 
         public static Action ToAction(ActionLibrary.IAction a, IntegratedAuthoringToolAsset IAT)
@@ -72,11 +73,12 @@ namespace FAtiMA_Server
             PosZ = posz;
             Recipe = recipe;
             Type = type;
+            WFN = Type + "(" + Action + ", " + InvObject + ", " + PosX + ", " + PosZ + ", " + Recipe + ")";
         }
         
         public override string ToString()
         {
-            return Type + "(" + Action + ", " + InvObject + ", " + PosX + ", " + PosZ + ", " + Recipe + ") = " + Target;
+            return WFN + " = " + Target;
         }
     }
 
@@ -95,11 +97,12 @@ namespace FAtiMA_Server
             Meaning = meaning;
             Style = style;
             Utterance = utterance;
+            WFN = Type + "(" + CurrentState + ", " + NextState + ", " + Meaning + ", " + Style + ", '" + Utterance + "')";
         }
 
         public override string ToString()
         {
-            return Type + "(" + CurrentState + ", " + NextState + ", " + Meaning + ", " + Style + ", '" + Utterance + "') = " + Target;
+            return WFN + " = " + Target;
         }
     }
 }
