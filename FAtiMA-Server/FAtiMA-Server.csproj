@@ -121,7 +121,7 @@
   <ItemGroup>
     <Compile Include="Action.cs" />
     <Compile Include="BasicIOBridge.cs" />
-    <Compile Include="Entities.cs" />
+    <Compile Include="Entity.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="Perceptions.cs" />
     <Compile Include="Program.cs" />

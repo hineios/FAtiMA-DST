@@ -10,9 +10,9 @@ namespace FAtiMA_Server
     public class Perceptions
     {
         //string GUID { get; set; }
-        List<Item> Vision { get; set; }
-        List<Item> ItemSlots { get; set; }
-        List<EquippedItems> EquipSlots { get; set; }
+        List<Entity> Vision { get; set; }
+        List<Entity> ItemSlots { get; set; }
+        List<Entity> EquipSlots { get; set; }
         public int Hunger { get; set; }
         public int Sanity { get; set; }
         public int Health { get; set; }
@@ -26,7 +26,7 @@ namespace FAtiMA_Server
         public int PosZ { get; set; }
 
         [JsonConstructor]
-        public Perceptions(List<EquippedItems> equipslots, List<Item> vision, List<Item> itemslots,
+        public Perceptions(List<Entity> equipslots, List<Entity> vision, List<Entity> itemslots,
             float hunger, float sanity, float health, float moisture, float temperature, bool isfreezing, bool isoverheating, bool isbusy, float posx, float posy, float posz)
         {
             Vision = vision;
@@ -128,7 +128,7 @@ namespace FAtiMA_Server
                 rpc.Perceive(EventHelper.PropertyChange("PosZ(" + rpc.CharacterName.ToString() + ")", PosZ.ToString(), rpc.CharacterName.ToString()));
 
 
-            foreach (Item i in Vision)
+            foreach (Entity i in Vision)
             {
                 if(i != null)
                 {
@@ -139,7 +139,7 @@ namespace FAtiMA_Server
                 }
             }
 
-            foreach (Item i in ItemSlots)
+            foreach (Entity i in ItemSlots)
             {
                 if (i != null)
                 {
@@ -150,13 +150,13 @@ namespace FAtiMA_Server
                 }
             }
 
-            foreach (EquippedItems i in EquipSlots)
+            foreach (Entity i in EquipSlots)
             {
                 if (i != null)
                 {
-                    bv = rpc.GetBeliefValue("IsEquipped(" + i.GUID + "," + i.Slot + ")");
+                    bv = rpc.GetBeliefValue("IsEquipped(" + i.GUID + ")");
                     if (bv == null || !bv.Equals("True"))
-                        rpc.Perceive(EventHelper.PropertyChange("IsEquipped(" + i.GUID + "," + i.Slot + ")", "TRUE", rpc.CharacterName.ToString()));
+                        rpc.Perceive(EventHelper.PropertyChange("IsEquipped(" + i.GUID + ")", "True", rpc.CharacterName.ToString()));
                     i.UpdatePerception(rpc);
                 }
             }
@@ -215,17 +215,17 @@ namespace FAtiMA_Server
             s += "\tIsBusy: " + IsBusy;
             s += "\tPos: (" + PosX + ", " + PosY + ", " + PosZ + ")";
             s += "\n\tVision:\n";
-            foreach (Item v in Vision)
+            foreach (Entity v in Vision)
             {
                 if (v != null) s += "\t\t" + v.ToString() + "\n";
             }
             s += "\tItemSlots:\n";
-            foreach (Item i in ItemSlots)
+            foreach (Entity i in ItemSlots)
             {
                 if (i != null) s += "\t\t" + i.ToString() + "\n";
             }
             s += "\tEquipSlots:\n";
-            foreach (Item e in EquipSlots)
+            foreach (Entity e in EquipSlots)
             {
                 if (e != null) s += "\t\t" + e.ToString() + "\n";
             }

@@ -57,16 +57,16 @@ These beliefs represent information about the world and should be used in addict
 |Belief|Description|
 |:---|:---|
 |`Entity([GUID], [prefab]) = [quantity]`|Defines entities, what they are (*prefab*) and how big is the stack (*quantity*)|
-|`ChopWorkable([GUID]) = [bool]`|True if the given entity is workable by an axe|
-|`DigWorkable([GUID]) = [bool]`|True if the given entity is workable by a shovel|
-|`HammerWorkable([GUID]) = [bool]`|True if the given entity is workable by an hammer|
-|`MineWorkable([GUID]) = [bool]`|True if the given entity is workable by a pick|
-|`Pickable([GUID]) = [bool]`|True if the given entity is pickable (pick stuff from the ground). *PICKUP* action|
-|`Collectable([GUID]) = [bool]`|True if the given entity is pickable (collect natural resources). *PICK* action|
-|`Equippable([GUID]) = [bool]`|True if the given entity may be equipped. *EQUIP* action|
-|`Fuel([GUID]) = [bool]`|True if the given entity may be used to fuel stuff|
-|`Fueled([GUID]) = [bool]`|True if the given entity requires fuel to function|
-|`Edible([GUID]) = [type]`|If the item is edible, it represents the food type of the item, else it is false. [type] can be "GENERIC", "MEAT", "WOOD", "VEGGIE", "ELEMENTAL", "GEARS", "HORRIBLE", "INSECT", "SEEDS", "BERRY", "RAW", "ROUGHAGE", "GOODIES"|
+|`IsChoppable([GUID]) = [bool]`|True if the given entity is workable by an axe|
+|`IsDiggable([GUID]) = [bool]`|True if the given entity is workable by a shovel|
+|`IsHammerable([GUID]) = [bool]`|True if the given entity is workable by an hammer|
+|`IsMineable([GUID]) = [bool]`|True if the given entity is workable by a pick|
+|`IsPickable([GUID]) = [bool]`|True if the given entity is pickable (pick stuff from the ground). *PICKUP* action|
+|`IsCollectable([GUID]) = [bool]`|True if the given entity is pickable (collect natural resources). *PICK* action|
+|`IsEquippable([GUID]) = [bool]`|True if the given entity may be equipped. *EQUIP* action|
+|`IsFuel([GUID]) = [bool]`|True if the given entity may be used to fuel stuff|
+|`IsFueled([GUID]) = [bool]`|True if the given entity requires fuel to function|
+|`IsEdible([GUID]) = [type]`|True if the entity may be eaten by the curent character|
 |`PosX([GUID]) = [value]`|Defines the X coordinate (*value*) of an entity|
 |`PosZ([GUID]) = [value]`|Defines the Z coordinate (*value*) of an entity|
 |`World(CurrentSegment) = [value]`|The current segment, ranges between 0 and 15|
