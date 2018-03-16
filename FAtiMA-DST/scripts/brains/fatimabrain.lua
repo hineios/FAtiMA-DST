@@ -132,7 +132,7 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
     ------------------------------
 	-- I need to keep references to these functions to remove the listeners later
 	self.OnKilled = function(inst, data) self:OnActionEndEvent("Killed", data.victim.GUID) end
-	self.OnAttacked = function(inst, data) self:OnActionEndEvent("Attacked", data.attacker.GUID) end
+	self.OnAttacked = function(inst, data) self:OnActionEndEvent("Attacked", data.attacker and data.attacker.GUID or "darkness") end
 	self.OnDeath = function(inst, data) self:OnActionEndEvent("Death", data.afflicter.GUID) end
 	self.OnMissOther = function(inst, data) self:OnActionEndEvent("MissOther", data.target.GUID) end
 	self.OnHitOther = function(inst, data) self:OnActionEndEvent("HitOther", data.target.GUID) end
