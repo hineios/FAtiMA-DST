@@ -1,8 +1,8 @@
 -- This information tells other players more about the mod
 name = "FAtiMA-DST"
-description = "Build your agents using FAtiMA and play with them in Don't Starve Together."
+description = "Play the game with Walter, Wilson's younger twin brother.\nDon't forget you need to run the companion console application!"
 author = "Hineios"
-version = "1.3"
+version = "1.4"
 --version_compatible = "1.7"
 
 -- This is the URL name of the mod's thread on the forum; the part after the index.php? and before the first & in the URL
@@ -36,58 +36,15 @@ server_filter_tags = {"ai"}
  configuration_options =
  {
      {
-         name = "Killed",
-         label = "'killed'",
+         name = 'fatima-character-num',
+         label = 'Number of AI characters',
          options = 
          {
-             {description = "False", data = false},
-			 {description = "True", data = true}
+             {description = "0 characters", data = 0},
+			 {description = "1 character", data = 1},
+			 {description = "2 characters", data = 2},
              
          },
-         default = false,
+         default = 0,
      },
-	 {
-         name = "Death",
-         label = "'death'",
-         options = 
-         {
-             {description = "False", data = false},
-			 {description = "True", data = true}
-             
-         },
-         default = false,
-     },
-	 {
-         name = "Attacked",
-         label = "'attacked'",
-         options = 
-         {
-             {description = "False", data = false},
-			 {description = "True", data = true}
-             
-         },
-         default = false,
-     },
-	 {
-         name = "MissOther",
-         label = "'onmissother'",
-         options = 
-         {
-             {description = "False", data = false},
-			 {description = "True", data = true}
-             
-         },
-         default = false,
-     },
-	 {
-         name = "HitOther",
-         label = "'onhitother'",
-         options = 
-         {
-             {description = "False", data = false},
-			 {description = "True", data = true}
-             
-         },
-         default = false,
-     }
 }

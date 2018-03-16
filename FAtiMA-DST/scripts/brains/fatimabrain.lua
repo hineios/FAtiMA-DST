@@ -108,7 +108,6 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 			if action and action.Type then
 				if action.Type == "Action" then
 					if self.CurrentAction == nil or (self.CurrentAction.WFN ~= action.WFN or self.CurrentAction.Target ~= action.Target) then 
-						print(action.WFN .. " = " .. action.Target)
 						self.inst:InterruptBufferedAction()
 						self.inst.components.locomotor:Clear()
 						self.CurrentAction = action
@@ -117,7 +116,6 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 				elseif action.Type == "Speak" then
 					-- Speak Action are made the moment they are received. They only occur every SPEAKACTION_INTERVAL seconds
 					-- Speak([cs],[ns],[m],[sty]) = [t]
-					print(action.Type .. " = " .. action.Utterance)
 					self.inst.components.talker:Say(action.Utterance)
 					-- Tell FAtiMA that the action has ended
 					self:OnActionEndEvent(action.Name, action.Target)
@@ -244,7 +242,6 @@ function FAtiMABrain:OnActionEndEvent(name, value)
 	d.Name = name
 	d.Value = value
 	d.Subject = "Walter"
-	print("Event(" .. d.Type .. ", " .. d.Name .. ", " .. d.Value .. ", " .. d.Subject .. ")")
 	TheSim:QueryServer(
         self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/events",
         self.OnEventCallback,
@@ -258,7 +255,6 @@ function FAtiMABrain:OnPropertyChangedEvent(name, value)
 	d.Name = name
 	d.Value = value
 	d.Subject = "Walter"
-	print(d.Name .. " = ", d.Value)
 	TheSim:QueryServer(
         self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/events",
         self.OnEventCallback,
@@ -272,7 +268,6 @@ function FAtiMABrain:OnDeleteEntity(GUID)
 	d.Name = ""
 	d.Value = GUID
 	d.Subject = "Walter"
-	print("Delete-Entity(" .. GUID .. ")")
 	TheSim:QueryServer(
         self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/events",
         self.OnEventCallback,
