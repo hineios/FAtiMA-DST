@@ -2,27 +2,44 @@
 	"root":
 		{
 			"classId": 0,
-			"ActionTendencies": [
-				{
-					"Action": "Action(PICK, -, -, -, -)",
-					"Target": "[GUID]",
-					"Layer": "Behaviour",
-					"Conditions":
-						{
-							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "IsCollectable([GUID]) = True"]
-						},
-					"Priority": "[p]"
-				}, 
-				{
-					"Action": "Action(PICKUP, -, -, -, -)",
-					"Target": "[GUID]",
-					"Layer": "Behaviour",
-					"Conditions":
-						{
-							"Set": ["IsBusy(SELF) = False", "InSight([GUID]) = True", "IsPickable([GUID]) = True"]
-						},
-					"Priority": "[p]"
-				}]
+      "ActionTendencies": [
+        {
+          "Action": "Action(PICK, -, -, -, -)",
+          "Target": "[GUID]",
+          "Layer": "Behaviour",
+          "Conditions": {
+            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "IsCollectable([GUID]) = True" ]
+          },
+          "Priority": 3
+        },
+        {
+          "Action": "Action(PICKUP, -, -, -, -)",
+          "Target": "[GUID]",
+          "Layer": "Behaviour",
+          "Conditions": {
+            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "IsPickable([GUID]) = True" ]
+          },
+          "Priority": 3
+        },
+        {
+          "Action": "Action(BUILD, -, -, -, axe)",
+          "Target": "-",
+          "Layer": "Behaviour",
+          "Conditions": {
+            "Set": [ "IsBusy(SELF) = False", "Entity([flint]) = flint", "InInventory([flint]) = True", "Quantity([flint]) >= 1", "Entity([twigs]) = twigs", "InInventory([twigs]) = True", "Quantity([twigs]) >= 1" ]
+          },
+          "Priority": 5
+        },
+        {
+          "Action": "Action(EAT, -, -, -, -)",
+          "Target": "[food]",
+          "Layer": "Behaviour",
+          "Conditions": {
+            "Set": [ "IsBusy(SELF) = False", "Hunger(SELF) < 120", "InInventory([food]) = True", "IsEdible([food]) = True" ]
+          },
+          "Priority": 5
+        }
+      ]
 		},
 	"types": [
 		{
