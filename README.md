@@ -56,7 +56,8 @@ These beliefs represent information about the world and should be used in addict
 
 |Belief|Description|
 |:---|:---|
-|`Entity([GUID], [prefab]) = [quantity]`|Defines entities, what they are (*prefab*) and how big is the stack (*quantity*)|
+|`Entity([GUID]) = [prefab]`|Defines an entity what they are (*prefab*)|
+|`Quantity([GUID]) = [quantity]`|Defines how big is the stack (*quantity*) of a given entity|
 |`IsChoppable([GUID]) = [bool]`|True if the given entity is workable by an axe|
 |`IsDiggable([GUID]) = [bool]`|True if the given entity is workable by a shovel|
 |`IsHammerable([GUID]) = [bool]`|True if the given entity is workable by an hammer|
@@ -69,6 +70,7 @@ These beliefs represent information about the world and should be used in addict
 |`IsEdible([GUID]) = [type]`|True if the entity may be eaten by the curent character|
 |`PosX([GUID]) = [value]`|Defines the X coordinate (*value*) of an entity|
 |`PosZ([GUID]) = [value]`|Defines the Z coordinate (*value*) of an entity|
+
 |`World(CurrentSegment) = [value]`|The current segment, ranges between 0 and 15|
 |`World(Cycle) = [value]`|Defines how many cycles (days) have passed since the start of the game|
 |`World(Phase) = [value]`|Defines the phase of the day. *value* can be: 'day', 'dusk', or 'night'|

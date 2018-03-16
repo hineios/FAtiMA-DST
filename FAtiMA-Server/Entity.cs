@@ -43,9 +43,13 @@ namespace FAtiMA_Server
 
         public void UpdatePerception(RolePlayCharacterAsset rpc)
         {
-            string b = rpc.GetBeliefValue("Entity(" + GUID + "," + Prefab + ")");
+            string b = rpc.GetBeliefValue("Entity(" + GUID + ")");
+            if (b == null || !(b.Equals(Prefab.ToString())))
+                rpc.Perceive(EventHelper.PropertyChange("Entity(" + GUID + ")", Prefab.ToString(), rpc.CharacterName.ToString()));
+
+            b = rpc.GetBeliefValue("Quantity(" + GUID + ")");
             if (b == null || !(b.Equals(Quantity.ToString())))
-                rpc.Perceive(EventHelper.PropertyChange("Entity(" + GUID + "," + Prefab + ")", Quantity.ToString(), rpc.CharacterName.ToString()));
+                rpc.Perceive(EventHelper.PropertyChange("Quantity(" + GUID + ")", Quantity.ToString(), rpc.CharacterName.ToString()));
 
             b = rpc.GetBeliefValue("IsChoppable(" + GUID + ")");
             if (b == null || !(b.Equals(IsChoppable.ToString())))
