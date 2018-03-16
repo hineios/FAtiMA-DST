@@ -72,11 +72,7 @@ end
 
 local function KeepWorking(action, target)
 	local t = Ents[tonumber(target)]
-	if action == "CHOP" and t ~= nil and t:HasTag("CHOP_workable") then return true
-	elseif action == "HAMMER" and t ~= nil and t:HasTag("HAMMER_workable") then return true
-	elseif action == "DIG" and t ~= nil and t:HasTag("DIG_workable") then return true
-	elseif action == "MINE" and t ~= nil and t:HasTag("MINE_workable") then return true
-	else return false end
+	return (action == "CHOP" and t ~= nil and t:HasTag("CHOP_workable")) or (action == "HAMMER" and t ~= nil and t:HasTag("HAMMER_workable")) or (action == "DIG" and t ~= nil and t:HasTag("DIG_workable")) or (action == "MINE" and t ~= nil and t:HasTag("MINE_workable"))
 end
 
 local function IsWorkAction(action)
@@ -111,10 +107,13 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 			local action = result and (result ~= "") and json.decode(result)
 			if action and action.Type then
 				if action.Type == "Action" then
-					print(action.Type .. "(" .. action.Name .. ", " .. action.InvObject .. ", (" .. action.PosX .. ", 0, " .. action.PosZ .. "), " .. action.Recipe .. ") = " .. action.Target)
-					self.inst:InterruptBufferedAction()
-					self.inst.components.locomotor:Clear()
-					self.CurrentAction = action
+					if self.CurrentAction == nil or (self.CurrentAction.WFN ~= action.WFN or self.CurrentAction.Target ~= action.Target) then 
+						print(action.WFN .. " = " .. action.Target)
+						self.inst:InterruptBufferedAction()
+						self.inst.components.locomotor:Clear()
+						self.CurrentAction = action
+					end
+					--Otherwise the action is the same as the one being executed, so tehere is no need to override it
 				elseif action.Type == "Speak" then
 					-- Speak Action are made the moment they are received. They only occur every SPEAKACTION_INTERVAL seconds
 					-- Speak([cs],[ns],[m],[sty]) = [t]
@@ -267,6 +266,20 @@ function FAtiMABrain:OnPropertyChangedEvent(name, value)
         json.encode(d))
 end
 
+function FAtiMABrain:OnDeleteEntity(GUID)
+	local d = {}
+	d.Type = "Delete-Entity"
+	d.Name = ""
+	d.Value = GUID
+	d.Subject = "Walter"
+	print("Delete-Entity(" .. GUID .. ")")
+	TheSim:QueryServer(
+        self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/events",
+        self.OnEventCallback,
+        "POST",
+        json.encode(d))
+end
+
 function FAtiMABrain:OnStart()
 	self.inst.entity:SetCanSleep(false)
     -----------------------
@@ -362,48 +375,51 @@ function FAtiMABrain:OnStart()
         PriorityNode(
         {
             IfNode(function() return (self.CurrentAction ~= nil and self.CurrentAction.Type == "Action") end, "IfAction",
-                SequenceNode{
-					DoAction(self.inst, 
-						-- BufferedAction(Doer, Target, Action, InvObject, Pos, Recipe)
-						function() return BufferedAction(
+                DoAction(self.inst, 
+					-- BufferedAction(Doer, Target, Action, InvObject, Pos, Recipe)
+					function() 
+						local b = BufferedAction(
 							self.inst,
 							Ents[tonumber(self.CurrentAction.Target)],
 							ACTIONS[self.CurrentAction.Action],
 							Ents[tonumber(self.CurrentAction.InvObject)],
 							(self.CurrentAction.PosX ~= "-" and Vector3(tonumber(self.CurrentAction.PosX), tonumber(self.CurrentAction.PosY), tonumber(self.CurrentAction.PosZ)) or nil),
 							(self.CurrentAction.Recipe ~= "-") and self.CurrentAction.Recipe or nil)
-						end, 
-						"DoAction", 
-						true),
-					DoAction(self.inst,
-						function() 
+
+						b:AddFailAction(function() 
+							if IsWorkAction(self.CurrentAction.Action) then
+								if KeepWorking(self.CurrentAction.Action, self.CurrentAction.Target) then
+									return
+								end
+							end
+							self:OnActionEndEvent(self.CurrentAction.WFN, self.CurrentAction.Target)
+							self.CurrentAction = nil 
+						end)
+
+						b:AddSuccessAction(function() 
 							-- If the target of the action ceases to exist, we need to inform FAtiMA
 							-- applyable for both working actions and not working actions
 							if self.CurrentAction.Target ~= "-" and Ents[tonumber(self.CurrentAction.Target)] == nil then
 								-- Target no longer exists
-								self:OnPropertyChangedEvent("Pickable(" .. self.CurrentAction.Target .. ")", false)
-								self:OnPropertyChangedEvent("Collectable(" .. self.CurrentAction.Target .. ")", false)
-								self:OnPropertyChangedEvent("ChopWorkable(" .. self.CurrentAction.Target .. ")", false)
-								self:OnPropertyChangedEvent("DigWorkable(" .. self.CurrentAction.Target .. ")", false)
-								self:OnPropertyChangedEvent("HammerWorkable(" .. self.CurrentAction.Target .. ")", false)
-								self:OnPropertyChangedEvent("MineWorkable(" .. self.CurrentAction.Target .. ")", false)
+								self:OnDeleteEntity(self.CurrentAction.Target)
 							end
 
 							-- Working actions we want to keep executing until the target is not workable anymore
-							if IsWorkAction(self.CurrentAction.Name) then
-								if not KeepWorking(self.CurrentAction.Name, self.CurrentAction.Target) then
-									self:OnActionEndEvent("Action(" .. self.CurrentAction.Name .. ", " .. self.CurrentAction.InvObject .. ", " .. (self.CurrentAction.PosX == "-" and "-" or self.CurrentAction.PosX) .. ", " .. (self.CurrentAction.PosZ == "-" and "-" or  self.CurrentAction.PosZ) .. ", " .. self.CurrentAction.Recipe .. ")", self.CurrentAction.Target)
+							if IsWorkAction(self.CurrentAction.Action) then
+								if not KeepWorking(self.CurrentAction.Action, self.CurrentAction.Target) then
+									self:OnActionEndEvent(self.CurrentAction.WFN, self.CurrentAction.Target)
 									self.CurrentAction = nil
 								end
 							else
-								-- All other actions we want to stop here
-								self:OnActionEndEvent("Action(" .. self.CurrentAction.Name .. ", " .. self.CurrentAction.InvObject .. ", " .. (self.CurrentAction.PosX == "-" and "-" or self.CurrentAction.PosX) .. ", " .. (self.CurrentAction.PosZ == "-" and "-" or  self.CurrentAction.PosZ) .. ", " .. self.CurrentAction.Recipe .. ")", self.CurrentAction.Target)
+								self:OnActionEndEvent(self.CurrentAction.WFN, self.CurrentAction.Target)
 								self.CurrentAction = nil
 							end
-						end,
-						"CleanAction",
-						true)
-				}
+						end)
+						return b
+					end, 
+					"DoAction", 
+					true)
+				-- Close DoAction
 			)
         }, 1)
     self.bt = BT(self.inst, root)
