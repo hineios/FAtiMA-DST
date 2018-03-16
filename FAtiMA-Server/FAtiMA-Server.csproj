@@ -121,7 +121,7 @@
   <ItemGroup>
     <Compile Include="Action.cs" />
     <Compile Include="BasicIOBridge.cs" />
-    <Compile Include="Entities.cs" />
+    <Compile Include="Entity.cs" />
     <Compile Include="Event.cs" />
     <Compile Include="Perceptions.cs" />
     <Compile Include="Program.cs" />
@@ -130,13 +130,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Example Character\FAtiMA-DST.iat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Example Character\walter.edm">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Example Character\walter.rpc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
-    <None Include="walter.edm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="walter.rpc">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">

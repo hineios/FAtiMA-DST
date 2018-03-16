@@ -1,0 +1,23 @@
+{
+	"root":
+		{
+			"classId": 0,
+			"ScenarioName": "FAtiMA-DST",
+			"Description": "An use example of FAtiMA-DST connection to Don't Starve Together.",
+			"CharacterSources": ["walter.rpc"],
+			"Dialogues": [
+				{
+					"CurrentState": "-",
+					"NextState": "-",
+					"Meaning": "Stuck",
+					"Style": "-",
+					"Utterance": "My life is so boring I have nothing to do...",
+					"UtteranceId": "TTS-9F97739111D38E4BE39DD355165808A0"
+				}]
+		},
+	"types": [
+		{
+			"TypeId": 0,
+			"ClassName": "IntegratedAuthoringTool.IntegratedAuthoringToolAsset, IntegratedAuthoringTool, Version=1.7.0.0, Culture=neutral, PublicKeyToken=null"
+		}]
+}

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using RolePlayCharacter;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using WellFormedNames;
 
@@ -9,15 +10,15 @@ namespace FAtiMA_Server
     public class Event
     {
         private string Type { get; set; }
+        // Who did it?/For who did it change
+        private string Subject { get; set; }
         // What was it?/Belief
         private string Name { get; set; }
         // Who was the target/value
         private string Value { get; set; }
-        // Who did it?/For who did it change
-        private string Subject { get; set; }
 
         [JsonConstructor]
-        public Event(string type, string name, string value, string subject)
+        public Event(string type, string subject, string name, string value)
         {
             Subject = subject;
             Name = name;
@@ -38,10 +39,33 @@ namespace FAtiMA_Server
                 case "Property-Change":
                     PerceivePropertyChanged(rpc);
                     return;
-
+                case "Delete-Entity":
+                    DeleteEntity(rpc);
+                    return;
                 default:
                     throw new Exception("Event of unknown type. Events must be 'Action-Start', 'Action-End', or 'Property-Change'.");
             }
+        }
+
+        private void DeleteEntity(RolePlayCharacterAsset rpc)
+        {
+            /*
+            * This entity has been destroy by the agent, delete it from the KB
+            * */
+            rpc.RemoveBelief("Entity(" + Value + ")", "SELF");
+            rpc.RemoveBelief("Quantity(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsChoppable(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsHammerable(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsDiggable(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsMineable(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsPickable(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsCollectable(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsEquippable(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsFuel(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsFueled(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsEdible(" + Value + ")", "SELF");
+            rpc.RemoveBelief("PosX(" + Value + ")", "SELF");
+            rpc.RemoveBelief("PosZ(" + Value + ")", "SELF");
         }
 
         private void PerceiveActionStart(RolePlayCharacterAsset rpc)
@@ -73,7 +97,7 @@ namespace FAtiMA_Server
 
         public override string ToString()
         {
-            return "Event(" + Type + ", " + Name + ", " + Value + ", " + Subject + ")";
+            return "Event(" + Type + ", " + Subject + ", " + Name + ", " + Value + ")";
         }
     }
 }

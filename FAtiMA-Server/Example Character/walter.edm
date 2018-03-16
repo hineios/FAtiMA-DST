@@ -2,30 +2,48 @@
 	"root":
 		{
 			"classId": 0,
-			"DefaultActionPriority": 2,
-			"ActionTendencies": [
-				{
-					"Action": "PICK([x])",
-					"Target": "x",
-					"Conditions":
-						{
-							"Set": ["InSight([x]) = True", "Item([x], flower) = 1"]
-						},
-					"Priority": 1
-				}, 
-				{
-					"Action": "PICK([x])",
-					"Target": "x",
-					"Conditions":
-						{
-							"Set": ["InSight([x]) = True", "Item([x], grass) = 1"]
-						},
-					"Priority": 1
-				}]
+      "ActionTendencies": [
+        {
+          "Action": "Action(PICK, -, -, -, -)",
+          "Target": "[GUID]",
+          "Layer": "Behaviour",
+          "Conditions": {
+            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "IsCollectable([GUID]) = True" ]
+          },
+          "Priority": 3
+        },
+        {
+          "Action": "Action(PICKUP, -, -, -, -)",
+          "Target": "[GUID]",
+          "Layer": "Behaviour",
+          "Conditions": {
+            "Set": [ "IsBusy(SELF) = False", "InSight([GUID]) = True", "IsPickable([GUID]) = True" ]
+          },
+          "Priority": 3
+        },
+        {
+          "Action": "Action(BUILD, -, -, -, axe)",
+          "Target": "-",
+          "Layer": "Behaviour",
+          "Conditions": {
+            "Set": [ "IsBusy(SELF) = False", "Entity([flint]) = flint", "InInventory([flint]) = True", "Quantity([flint]) >= 1", "Entity([twigs]) = twigs", "InInventory([twigs]) = True", "Quantity([twigs]) >= 1" ]
+          },
+          "Priority": 5
+        },
+        {
+          "Action": "Action(EAT, -, -, -, -)",
+          "Target": "[food]",
+          "Layer": "Behaviour",
+          "Conditions": {
+            "Set": [ "IsBusy(SELF) = False", "Hunger(SELF) < 120", "InInventory([food]) = True", "IsEdible([food]) = True" ]
+          },
+          "Priority": 5
+        }
+      ]
 		},
 	"types": [
 		{
 			"TypeId": 0,
-			"ClassName": "EmotionalDecisionMaking.EmotionalDecisionMakingAsset, EmotionalDecisionMaking, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+			"ClassName": "EmotionalDecisionMaking.EmotionalDecisionMakingAsset, EmotionalDecisionMaking, Version=1.2.0.0, Culture=neutral, PublicKeyToken=null"
 		}]
 }

@@ -302,3 +302,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 *.dll
+
+*.sublime-project
+
+*.sublime-workspace

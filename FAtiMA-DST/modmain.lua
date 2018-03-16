@@ -69,3 +69,6 @@ local function MakeClickableBrain(self, owner)
 end
 
 AddClassPostConstruct("widgets/sanitybadge", MakeClickableBrain)
+
+
+-- if GetModConfigData("option name", KnownModIndex:GetModActualName("FAtiMA-DST")) then stuff end
