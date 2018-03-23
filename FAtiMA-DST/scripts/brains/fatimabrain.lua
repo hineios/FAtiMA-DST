@@ -1,8 +1,9 @@
-local SEE_DIST = 20
+local SEE_DIST = 21
 local SEE_RANGE_HELPER = true
 local PERCEPTION_UPDATE_INTERVAL = .5
 local DSTACTION_INTERVAL = 1.5
 local SPEAKACTION_INTERVAL = 10
+local SPEAKACTION_PROB = 40
 local NUM_SEGS = 16
 
 local assets =
@@ -42,21 +43,29 @@ end
 
 local function Entity(inst, v)
 	local d = {}
+
 	d.GUID = v.GUID
 	d.Prefab = v.prefab
+	d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
+
 	d.Collectable = v:HasTag("pickable") -- PICK
-	d.Pickable = v.components.inventoryitem and v.components.inventoryitem.canbepickedup -- PICKUP
+	d.Cooker = v:HasTag("cooker")
+	d.Cookable = v:HasTag("cookable")
 	d.Edible = inst.components.eater:CanEat(v)
 	d.Equippable = v:HasTag("_equippable")
+	d.Fuel = v:HasTag("BURNABLE_fuel")
+	d.Fueled = v:HasTag("BURNABLE_fueled")
+	d.Grower = v:HasTag("grower")
+	d.Harvestable = v:HasTag("readyforharvest") or (v.components.stewer and v.components.stewer:IsDone())
+	d.Pickable = v.components.inventoryitem and v.components.inventoryitem.canbepickedup and not v:HasTag("heavy") -- PICKUP
+	d.Stewer= v:HasTag("stewer")
+
 	d.Choppable = v:HasTag("CHOP_workable")
 	d.Diggable = v:HasTag("DIG_workable")
 	d.Hammerable = v:HasTag("HAMMER_workable")
 	d.Mineable = v:HasTag("MINE_workable")
-	d.Fuel = v:HasTag("BURNABLE_fuel")
-	d.Fueled = v:HasTag("BURNABLE_fueled")
-	d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
-	d.Quantity = v.components.stackable ~= nil and v.components.stackable:StackSize() or 1
 
+	d.X, d.Y, d.Z = v.Transform:GetWorldPosition()
 	return d
 end
 
@@ -108,19 +117,19 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 			if action and action.Type then
 				if action.Type == "Action" then
 					if self.CurrentAction == nil or (self.CurrentAction.WFN ~= action.WFN or self.CurrentAction.Target ~= action.Target) then 
-						print(action.WFN .. " = " .. action.Target)
 						self.inst:InterruptBufferedAction()
 						self.inst.components.locomotor:Clear()
 						self.CurrentAction = action
 					end
-					--Otherwise the action is the same as the one being executed, so tehere is no need to override it
+					--Otherwise the action is the same as the one being executed, so there is no need to override it
 				elseif action.Type == "Speak" then
-					-- Speak Action are made the moment they are received. They only occur every SPEAKACTION_INTERVAL seconds
+					-- Speak Action are made the moment they are received. They only occur every SPEAKACTION_INTERVAL seconds with a percentage of SPEAKACTION_PROB
 					-- Speak([cs],[ns],[m],[sty]) = [t]
-					print(action.Type .. " = " .. action.Utterance)
-					self.inst.components.talker:Say(action.Utterance)
-					-- Tell FAtiMA that the action has ended
-					self:OnActionEndEvent(action.Name, action.Target)
+					if math.random(100) < GetModConfigData("speak-chance", KnownModIndex:GetModActualName("FAtiMA-DST")) then
+						self.inst.components.talker:Say(action.Utterance)
+						-- Tell FAtiMA that the action has ended
+						self:OnActionEndEvent(action.Name, action.Target)
+					end
 				end
 			end
 		end
@@ -157,8 +166,8 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 		self:OnPropertyChangedEvent("World(PhaseLenght, dusk)", data.dusk) 
 		self:OnPropertyChangedEvent("World(PhaseLenght, night)", data.night) 
 	end
-	self.OnEnterDark = function(inst, data) self:OnPropertyChangedEvent("Light(Walter)", "dark") end
-	self.OnEnterLight = function(inst, data) self:OnPropertyChangedEvent("Light(Walter)", "light") end
+	self.OnEnterDark = function(inst, data) self:OnPropertyChangedEvent("InLight(Walter)", "False") end
+	self.OnEnterLight = function(inst, data) self:OnPropertyChangedEvent("InLight(Walter)", "True") end
 	self.OnCycles = function(inst, cycles) if cycles ~= nil then self:OnPropertyChangedEvent("World(Cycle)", cycles + 1) end end
 	self.OnPhase = function(inst, phase) self:OnPropertyChangedEvent("World(Phase)", phase) end
 	self.OnMoonPhase = function(inst, moonphase) self:OnPropertyChangedEvent("World(MoonPhase)", moonphase) end
@@ -221,7 +230,12 @@ function FAtiMABrain:Perceptions()
     data.IsFreezing = self.inst:IsFreezing()
     data.IsOverHeating = self.inst:IsOverheating()
     data.Moisture = self.inst:GetMoisture()
-	data.IsBusy = (self.CurrentAction or false) and true
+	if (self.CurrentAction ~= nil and self.CurrentAction.Type == "Action" and self.CurrentAction.Action == "WANDER") or 
+		(self.CurrentAction == nil) then 
+		data.IsBusy = false
+	else
+		data.IsBusy = true
+	end
 	data.PosX, data.PosY, data.PosZ = self.inst.Transform:GetWorldPosition()
 
     TheSim:QueryServer(
@@ -244,7 +258,6 @@ function FAtiMABrain:OnActionEndEvent(name, value)
 	d.Name = name
 	d.Value = value
 	d.Subject = "Walter"
-	print("Event(" .. d.Type .. ", " .. d.Name .. ", " .. d.Value .. ", " .. d.Subject .. ")")
 	TheSim:QueryServer(
         self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/events",
         self.OnEventCallback,
@@ -258,7 +271,6 @@ function FAtiMABrain:OnPropertyChangedEvent(name, value)
 	d.Name = name
 	d.Value = value
 	d.Subject = "Walter"
-	print(d.Name .. " = ", d.Value)
 	TheSim:QueryServer(
         self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/events",
         self.OnEventCallback,
@@ -272,7 +284,6 @@ function FAtiMABrain:OnDeleteEntity(GUID)
 	d.Name = ""
 	d.Value = GUID
 	d.Subject = "Walter"
-	print("Delete-Entity(" .. GUID .. ")")
 	TheSim:QueryServer(
         self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/events",
         self.OnEventCallback,
@@ -327,11 +338,12 @@ function FAtiMABrain:OnStart()
     -----------------------
     ---- World Watchers ---
     -----------------------
-	-- EntityScript:WatchWorldState(var, fn)
+	-- EntityScript:ListenForEvent(event, fn, source)
 	self.inst:ListenForEvent("enterdark", self.OnEnterDark)
 	self.inst:ListenForEvent("enterlight", self.OnEnterLight)
 	self.inst:ListenForEvent("clocksegschanged", self.OnClockSegsChanged, TheWorld)
 	self.inst:ListenForEvent("clocktick", self.OnClockTick, TheWorld) -- this is called so often there is no need to initialize
+	-- EntityScript:WatchWorldState(var, fn)
 	self.inst:WatchWorldState("cycles", self.OnCycles)
 	self.inst:WatchWorldState("phase", self.OnPhase)
 	self.inst:WatchWorldState("moonphase", self.OnMoonPhase)
@@ -374,7 +386,7 @@ function FAtiMABrain:OnStart()
     local root = 
         PriorityNode(
         {
-            IfNode(function() return (self.CurrentAction ~= nil and self.CurrentAction.Type == "Action") end, "IfAction",
+            IfNode(function() return (self.CurrentAction ~= nil and self.CurrentAction.Type == "Action" and self.CurrentAction.Action ~= "WANDER") end, "IfAction",
                 DoAction(self.inst, 
 					-- BufferedAction(Doer, Target, Action, InvObject, Pos, Recipe)
 					function() 
@@ -420,6 +432,9 @@ function FAtiMABrain:OnStart()
 					"DoAction", 
 					true)
 				-- Close DoAction
+			),
+			WhileNode(function() return (self.CurrentAction ~= nil and self.CurrentAction.Type == "Action" and self.CurrentAction.Action == "WANDER") end, "Wander",
+				Wander(self.inst, nil, nil, { minwalktime = 5, randwalktime = 1, minwaittime = 1,	randwaittime = 1})
 			)
         }, 1)
     self.bt = BT(self.inst, root)

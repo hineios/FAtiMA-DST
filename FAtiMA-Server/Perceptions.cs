@@ -145,7 +145,7 @@ namespace FAtiMA_Server
                 {
                     bv = rpc.GetBeliefValue("InInventory(" + i.GUID + ")");
                     if (bv == null || !bv.Equals("True"))
-                        rpc.Perceive(EventHelper.PropertyChange("InInventory(" + i.GUID + ")", "TRUE", rpc.CharacterName.ToString()));
+                        rpc.Perceive(EventHelper.PropertyChange("InInventory(" + i.GUID + ")", "True", rpc.CharacterName.ToString()));
                     i.UpdatePerception(rpc);
                 }
             }

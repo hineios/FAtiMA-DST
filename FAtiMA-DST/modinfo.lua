@@ -1,8 +1,8 @@
 -- This information tells other players more about the mod
 name = "FAtiMA-DST"
-description = "Build your agents using FAtiMA and play with them in Don't Starve Together."
+description = "Play the game with Walter, Wilson's younger twin brother.\nDon't forget you need to run the companion console application!\n\nGet it from:\n https://github.com/hineios/FAtiMA-DST/releases"
 author = "Hineios"
-version = "1.3"
+version = "1.4"
 --version_compatible = "1.7"
 
 -- This is the URL name of the mod's thread on the forum; the part after the index.php? and before the first & in the URL
@@ -10,14 +10,14 @@ version = "1.3"
 -- http://forums.kleientertainment.com/index.php?/files/file/202-sample-mods/
 -- becomes
 -- /files/file/202-sample-mods/
-forumthread = ""
+forumthread = "topic/86495-fatima-dst-an-ai-framework/"
 
 -- This lets other players know if your mod is out of date, update it to match the current version in the game
 api_version = 10
 
 ---- Can specify a custom icon for this mod!
---icon_atlas = "modicon.xml"
---icon = "modicon.tex"
+icon_atlas = "modicon.xml"
+icon = "modicon.tex"
 
 --This lets the clients know that they need to download the mod before they can join a server that is using it.
 all_clients_require_mod = true
@@ -36,58 +36,30 @@ server_filter_tags = {"ai"}
  configuration_options =
  {
      {
-         name = "Killed",
-         label = "'killed'",
+         name = 'fatima-character-num',
+         label = 'Number of characters',
+		 hover = 'The number of characters that will be added to the game.',
          options = 
          {
-             {description = "False", data = false},
-			 {description = "True", data = true}
+             {description = "0 characters", data = 0},
+			 {description = "1 character", data = 1},
+			 {description = "2 characters", data = 2},
              
          },
-         default = false,
+         default = 0,
      },
 	 {
-         name = "Death",
-         label = "'death'",
+         name = 'speak-chance',
+         label = 'Speak Chance',
+		 hover = 'The probability of the character making random remarks about the world.',
          options = 
          {
-             {description = "False", data = false},
-			 {description = "True", data = true}
-             
+             {description = "30%", data = 30},
+			 {description = "40%", data = 40},
+			 {description = "50%", data = 50},
+			 {description = "60%", data = 60},
+             {description = "70%", data = 70},
          },
-         default = false,
+         default = 40,
      },
-	 {
-         name = "Attacked",
-         label = "'attacked'",
-         options = 
-         {
-             {description = "False", data = false},
-			 {description = "True", data = true}
-             
-         },
-         default = false,
-     },
-	 {
-         name = "MissOther",
-         label = "'onmissother'",
-         options = 
-         {
-             {description = "False", data = false},
-			 {description = "True", data = true}
-             
-         },
-         default = false,
-     },
-	 {
-         name = "HitOther",
-         label = "'onhitother'",
-         options = 
-         {
-             {description = "False", data = false},
-			 {description = "True", data = true}
-             
-         },
-         default = false,
-     }
 }

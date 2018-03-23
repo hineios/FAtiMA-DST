@@ -6,28 +6,20 @@ GLOBAL.require 'debughelpers'
 local ArtificalWalterEnabled = false
 
 local function SetSelfAI()
-	print("Enabling Artificial Walter")
-
 	local brain = GLOBAL.require "brains/fatimabrain"
 	GLOBAL.ThePlayer:SetBrain(brain)
 	GLOBAL.ThePlayer:RestartBrain()
-	
 	ArtificalWalterEnabled = true
-
 end
 
 local function SetSelfNormal()
-	print("Disabling Artifical Walter")
-	
 	local brain = GLOBAL.require "brains/wilsonbrain"
 	GLOBAL.ThePlayer:SetBrain(brain)
 	GLOBAL.ThePlayer:RestartBrain()
-
 	ArtificalWalterEnabled = false
 end
 
 local function MakeClickableBrain(self, owner)
-
 	local BrainBadge = self
 	
     BrainBadge:SetClickable(true)
@@ -55,7 +47,7 @@ local function MakeClickableBrain(self, owner)
 	end
 	
 	BrainBadge.OnMouseButton = function(self,button,down,x,y)	
-		if down == true then
+		if down == true and GLOBAL.TheWorld.ismastersim then
 			if ArtificalWalterEnabled then
 				self.owner.BrainPulse:Cancel()
 				BrainBadge.anim:GetAnimState():SetMultColour(1,1,1,1)
@@ -70,5 +62,36 @@ end
 
 AddClassPostConstruct("widgets/sanitybadge", MakeClickableBrain)
 
+local function FindPortal()
+	local ents = GLOBAL.TheSim:FindEntities(0, 0, 0, 10000, {"antlion_sinkhole_blocker"}) 
+    for i, v in ipairs(ents) do
+        if v.entity:IsVisible() and v.prefab == "multiplayer_portal" then
+            return v
+        end
+    end
+end
 
--- if GetModConfigData("option name", KnownModIndex:GetModActualName("FAtiMA-DST")) then stuff end
+AddSimPostInit(function ()
+	if GLOBAL.TheWorld.ismastersim and GetModConfigData('fatima-character-num') > 0 then 
+
+		-- Find the Portal
+		local portal = FindPortal()
+
+		-- Spawn the characters required in the mod config
+		local i = 0
+		while i < GetModConfigData("fatima-character-num") do
+			local char = GLOBAL.SpawnPrefab("wilson")
+
+			char:AddTag("FAtiMA-Brain")
+		
+			-- Move Spawned characters near the portal
+			char.Transform:SetPosition(portal.Transform:GetWorldPosition())
+
+			local brain = GLOBAL.require "brains/fatimabrain"
+			char:SetBrain(brain)
+			char:RestartBrain()
+			i = i + 1
+		end
+
+	end
+end)
