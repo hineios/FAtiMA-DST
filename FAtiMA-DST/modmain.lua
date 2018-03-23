@@ -9,7 +9,6 @@ local function SetSelfAI()
 	local brain = GLOBAL.require "brains/fatimabrain"
 	GLOBAL.ThePlayer:SetBrain(brain)
 	GLOBAL.ThePlayer:RestartBrain()
-	
 	ArtificalWalterEnabled = true
 end
 
@@ -17,7 +16,6 @@ local function SetSelfNormal()
 	local brain = GLOBAL.require "brains/wilsonbrain"
 	GLOBAL.ThePlayer:SetBrain(brain)
 	GLOBAL.ThePlayer:RestartBrain()
-
 	ArtificalWalterEnabled = false
 end
 
@@ -74,11 +72,10 @@ local function FindPortal()
 end
 
 AddSimPostInit(function ()
-	if GLOBAL.TheWorld.ismastersim and GetModConfigData('fatima-character-num') then 
+	if GLOBAL.TheWorld.ismastersim and GetModConfigData('fatima-character-num') > 0 then 
 
 		-- Find the Portal
 		local portal = FindPortal()
-		
 
 		-- Spawn the characters required in the mod config
 		local i = 0

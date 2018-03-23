@@ -54,16 +54,21 @@ namespace FAtiMA_Server
             * */
             rpc.RemoveBelief("Entity(" + Value + ")", "SELF");
             rpc.RemoveBelief("Quantity(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsCollectable(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsCooker(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsCookable(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsEdible(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsEquippable(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsFuel(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsFueled(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsGrower(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsHarvestable(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsPickable(" + Value + ")", "SELF");
+            rpc.RemoveBelief("IsStewer(" + Value + ")", "SELF");
             rpc.RemoveBelief("IsChoppable(" + Value + ")", "SELF");
             rpc.RemoveBelief("IsHammerable(" + Value + ")", "SELF");
             rpc.RemoveBelief("IsDiggable(" + Value + ")", "SELF");
             rpc.RemoveBelief("IsMineable(" + Value + ")", "SELF");
-            rpc.RemoveBelief("IsPickable(" + Value + ")", "SELF");
-            rpc.RemoveBelief("IsCollectable(" + Value + ")", "SELF");
-            rpc.RemoveBelief("IsEquippable(" + Value + ")", "SELF");
-            rpc.RemoveBelief("IsFuel(" + Value + ")", "SELF");
-            rpc.RemoveBelief("IsFueled(" + Value + ")", "SELF");
-            rpc.RemoveBelief("IsEdible(" + Value + ")", "SELF");
             rpc.RemoveBelief("PosX(" + Value + ")", "SELF");
             rpc.RemoveBelief("PosZ(" + Value + ")", "SELF");
         }

@@ -14,8 +14,8 @@ This integration has two components: **FAtiMA-Server** and **FAtiMA-DST**. The f
 
 To create an agent you'll need to follow these general steps.
 
-1. Write a Role Play Character (RPC) using the FAtiMA Authoring Tools (check the FAtiMA-Toolkit page for more information) and place all it's files in the same folder as the **FAtiMA-Server** console application.
-2. Get the **FAtiMA-DST** mod from the workshop. (currently the mod is not yet published, copy the FAtiMA-DST folder into the the game's mods folder)
+1. Write a Role Play Character (RPC) using the FAtiMA Authoring Tools (check the FAtiMA-Toolkit page for more information) and place all it's files (.rpc, .edm, etc...) in the folder **Example Character**, under **FAtiMA-Server** console application.
+2. Get the **FAtiMA-DST** mod from the workshop.
 3. Launch **FAtiMA-Server** console application.
 4. Launch a game with the **FAtiMA-DST** mod enabled.
 
@@ -31,7 +31,7 @@ The values enclosed in square brackets represent variables.
 
 #### Agent's State
 
-These beliefs represent the agent's state, what he is seeing, carrying and using.
+These beliefs represent the agent's state, what he is seeing, carrying and has equipped.
 
 |Belief|Description|
 |:---|:---|
@@ -45,10 +45,10 @@ These beliefs represent the agent's state, what he is seeing, carrying and using
 |`IsBusy([name]) = [bool]`|Describes if the agent (*name*) is currently executing any action|
 |`PosX([name]) = [value]`|The agent's (*name*) current X position|
 |`PosZ([name]) = [value]`|The agent's (*name*) current Y position|
+|`InLight([name]) = [bool]`|Defines if the agent (*name*) is in the light or darkness.|
 |`InSight([GUID]) = [bool]`|What the agent (*name*) is currently seeing|
 |`InInventory([GUID]) = [bool]`|What the agent (*name*) has in his inventory|
-|`IsEquipped([GUID], [slot]) = [bool]`|What the agent (*name*) has equipped in which *slot*|
-|`Light([name]) = [value]`|Defines if the agent (*name*) is in the light or darkness. *value* can be 'light' or 'dark'|
+|`IsEquipped([GUID]) = [bool]`|What the agent (*name*) has equipped in which *slot*|
 
 #### World's State
 
@@ -58,19 +58,23 @@ These beliefs represent information about the world and should be used in addict
 |:---|:---|
 |`Entity([GUID]) = [prefab]`|Defines an entity what they are (*prefab*)|
 |`Quantity([GUID]) = [quantity]`|Defines how big is the stack (*quantity*) of a given entity|
-|`IsChoppable([GUID]) = [bool]`|True if the given entity is workable by an axe|
-|`IsDiggable([GUID]) = [bool]`|True if the given entity is workable by a shovel|
-|`IsHammerable([GUID]) = [bool]`|True if the given entity is workable by an hammer|
-|`IsMineable([GUID]) = [bool]`|True if the given entity is workable by a pick|
-|`IsPickable([GUID]) = [bool]`|True if the given entity is pickable (pick stuff from the ground). *PICKUP* action|
 |`IsCollectable([GUID]) = [bool]`|True if the given entity is pickable (collect natural resources). *PICK* action|
+|`IsCooker([GUID]) = [bool]`|True if the given entity can cook other entities. *COOK* action|
+|`IsCookable([GUID]) = [bool]`|True if the given entity can be cooked. *COOK* action|
+|`IsEdible([GUID]) = [true]`|True if the entity may be eaten by the curent character (it takes into account the character's diet). *EAT* action|
 |`IsEquippable([GUID]) = [bool]`|True if the given entity may be equipped. *EQUIP* action|
-|`IsFuel([GUID]) = [bool]`|True if the given entity may be used to fuel stuff|
-|`IsFueled([GUID]) = [bool]`|True if the given entity requires fuel to function|
-|`IsEdible([GUID]) = [type]`|True if the entity may be eaten by the curent character|
+|`IsFuel([GUID]) = [bool]`|True if the given entity may be used to fuel stuff. *FUEL* action|
+|`IsFueled([GUID]) = [bool]`|True if the given entity requires fuel to function. *FUEL* action|
+|`IsGrower([GUID]) = [bool]`|True if the given entity can be used to grow seeds. *PLANT* action|
+|`IsHarvestable([GUID]) = [bool]`|True if the given entity is ready to be harvested. *HARVEST* action|
+|`IsPickable([GUID]) = [bool]`|True if the given entity is pickable (pick stuff from the ground). *PICKUP* action|
+|`IsStewer([GUID])= [bool]`|True if the given entity can take other entities to cook recipes|
+|`IsChoppable([GUID]) = [bool]`|True if the given entity is workable by an axe. *CHOP* action|
+|`IsDiggable([GUID]) = [bool]`|True if the given entity is workable by a shovel. *DIG* action|
+|`IsHammerable([GUID]) = [bool]`|True if the given entity is workable by an hammer. *HAMMER* action|
+|`IsMineable([GUID]) = [bool]`|True if the given entity is workable by a pick. *MINE* action|
 |`PosX([GUID]) = [value]`|Defines the X coordinate (*value*) of an entity|
 |`PosZ([GUID]) = [value]`|Defines the Z coordinate (*value*) of an entity|
-
 |`World(CurrentSegment) = [value]`|The current segment, ranges between 0 and 15|
 |`World(Cycle) = [value]`|Defines how many cycles (days) have passed since the start of the game|
 |`World(Phase) = [value]`|Defines the phase of the day. *value* can be: 'day', 'dusk', or 'night'|
@@ -89,7 +93,7 @@ These beliefs represent information about the world and should be used in addict
 
 ### Events
 
-In addition to the Beliefs, we also provide a way to listen to in-game events and register them in FAtiMA, e.g. whenever something is killed, DST does a 'killed' event which can be listened to and registered as a FAtiMA event by simply enabling it on the mod configurations (by default all event listening is turned off).
+In addition to the Beliefs, we also provide a way to listen to in-game events, e.g. whenever something is killed, DST does a 'killed' event which is registered as a FAtiMA event.
 
 |Event|Description|
 |:----:|:---|
@@ -106,7 +110,7 @@ In addition to the Beliefs, we also provide a way to listen to in-game events an
 
 `Action([action], [invobject], [posx], [posz], [recipe]) = [target]`
 
-Even if an action those not requires a specific parameter you must specify it as `-`.
+Even if an action does not requires a specific parameter you must specify it as `-`.
 
 #### Understanding the Actions
 
