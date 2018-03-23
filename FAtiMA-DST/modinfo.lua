@@ -1,8 +1,8 @@
 -- This information tells other players more about the mod
-name = "FAtiMA-DST"
+name = "Walter - The AI Companion"
 description = "Play the game with Walter, Wilson's younger twin brother.\nDon't forget you need to run the companion console application!\n\nGet it from:\n https://github.com/hineios/FAtiMA-DST/releases"
 author = "Hineios"
-version = "1.4"
+version = "1.6"
 --version_compatible = "1.7"
 
 -- This is the URL name of the mod's thread on the forum; the part after the index.php? and before the first & in the URL
@@ -46,7 +46,7 @@ server_filter_tags = {"ai"}
 			 {description = "2 characters", data = 2},
              
          },
-         default = 0,
+         default = 1,
      },
 	 {
          name = 'speak-chance',
