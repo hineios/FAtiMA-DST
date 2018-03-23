@@ -1,6 +1,6 @@
 # FAtiMA-DST
 Use [FAtiMA-Toolkit](https://github.com/GAIPS-INESC-ID/FAtiMA-Toolkit) to create agents for [Don't Starve Together](http://store.steampowered.com/app/322330/Dont_Starve_Together/).
-
+This repository contains the source code for the Steam's Workshop mod [FAtiMA-DST](http://steamcommunity.com/sharedfiles/filedetails/?id=1339264854).
 This repository aims to provide an integration of FAtiMA-Toolkit with Don't Starve Together (DST), allowing anybody to create agents for DST.
 
 **Notes**:
@@ -8,22 +8,22 @@ This repository aims to provide an integration of FAtiMA-Toolkit with Don't Star
 - Although not a prerequisite, some knowledge of the game will be helpful.
 - DST modding is encouraged and completely accepted by the game developers, however, there is no documentation whatsoever. Luckily, every line of code is available in the game directory. I recommend the use of an editor that supports the *Search in files* functionality. You won't need to make any mod for the game, but you'll eventually need to search the game files to understand the actions and how everything works. Check the Understanding the Actions section.
 
-## Creating an agent
+## Running the mod
 
 This integration has two components: **FAtiMA-Server** and **FAtiMA-DST**. The former is a C# console application that will run FAtiMA, and the latter is a mod for DST that will control the character. You can think of **FAtiMA-Server** has the brains of the agents and **FAtiMA-DST** has the body.
 
-To create an agent you'll need to follow these general steps.
+To launch an agent you'll need to follow these general steps.
 
-1. Write a Role Play Character (RPC) using the FAtiMA Authoring Tools (check the FAtiMA-Toolkit page for more information) and place all it's files (.rpc, .edm, etc...) in the folder **Example Character**, under **FAtiMA-Server** console application.
-2. Get the **FAtiMA-DST** mod from the workshop.
-3. Launch **FAtiMA-Server** console application.
-4. Launch a game with the **FAtiMA-DST** mod enabled.
+1. Subscribe to the **FAtiMA-DST** mod from the [workshop](http://steamcommunity.com/sharedfiles/filedetails/?id=1339264854).
+2. Download and launch **FAtiMA-Server** [console application](https://github.com/hineios/FAtiMA-DST/releases).
+3. Launch a game with the **FAtiMA-DST** mod enabled.
 
 ## Creating an Agent
 
 FAtiMA-Toolkit provides tools to create agents for any scenario. For this particular scenario, there are some restrictions you'll need to understand and that I will introduce bellow.
 
-Currently, if you want to create an Agent for Don't Starve Together, you have to write a Role Play Character for FAtiMA.
+Currently, if you want to create an Agent for Don't Starve Together, you have to write a Role Play Character (RPC) using the FAtiMA Authoring Tools (check the FAtiMA-Toolkit page for more information) and place all it's files (.rpc, .edm, etc...) in the folder **Example Character**, under **FAtiMA-Server** console application.
+Ensure that the *.rpc* file is named **walter.rpc**, this is **crucial!** (and a limitation, future versions will provide ways to specify the RPC you want to use).
 I encourage you to check out the example character available in this repository.
 For now, if you want to run your own character you'll have to ovewrite the existing one under the *Example Character* folder (just rename the existing files and create your ones with the original name).
 
@@ -184,3 +184,14 @@ For a complete list of actions available in the game check [this](https://gist.g
 |`Action(WANDER, -, -, -, -) = -`|`{}`|This is a the behaviour of wandering about the world, not really an action|
 |`Action(WALKTO, -, -, -, -) = [target]`|`{target: GUID}`|Walk up to the *target*|
 
+## Limitations and Considerations
+
+The current beliefs used to represent the agent's state and the world are the necessary to develop simple behaviour and have some limitations.
+The interaction with containers (fridges and chests), for example, isn't the easiest to achieve using the current set of beliefs.
+However, the addition of new beliefs should be simple to achieve, should you read the current source code.
+
+Nonetheless, this work represents a starting point for enpowering characters with autonomous behaviour in the world of Don't Starve Together using state of the art artificial intelligence technologies such as the FAtiMA Toolkit.
+Ideally, such a system would be a part of the game itself, but due to limitiations on importing of external ddl's into the game, I've chosen to take this approach of using HTTP communication (which is less than ideal).
+
+Taking this into account, be free to develop you own agents using this project and, if you wish to, fork this project to do whatever you want.
+I also encourage you to look at the [work](https://github.com/KingofTown/DS-AI) from KingOfTown, which uses the built in Behaviour Trees to give autonomous behaviour to the game's characters.
