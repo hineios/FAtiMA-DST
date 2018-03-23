@@ -19,9 +19,13 @@ To create an agent you'll need to follow these general steps.
 3. Launch **FAtiMA-Server** console application.
 4. Launch a game with the **FAtiMA-DST** mod enabled.
 
-## Creating a RPC
+## Creating an Agent
 
-FAtiMA-Toolkit provides tools to create agents for any scenarios. For this particular scenario, there are some restrictions you'll need to understand before you can write your agent.
+FAtiMA-Toolkit provides tools to create agents for any scenario. For this particular scenario, there are some restrictions you'll need to understand and that I will introduce bellow.
+
+Currently, if you want to create an Agent for Don't Starve Together, you have to write a Role Play Character for FAtiMA.
+I encourage you to check out the example character available in this repository.
+For now, if you want to run your own character you'll have to ovewrite the existing one under the *Example Character* folder (just rename the existing files and create your ones with the original name).
 
 ### Beliefs
 
@@ -45,10 +49,10 @@ These beliefs represent the agent's state, what he is seeing, carrying and has e
 |`IsBusy([name]) = [bool]`|Describes if the agent (*name*) is currently executing any action|
 |`PosX([name]) = [value]`|The agent's (*name*) current X position|
 |`PosZ([name]) = [value]`|The agent's (*name*) current Y position|
-|`InLight([name]) = [bool]`|Defines if the agent (*name*) is in the light or darkness.|
+|`InLight([name]) = [bool]`|Defines if the agent (*name*) is in the light or darkness|
 |`InSight([GUID]) = [bool]`|What the agent (*name*) is currently seeing|
 |`InInventory([GUID]) = [bool]`|What the agent (*name*) has in his inventory|
-|`IsEquipped([GUID]) = [bool]`|What the agent (*name*) has equipped in which *slot*|
+|`IsEquipped([GUID]) = [bool]`|What the agent (*name*) has equipped|
 
 #### World's State
 
@@ -93,7 +97,8 @@ These beliefs represent information about the world and should be used in addict
 
 ### Events
 
-In addition to the Beliefs, we also provide a way to listen to in-game events, e.g. whenever something is killed, DST does a 'killed' event which is registered as a FAtiMA event.
+In addition to the Beliefs, there are also in-game events that the agent listens to, e.g. whenever something is killed, DST does a 'killed' event which is registered as a FAtiMA event.
+These are the currently supported events.
 
 |Event|Description|
 |:----:|:---|
@@ -117,68 +122,65 @@ Even if an action does not requires a specific parameter you must specify it as 
 Whenever you want to better understand a specific action, you should look for it in the **actions.lua** script and see what it checks and does. Eventually you'll need to dig into the **components** folder and search in those scripts.
 
 The following table presents a list of actions that agents can perform. This list has been slightly curated from the complete list of available actions in DST (these actions were taken from the **actions.lua** script) to exclude actions not available to characters.
-
 For a complete list of actions available in the game check [this](https://gist.github.com/hineios/2160d86d2c3ebd6aa594f4a00d041ca6).
 
-|Actions|Required Params|Restrictions|Description|
-|:---:|:---:|:---:|:---|
-|ACTIVATE|`{target: GUID}`|target: *activatable*|Interact with some game elements. Useful to investigate *dirtpiles*|
-|ADDFUEL|`{target: GUID, invobject: GUID}`|target: *fuel*, invobject: *fueled*|Add fuel to fueled entities (campfire, firesupressor)|
-|ATTACK|`{target: GUID}`||Attack other entities.|
-|BAIT|`{target: GUID, invobject: GUID}`|target: *trap*|Put bait on traps|
-|BUILD|`{recipe:, pos: ,rotation: ,skin: }`||Depending on weather you are crafting an item or placing a structure you'll need to pass a value to the *pos* parameter|
-|CASTSPELL|`{target: GUID}`||Use staves. Equiped Hand slot must have the *spellcaster* component|
-|CATCH|`{}`||boomerang!|
-|CHECKTRAP|`{target: GUID}`|target: *trap*|Harvest trap|
-|CHOP|`{target: GUID, invobject: GUID}`|target: *workable*, invobject: can work target |Chop trees|
-|COMBINESTACK|`{target: GUID, invobject: GUID}`|target: *stackable*, invobject: same *prefab* as target|Combines invobject into target if it is the same prefab and target is not full|
-|COOK|`{target: GUID, invobject: GUID}`|target: *cooker*, invobject: must be ||
-|CREATE|`{}`||Needs to be reviewed|
-|DEPLOY|`{invobject: GUID, pos: (x, y, z)}`|invobject: *deployable*, pos: valid position|Place ground tile, walls, fences, and gates|
-|DIG|`{target: GUID, invobject: GUID}`|target: *workable*, invobject: can work target|Dig grass, twigs, rabbit holes, graves, and others from the ground|
-|DROP|`{invobject: GUID, pos: (x, y, z)}`|invobject: must be in inventory, pos: valid position|Drop held item to a spot in the ground|
-|DRY|`{target: GUID}`|target: *dryer*, invobject: |Dry meat at racks|
-|EAT|`{target: GUID}`|target: *edible*|Eat food|
-|EQUIP|`{}`|||
-|EXTINGUISH|`{}`||extinguish using object|
-|FEED|`{}`|||
-|FEEDPLAYER|`{}`|||
-|FERTILIZE|`{}`|||
-|FILL|`{}`||fill mosquito sack|
-|FISH|`{}`|||
-|GIVE|`{}`|||
-|GIVEALLTOPLAYER|`{}`|||
-|GIVETOPLAYER|`{}`|||
-|HAMMER|`{target: GUID, invobject: GUID}`|target: *workable*, invobject: can work target|Hammer down built structures|
-|HARVEST|`{}`||harvest crops|
-|HEAL|`{}`|||
-|JUMPIN|`{}`|||
-|LIGHT|`{}`|||
-|LOOKAT|`{}`|||
-|MANUALEXTINGUISH|`{}`||use your hands to try and extinguish fires|
-|MINE|`{target: GUID, invobject: GUID}`|target: *workable*, invobject: can work target|Mine rocks, sinkholes, glassiers, and **rock with gold**|
-|MOUNT|`{}`|||
-|MURDER|`{}`|||
-|NET|`{}`||Use nets to catch bugs!|
-|PICK|`{}`||pick grass|
-|PICKUP|`{}`||pick up backpack|
-|PLANT|`{}`|||
-|REEL|`{}`|||
-|RESETMINE|`{}`|||
-|RUMMAGE|`{}`||open container|
-|SADDLE|`{}`||saddle rideable|
-|SEW|`{}`|||
-|SHAVE|`{}`|||
-|SLEEPIN|`{}`|||
-|SMOTHER|`{}`||put out stuff about to burst into flames |
-|STORE|`{}`||store item container|
-|TAKEITEM|`{}`||take brid from cage|
-|TERRAFORM|`{}`|||
-|TURNOFF|`{}`|||
-|TURNON|`{}`|||
-|UNEQUIP|`{}`|||
-|UNPIN|`{}`|||
-|UNSADDLE|`{}`|||
-|UPGRADE|`{}`|||
-|USEITEM|`{}`||hats|
-|WALKTO|`{}`|||
+|Actions|Restrictions|Description|
+|:---:|:---:|:---|
+|`Action(ACTIVATE, -, -, -, -) = [target]`|`{target: GUID}`|Interact with some game elements|
+|`Action(ADDFUEL, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Add fuel to fueled entities (campfire, firesupressor)|
+|`Action(ATTACK, -, -, -, -) = [target]`|`{target: GUID}`|Attack other entities|
+|`Action(BAIT, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Put bait on traps|
+|`Action(BUILD, -, [x], [z], [recipe]) = `|`{([x], [z]): position, recipe: recipe's name}`|Depending on weather you are crafting an item or placing a structure you'll need to pass a value to the *(x, z)* parameters|
+|`Action(CASTSPELL, [invobject], -, -, -) = [target]`|`{invobject:GUID, target: GUID}`|Cast magic item at *target*. If *invobject* is not specified, the equipped item is used.|
+|`Action(CHECKTRAP, -, -, -, -) = [target]`|`{target: GUID}`|Check if the given trap has caught anything|
+|`Action(CHOP, -, -, -, -) = [target]`|`{target: GUID}`|Chop trees, an axe must be equipped in order to use|
+|`Action(COMBINESTACK, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Combines the given *invobject* into *target* if it is the same prefab and target is not full|
+|`Action(COOK, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Cook *invobject* at the specified *target*|
+|`Action(DEPLOY, [invobject], [x], [z], -) = -`|`{invobject: GUID, ([x], [z]): position}`|Place ground tile, walls, fences, and gates|
+|`Action(DIG, -, -, -, -) = [target]`|`{target: GUID}`|Dig grass, twigs, rabbit holes, graves, and others from the ground|
+|`Action(DROP, [invobject], [x], [Z], -) = -`|`{invobject: GUID, ([x], [z]): position}`|Drop held item to a spot in the ground|
+|`Action(DRY, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Dry meat at racks|
+|`Action(EAT, -, -, -, -) = [target]`|`{target: GUID}`|Eat food|
+|`Action(EQUIP, [invobject], -, -, -) = -`|`{invobject: GUID}`|Equip an item that is in the character's inventory|
+|`Action(EXTINGUISH, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Use the *invobject* to extinguish the burning *target*|
+|`Action(FEED, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Feed the *invobject* to the *target*|
+|`Action(FEEDPLAYER, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Feed the player (*target*) with *invobject* (might work the same has the above)|
+|`Action(FERTILIZE, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Use *invobject* to Fertilize the *target*|
+|`Action(FILL, [invobject], -, -, -) = [target]`|`{invobject: GUID}, target:GUID`|Fill the mosquito sack (*invobject*) at a pond (*target*)|
+|`Action(FISH, -, -, -, -) = [target]`|`{target: GUID}`|Use a fishing rod (must be equipped) to fish in a pond (*target*)|
+|`Action(GIVE, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Give *invobject* to *target*|
+|`Action(GIVEALLTOPLAYER, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Give all of *invobject* to player (*target*)|
+|`Action(GIVETOPLAYER, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Give *invobject* to player (*target*) (Not sure on the difference of these three actions)|
+|`Action(HAMMER, -, -, -, -) = [target]`|`{target: GUID}`|Hammer down built structures (*target*)|
+|`Action(HARVEST, -, -, -, -) = [target]`|`{target: GUID}`|Harvest crops and cookpots|
+|`Action(HEAL, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Use *invobject* to heal the *target*|
+|`Action(JUMPIN, -, -, -, -) = [target]`|`{target: GUID}`|Jump into wormhole (*target*)|
+|`Action(LIGHT, -, -, -, -) = [target]`|`{target: GUID}`|Set the *target* on fire (must have a torch equipped)|
+|`Action(LOOKAT, -, -, -, -) = [target]`|`{target: GUID}`|Face the *target*|
+|`Action(MANUALEXTINGUISH, -, -, -, -) = [target]`|`{target: GUID}`|Use your hands to try and extinguish fires|
+|`Action(MINE, -, -, -, -) = [target]`|`{target: GUID}`|Mine rocks, sinkholes, glassiers, etc (must have a pickaxe equipped)|
+|`Action(MOUNT, -, -, -, -) = [target]`|`{target: GUID}`|Mount a saddled mount (*target*)|
+|`Action(MURDER, -, -, -, -) = [target]`|`{target: GUID}`|Murder targeted inocent creature (e.g. rabbits) while in inventory|
+|`Action(NET, -, -, -, -) = [target]`|`{target: GUID}`|Use nets to catch bugs (*target*)|
+|`Action(PICK, -, -, -, -) = [target]`|`{target: GUID}`|Pick the targeted resource (e.g. grass, saplings, berry bushes, etc)|
+|`Action(PICKUP, -, -, -, -) = [target]`|`{target: GUID}`|Pick up items from the ground (e.g. rocks, twigs, cutgrass, etc.)|
+|`Action(PLANT, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Plant *invobject* (seeds) into *target*|
+|`Action(REEL, -, -, -, -) = [target]`|`{target: GUID}`|Reel in the fish while fishing (the target is the pond)|
+|`Action(RESETMINE, -, -, -, -) = [target]`|`{target: GUID}`|Reset mines like the tooth trap|
+|`Action(RUMMAGE, -, -, -, -) = [target]`|`{target: GUID}`|Rummage about in a container|
+|`Action(SADDLE, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`| Use *invobject* to saddle up the *target*|
+|`Action(SEW, [invobject], -, -, -) = [target]`|`{invobject: GUID}, target: GUID`|Use *invobject* to sew the *target*|
+|`Action(SHAVE, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Use the *invobject* to shave the *target*|
+|`Action(SLEEPIN, -, -, -, -) = [target]`|`{target: GUID}`|Sleep in the *target* (tent or sleeping bag)|
+|`Action(SMOTHER, -, -, -, -) = [target]`|`{target: GUID}`|Smother the smoking *target* (stuff about to burst into flames)|
+|`Action(STORE, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Store the *invobject* into the *target*|
+|`Action(TAKEITEM, [], -, -, -) = [target]`|`{}`||take brid from cage|
+|`Action(TERRAFORM, [invobject], [x], [z], -) = -`|`{invobject: GUID, ([x], [z]): position}`|Use the *invobject* to terraform the *position*|
+|`Action(TURNOFF, -, -, -, -) = [target]`|`{target: GUID}`|Turn the *target* off (e.g. firesupressor)|
+|`Action(TURNON, -, -, -, -) = [target]`|`{target: GUID}`|Turn the *target* on|
+|`Action(UNEQUIP, -, -, -, -) = [target]`|`{target: GUID}`|Unequip *target*|
+|`Action(UNSADDLE, -, -, -, -) = [target]`|`{target: GUID}`|Remove the saddle from the *target*|
+|`Action(UPGRADE, [invobject], -, -, -) = [target]`|`{invobject: GUID, target: GUID}`|Use *invobject to upgrade the *target* (e.g. upgrade a wall)|
+|`Action(WANDER, -, -, -, -) = -`|`{}`|This is a the behaviour of wandering about the world, not really an action|
+|`Action(WALKTO, -, -, -, -) = [target]`|`{target: GUID}`|Walk up to the *target*|
+
