@@ -189,12 +189,12 @@ namespace FAtiMA_Server
                 }
             }
 
-            beliefs = rpc.m_kb.AskPossibleProperties((Name)"IsEquipped([x], [y])", (Name)"SELF", subset);
+            beliefs = rpc.m_kb.AskPossibleProperties((Name)"IsEquipped([x])", (Name)"SELF", subset);
             foreach (var b in beliefs)
             {
                 foreach (var s in b.Item2)
                 {
-                    rpc.RemoveBelief("IsEquipped(" + s[(Name)"[x]"] + "," + s[(Name)"[y]"]  + ")", "SELF");
+                    rpc.RemoveBelief("IsEquipped(" + s[(Name)"[x]"] + ")", "SELF");
                 }
             }
         }

@@ -44,14 +44,15 @@ server_filter_tags = {"ai"}
              {description = "0 characters", data = 0},
 			 {description = "1 character", data = 1},
 			 {description = "2 characters", data = 2},
-             
+             {description = "2 characters", data = 3},
+             {description = "2 characters", data = 4},
          },
          default = 1,
      },
 	 {
          name = 'speak-chance',
          label = 'Speak Chance',
-		 hover = 'The probability of the character making random remarks about the world.',
+		 hover = 'The probability of the character making some remarks about the world and himself.',
          options = 
          {
              {description = "30%", data = 30},

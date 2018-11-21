@@ -2,179 +2,197 @@
 	"root":
 		{
 			"classId": 0,
-      "ActionTendencies": [
-        {
-          "Action": "Action(WANDER, -, -, -, -)",
-          "Target": "-",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) != night", "IsBusy(SELF) = False" ]
-          },
-          "Priority": -1
-        },
-        {
-          "Action": "Action(PICK, -, -, -, -)",
-          "Target": "[GUID]",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) != night", "IsBusy(SELF) = False", "InSight([GUID]) = True", "IsCollectable([GUID]) = True" ]
-          },
-          "Priority": 1
-        },
-        {
-          "Action": "Action(PICKUP, -, -, -, -)",
-          "Target": "[GUID]",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) != night", "IsBusy(SELF) = False", "InSight([GUID]) = True", "IsPickable([GUID]) = True" ]
-          },
-          "Priority": 1
-        },
-        {
-          "Action": "Action(HARVEST, -, -, -, -)",
-          "Target": "[GUID]",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) != night", "IsBusy(SELF) = False", "InSight([GUID]) = True", "IsHarvestable([GUID]) = True" ]
-          },
-          "Priority": 1
-        },
-        {
-          "Action": "Action(EQUIP, [tool], -, -, -)",
-          "Target": "-",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) != night", "IsBusy(SELF) = False", "Entity([axe]) = axe", "InSight([GUID]) = True", "IsChoppable([GUID]) = True" ]
-          },
-          "Priority": 1
-        },
-        {
-          "Action": "Action(CHOP, -, -, -, -)",
-          "Target": "[GUID]",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) != night", "IsBusy(SELF) = False", "Entity([axe]) = axe", "IsEquipped([axe]) = True", "InSight([GUID]) = True", "IsChoppable([GUID]) = True" ]
-          },
-          "Priority": 1
-        },
-        {
-          "Action": "Action(BUILD, -, -, -, axe)",
-          "Target": "-",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) != night", "IsBusy(SELF) = False", "Entity([flint]) = flint", "InInventory([flint]) = True", "Quantity([flint]) >= 1", "Entity([twigs]) = twigs", "InInventory([twigs]) = True", "Quantity([twigs]) >= 1" ]
-          },
-          "Priority": 1
-        },
-        {
-          "Action": "Action(EQUIP, [tool], -, -, -)",
-          "Target": "-",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) != night", "IsBusy(SELF) = False", "Entity([pickaxe]) = pickaxe", "InSight([GUID]) = True", "IsMineable([GUID]) = True" ]
-          },
-          "Priority": 1
-        },
-        {
-          "Action": "Action(MINE, -, -, -, -)",
-          "Target": "[GUID]",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) != night", "IsBusy(SELF) = False", "Entity([pickaxe]) = pickaxe", "IsEquipped([pickaxe]) = True", "InSight([GUID]) = True", "IsMineable([GUID]) = True" ]
-          },
-          "Priority": 1
-        },
-        {
-          "Action": "Action(BUILD, -, -, -, pickaxe)",
-          "Target": "-",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) != night", "IsBusy(SELF) = False", "Entity([flint]) = flint", "InInventory([flint]) = True", "Quantity([flint]) >= 2", "Entity([twigs]) = twigs", "InInventory([twigs]) = True", "Quantity([twigs]) >= 2" ]
-          },
-          "Priority": 1
-        },
-        {
-          "Action": "Action(EAT, -, -, -, -)",
-          "Target": "[food]",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) != night", "IsBusy(SELF) = False", "Hunger(SELF) < 40", "InInventory([food]) = True", "IsEdible([food]) = True", "IsCookable([food]) = False" ]
-          },
-          "Priority": 1
-        },
-        {
-          "Action": "Action(EAT, -, -, -, -)",
-          "Target": "[food]",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) != night", "IsBusy(SELF) = False", "Hunger(SELF) < 40", "InInventory([food]) = True", "IsEdible([food]) = True" ]
-          },
-          "Priority": -1
-        },
-        {
-          "Action": "Action(BUILD, -, [x], [z], campfire)",
-          "Target": "-",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) = night", "InLight(SELF) = False", "Entity([cutgrass]) = cutgrass", "InInventory([cutgrass]) = True", "Quantity([cutgrass]) >= 3", "Entity([log]) = log", "InInventory([log]) = True", "Quantity([log]) >= 2", "PosX(SELF) = [x]", "PosZ(SELF) = [z]" ]
-          },
-          "Priority": 4
-        },
-        {
-          "Action": "Action(BUILD, -, -, -, torch)",
-          "Target": "-",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) = night", "InLight(SELF) = False", "Entity([cutgrass]) = cutgrass", "InInventory([cutgrass]) = True", "Quantity([cutgrass]) >= 2", "Entity([logs]) = twigs", "InInventory([logs]) = True", "Quantity([logs]) >= 2" ]
-          },
-          "Priority": 2
-        },
-        {
-          "Action": "Action(EQUIP, [torch], -, -, -)",
-          "Target": "-",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) = night", "InLight(SELF) = False", "Entity([torch]) = torch", "InInventory([torch]) = True" ]
-          },
-          "Priority": 3
-        },
-        {
-          "Action": "Action(ADDFUEL, [fuel], -, -, -)",
-          "Target": "[fueled]",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) = night", "IsBusy(SELF) = False", "InInventory([fuel]) = True", "IsFuel([fuel]) = True", "IsFueled([fueled]) = True", "InSight([fueled]) = True" ]
-          },
-          "Priority": 1
-        },
-        {
-          "Action": "Action(COOK, [uncooked], -, -, -)",
-          "Target": "[cooker]",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) = night", "IsBusy(SELF) = False", "InInventory([uncooked]) = True", "IsCookable([uncooked]) = True", "IsCooker([cooker]) = True", "InSight([cooker]) = True" ]
-          },
-          "Priority": 1
-        },
-        {
-          "Action": "Action(EAT, -, -, -, -)",
-          "Target": "[food]",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) = night", "IsBusy(SELF) = False", "Hunger(SELF) < 120", "InInventory([food]) = True", "IsEdible([food]) = True", "IsCookable([food]) = False" ]
-          },
-          "Priority": 1
-        },
-        {
-          "Action": "Action(EAT, -, -, -, -)",
-          "Target": "[food]",
-          "Layer": "Behaviour",
-          "Conditions": {
-            "Set": [ "World(Phase) = night", "IsBusy(SELF) = False", "Hunger(SELF) < 120", "InInventory([food]) = True", "IsEdible([food]) = True" ]
-          },
-          "Priority": -1
-        }
-      ]
+			"ActionTendencies": [
+				{
+					"Action": "Action(WANDER, -, -, -, -)",
+					"Target": "-",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) != night", "IsBusy(SELF) = False"]
+						},
+					"Priority": 0
+				}, 
+				{
+					"Action": "Action(PICK, -, -, -, -)",
+					"Target": "[GUID]",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) != night", "IsBusy(SELF) = False", "InSight([GUID]) = True", "IsCollectable([GUID]) = True"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Action(PICKUP, -, -, -, -)",
+					"Target": "[GUID]",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) != night", "IsBusy(SELF) = False", "InSight([GUID]) = True", "IsPickable([GUID]) = True"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Action(HARVEST, -, -, -, -)",
+					"Target": "[GUID]",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) != night", "IsBusy(SELF) = False", "InSight([GUID]) = True", "IsHarvestable([GUID]) = True"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Action(EQUIP, [axe], -, -, -)",
+					"Target": "-",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) != night", "IsBusy(SELF) = False", "InInventory([axe]) = True", "IsEquippable([axe]) = True", "Entity([axe]) = axe", "InSight([GUID]) = True", "IsChoppable([GUID]) = True"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Action(CHOP, -, -, -, -)",
+					"Target": "[GUID]",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) != night", "IsBusy(SELF) = False", "Entity([axe]) = axe", "IsEquipped([axe]) = True", "InSight([GUID]) = True", "IsChoppable([GUID]) = True"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Action(BUILD, -, -, -, axe)",
+					"Target": "-",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) != night", "IsBusy(SELF) = False", "Entity([flint]) = flint", "InInventory([flint]) = True", "Quantity([flint]) >= 1", "Entity([twigs]) = twigs", "InInventory([twigs]) = True", "Quantity([twigs]) >= 1"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Action(MINE, -, -, -, -)",
+					"Target": "[GUID]",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) != night", "IsBusy(SELF) = False", "Entity([pickaxe]) = pickaxe", "IsEquipped([pickaxe]) = True", "InSight([GUID]) = True", "IsMineable([GUID]) = True"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Action(BUILD, -, -, -, pickaxe)",
+					"Target": "-",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) != night", "IsBusy(SELF) = False", "Entity([flint]) = flint", "InInventory([flint]) = True", "Quantity([flint]) >= 2", "Entity([twigs]) = twigs", "InInventory([twigs]) = True", "Quantity([twigs]) >= 2"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Action(EAT, -, -, -, -)",
+					"Target": "[food]",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) != night", "IsBusy(SELF) = False", "Hunger(SELF) < 40", "InInventory([food]) = True", "IsEdible([food]) = True"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Action(BUILD, -, -, -, torch)",
+					"Target": "-",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) = night", "InLight(SELF) = False", "Entity([cutgrass]) = cutgrass", "InInventory([cutgrass]) = True", "Quantity([cutgrass]) >= 2", "Entity([twigs]) = twigs", "InInventory([twigs]) = True", "Quantity([twigs]) >= 2"]
+						},
+					"Priority": 2
+				}, 
+				{
+					"Action": "Action(ADDFUEL, [fuel], -, -, -)",
+					"Target": "[fueled]",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["IsBusy(SELF) = False", "InInventory([fuel]) = True", "IsFuel([fuel]) = True", "IsFueled([fueled]) = True", "InSight([fueled]) = True"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Action(COOK, [uncooked], -, -, -)",
+					"Target": "[cooker]",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["IsBusy(SELF) = False", "InInventory([uncooked]) = True", "IsCookable([uncooked]) = True", "IsCooker([cooker]) = True", "InSight([cooker]) = True"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Speak(*, *, Comment(Edible), *)",
+					"Target": "-",
+					"Layer": "Dialogue",
+					"Conditions":
+						{
+							"Set": ["IsEdible([edible]) = True", "InSight([edible]) = True"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Speak(*, *, Comment(Hunger), *)",
+					"Target": "-",
+					"Layer": "Dialogue",
+					"Conditions":
+						{
+							"Set": ["Hunger(SELF) < 70"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Speak(*, *, Comment(Tree), *)",
+					"Target": "-",
+					"Layer": "Dialogue",
+					"Conditions":
+						{
+							"Set": ["InSight([tree]) = True", "IsChoppable([tree]) = True"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Action(EQUIP, [torch], -, -, -)",
+					"Target": "-",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) = night", "InLight(SELF) = False", "Entity([torch]) = torch", "InInventory([torch]) = True"]
+						},
+					"Priority": 3
+				}, 
+				{
+					"Action": "Action(EAT, -, -, -, -)",
+					"Target": "[food]",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) = night", "IsBusy(SELF) = False", "Hunger(SELF) < 120", "InInventory([food]) = True", "IsEdible([food]) = True"]
+						},
+					"Priority": 1
+				}, 
+				{
+					"Action": "Action(EQUIP, [pickaxe], -, -, -)",
+					"Target": "-",
+					"Layer": "Behaviour",
+					"Conditions":
+						{
+							"Set": ["World(Phase) != night", "IsBusy(SELF) = False", "InInventory([pickaxe]) = True", "IsEquippable([pickaxe]) = True", "Entity([pickaxe]) = pickaxe", "InSight([GUID]) = True", "IsMineable([GUID]) = True"]
+						},
+					"Priority": 1
+				}]
 		},
 	"types": [
 		{

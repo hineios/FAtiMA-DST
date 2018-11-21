@@ -1,7 +1,7 @@
 local SEE_DIST = 21
 local SEE_RANGE_HELPER = false
-local PERCEPTION_UPDATE_INTERVAL = .5
-local DSTACTION_INTERVAL = 1.5
+local PERCEPTION_UPDATE_INTERVAL = .75
+local DSTACTION_INTERVAL = 2
 local SPEAKACTION_INTERVAL = 10
 local SPEAKACTION_PROB = 40
 local NUM_SEGS = 16
@@ -110,13 +110,14 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 	end
 
 	self.OnDSTActionDecide = function() self:Decide("Behaviour") end
-	self.OnSpeakActionDecide = function() self:Decide("Dialog") end
+	self.OnSpeakActionDecide = function() self:Decide("Dialogue") end
     self.DecideCallback = function(result, isSuccessful , http_code)
         if isSuccessful then
 			local action = result and (result ~= "") and json.decode(result)
 			if action and action.Type then
 				if action.Type == "Action" then
 					if self.CurrentAction == nil or (self.CurrentAction.WFN ~= action.WFN or self.CurrentAction.Target ~= action.Target) then 
+						print(action.WFN .. " = " .. action.Target)
 						self.inst:InterruptBufferedAction()
 						self.inst.components.locomotor:Clear()
 						self.CurrentAction = action
@@ -125,7 +126,8 @@ local FAtiMABrain = Class(Brain, function(self, inst, server)
 				elseif action.Type == "Speak" then
 					-- Speak Action are made the moment they are received. They only occur every SPEAKACTION_INTERVAL seconds with a percentage of SPEAKACTION_PROB
 					-- Speak([cs],[ns],[m],[sty]) = [t]
-					if math.random(100) < GetModConfigData("speak-chance", KnownModIndex:GetModActualName("FAtiMA-DST")) then
+					if math.random(100) < SPEAKACTION_PROB then
+						print(action.Type .. " = " .. action.Utterance)
 						self.inst.components.talker:Say(action.Utterance)
 						-- Tell FAtiMA that the action has ended
 						self:OnActionEndEvent(action.Name, action.Target)
@@ -258,6 +260,7 @@ function FAtiMABrain:OnActionEndEvent(name, value)
 	d.Name = name
 	d.Value = value
 	d.Subject = "Walter"
+	print("Event(" .. d.Type .. ", " .. d.Name .. ", " .. d.Value .. ", " .. d.Subject .. ")")
 	TheSim:QueryServer(
         self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/events",
         self.OnEventCallback,
@@ -271,6 +274,7 @@ function FAtiMABrain:OnPropertyChangedEvent(name, value)
 	d.Name = name
 	d.Value = value
 	d.Subject = "Walter"
+	print(d.Name .. " = ", d.Value)
 	TheSim:QueryServer(
         self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/events",
         self.OnEventCallback,
@@ -284,6 +288,7 @@ function FAtiMABrain:OnDeleteEntity(GUID)
 	d.Name = ""
 	d.Value = GUID
 	d.Subject = "Walter"
+	print("Delete-Entity(" .. GUID .. ")")
 	TheSim:QueryServer(
         self.FAtiMAServer .. "/" .. tostring(self.inst.GUID) .. "/events",
         self.OnEventCallback,

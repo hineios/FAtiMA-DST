@@ -1,7 +1,7 @@
 -- Debug Helpers
-GLOBAL.CHEATS_ENABLED = true
-GLOBAL.require 'debugkeys' 
-GLOBAL.require 'debughelpers'
+--GLOBAL.CHEATS_ENABLED = true
+--GLOBAL.require 'debugkeys' 
+--GLOBAL.require 'debughelpers'
 
 local ArtificalWalterEnabled = false
 
@@ -10,6 +10,7 @@ local function SetSelfAI()
 	GLOBAL.ThePlayer:SetBrain(brain)
 	GLOBAL.ThePlayer:RestartBrain()
 	ArtificalWalterEnabled = true
+	--GLOBAL.TheSim:SetTimeScale(2)
 end
 
 local function SetSelfNormal()
@@ -17,6 +18,7 @@ local function SetSelfNormal()
 	GLOBAL.ThePlayer:SetBrain(brain)
 	GLOBAL.ThePlayer:RestartBrain()
 	ArtificalWalterEnabled = false
+	--GLOBAL.TheSim:SetTimeScale(1)
 end
 
 local function MakeClickableBrain(self, owner)
